@@ -25,8 +25,12 @@ export const HostEntryPage: React.FC = () => {
       return;
     }
 
+    const existing = storage.getHostSession();
+    const hostId = existing?.hostId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `HOST-${Date.now()}`);
+
     storage.setHostSession({
       isAuthenticated: true,
+      hostId,
       authenticatedAt: new Date().toISOString(),
       role: 'host'
     });

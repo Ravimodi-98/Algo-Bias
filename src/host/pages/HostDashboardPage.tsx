@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Play, 
   SkipForward, 
@@ -9,27 +9,129 @@ import {
   Tv, 
   Layers, 
   Clock, 
-  CheckCircle2
+  CheckCircle2,
+  PlusCircle,
+  RefreshCw,
+  Sparkles
 } from 'lucide-react';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
+import { LoadingState } from '../../shared/components/LoadingState';
+import { gameService } from '../../services/game/gameService';
+import { storage } from '../../shared/utils/storage';
+import { supabase } from '../../services/supabase/client';
+import type { DbGameSession, DbPlayer } from '../../shared/types';
 
 export const HostDashboardPage: React.FC = () => {
-  const [gameStatus, setGameStatus] = useState<'WAITING' | 'ACTIVE' | 'RESULTS' | 'REVEAL' | 'COMPLETED'>('WAITING');
-  const [playerCount, setPlayerCount] = useState<number>(0);
-  const [currentRound, setCurrentRound] = useState<number>(0);
+  const [activeSession, setActiveSession] = useState<DbGameSession | null>(null);
+  const [players, setPlayers] = useState<DbPlayer[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isCreating, setIsCreating] = useState<boolean>(false);
   const [lastActionMessage, setLastActionMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const roomCode = 'DECIDE-2026';
+  const hostSession = storage.getHostSession();
+  const hostId = hostSession?.hostId || 'HOST-DEMO';
 
-  const triggerAction = (actionName: string, nextStatus?: typeof gameStatus) => {
-    if (nextStatus) {
-      setGameStatus(nextStatus);
+  const loadActiveGame = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const session = await gameService.getActiveHostSession(hostId);
+      if (session) {
+        setActiveSession(session);
+        const playerList = await gameService.getSessionPlayers(session.id);
+        setPlayers(playerList);
+      } else {
+        setActiveSession(null);
+        setPlayers([]);
+      }
+    } catch {
+      setErrorMessage('Failed to load active host session.');
+    } finally {
+      setIsLoading(false);
     }
-    setLastActionMessage(`Command acknowledged: [${actionName}]. Engine integration scheduled for Phase 2/3.`);
+  }, [hostId]);
+
+  useEffect(() => {
+    loadActiveGame();
+  }, [loadActiveGame]);
+
+  // Supabase Realtime Subscription for new players joining
+  useEffect(() => {
+    if (!activeSession?.id) return;
+
+    const channel = supabase
+      .channel(`host-players-${activeSession.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'players',
+          filter: `session_id=eq.${activeSession.id}`
+        },
+        (payload) => {
+          const newPlayer = payload.new as DbPlayer;
+          setPlayers((prev) => {
+            if (prev.some((p) => p.id === newPlayer.id)) return prev;
+            return [...prev, newPlayer];
+          });
+          setLastActionMessage(`New player joined: ${newPlayer.anonymous_name}`);
+          setTimeout(() => setLastActionMessage(null), 3500);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeSession?.id]);
+
+  const handleCreateGame = async () => {
+    setIsCreating(true);
+    setErrorMessage(null);
+    const { session, error } = await gameService.createGameSession(hostId);
+    setIsCreating(false);
+
+    if (error || !session) {
+      setErrorMessage(error || 'Failed to create game session.');
+      return;
+    }
+
+    setActiveSession(session);
+    setPlayers([]);
+    setLastActionMessage(`GAME CREATED. Room Code: ${session.game_code}`);
+    setTimeout(() => setLastActionMessage(null), 5000);
+  };
+
+  const triggerAction = async (actionName: string, nextStatus?: 'waiting' | 'active' | 'completed', roundNumber?: number) => {
+    if (activeSession && nextStatus) {
+      const updated = await gameService.updateGameState(
+        activeSession.id, 
+        nextStatus, 
+        typeof roundNumber === 'number' ? roundNumber : activeSession.current_round
+      );
+      if (updated) {
+        setActiveSession(prev => prev ? { 
+          ...prev, 
+          status: nextStatus, 
+          current_round: typeof roundNumber === 'number' ? roundNumber : prev.current_round 
+        } : null);
+      }
+    }
+    setLastActionMessage(`Command acknowledged: [${actionName}].`);
     setTimeout(() => setLastActionMessage(null), 4000);
   };
+
+  const roomCode = activeSession?.game_code || '------';
+  const gameStatus = (activeSession?.status || 'NO ACTIVE GAME').toUpperCase();
+  if (isLoading) {
+    return <LoadingState message="Connecting to Supabase Host Console..." />;
+  }
+
+  const currentRound = activeSession?.current_round ?? 0;
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -70,22 +172,52 @@ export const HostDashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-end'
-          }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
-              ACTIVE ROOM CODE
-            </span>
-            <span className="font-mono text-cyan" style={{ fontSize: '1.35rem', fontWeight: 800 }}>
-              {roomCode}
-            </span>
-          </div>
-          <Badge variant="purple" pulse>
-            LIVE ROOM
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          {activeSession ? (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end'
+            }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+                ACTIVE GAME CODE
+              </span>
+              <span className="font-mono text-cyan" style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '0.08em' }}>
+                {roomCode}
+              </span>
+            </div>
+          ) : (
+            <Button
+              variant="primary"
+              size="normal"
+              icon={<PlusCircle size={16} />}
+              onClick={handleCreateGame}
+              disabled={isCreating}
+              id="host-btn-create-game-banner"
+            >
+              {isCreating ? 'CREATING...' : 'CREATE GAME'}
+            </Button>
+          )}
+
+          <Badge variant={activeSession ? 'purple' : 'warning'} pulse={!!activeSession}>
+            {activeSession ? 'LIVE ROOM' : 'NO GAME'}
           </Badge>
+
+          <button
+            onClick={loadActiveGame}
+            title="Refresh game status"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              padding: '0.35rem',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <RefreshCw size={16} />
+          </button>
         </div>
       </div>
 
@@ -104,6 +236,19 @@ export const HostDashboardPage: React.FC = () => {
         }}>
           <CheckCircle2 size={18} />
           <span>{lastActionMessage}</span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid var(--color-danger)',
+          borderRadius: 'var(--radius-md)',
+          padding: '0.85rem 1.25rem',
+          color: '#fca5a5',
+          fontSize: '0.9rem'
+        }}>
+          {errorMessage}
         </div>
       )}
 
@@ -132,7 +277,7 @@ export const HostDashboardPage: React.FC = () => {
                 <span className="font-mono" style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                   {gameStatus}
                 </span>
-                <Badge variant={gameStatus === 'ACTIVE' ? 'success' : 'warning'} pulse={gameStatus === 'ACTIVE'}>
+                <Badge variant={gameStatus === 'ACTIVE' ? 'success' : gameStatus === 'WAITING' ? 'warning' : 'danger'}>
                   {gameStatus}
                 </Badge>
               </div>
@@ -146,7 +291,11 @@ export const HostDashboardPage: React.FC = () => {
               fontSize: '0.8rem',
               color: 'var(--text-muted)'
             }}>
-              Join URL: <code className="text-cyan font-mono">/join?code={roomCode}</code>
+              {activeSession ? (
+                <span>Join Code: <strong className="text-cyan font-mono">{roomCode}</strong></span>
+              ) : (
+                <span>Click <strong>CREATE GAME</strong> to launch a session</span>
+              )}
             </div>
           </div>
         </Card>
@@ -167,10 +316,10 @@ export const HostDashboardPage: React.FC = () => {
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.25rem' }}>
                 <span className="font-mono text-cyan" style={{ fontSize: '2.5rem', fontWeight: 800, lineHeight: 1 }}>
-                  {playerCount}
+                  {players.length}
                 </span>
-                <Badge variant={playerCount > 0 ? 'success' : 'cyan'}>
-                  {playerCount === 0 ? 'Awaiting Students' : `${playerCount} Connected`}
+                <Badge variant={players.length > 0 ? 'success' : 'cyan'}>
+                  {players.length === 0 ? 'Awaiting Students' : `${players.length} Connected`}
                 </Badge>
               </div>
             </div>
@@ -182,20 +331,12 @@ export const HostDashboardPage: React.FC = () => {
               fontSize: '0.8rem',
               color: 'var(--text-muted)'
             }}>
-              <span>Anonymous identities protected</span>
-              <button
-                onClick={() => setPlayerCount(prev => prev + 1)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--accent-cyan)',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  textDecoration: 'underline'
-                }}
-              >
-                + Demo Join
-              </button>
+              <span>Anonymous identities in Supabase</span>
+              {players.length > 0 && (
+                <span className="font-mono text-cyan" style={{ fontSize: '0.75rem' }}>
+                  Latest: {players[players.length - 1].anonymous_name}
+                </span>
+              )}
             </div>
           </div>
         </Card>
@@ -230,7 +371,7 @@ export const HostDashboardPage: React.FC = () => {
               fontSize: '0.8rem',
               color: 'var(--text-secondary)'
             }}>
-              Educational bias scenario: {currentRound === 0 ? 'None active' : `Scenario ${currentRound}`}
+              Simulation state: {activeSession ? (currentRound === 0 ? 'Lobby Waiting' : `Active Round ${currentRound}`) : 'Inactive'}
             </div>
           </div>
         </Card>
@@ -240,93 +381,128 @@ export const HostDashboardPage: React.FC = () => {
       {/* SECTION 4: HOST-ONLY CONTROLS */}
       <Card glow="purple" style={{ padding: '2rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-              <Badge variant="purple">ADMINISTRATIVE ONLY</Badge>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-warning)' }}>
-                &bull; Strictly isolated from player application
-              </span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                <Badge variant="purple">ADMINISTRATIVE ONLY</Badge>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-warning)' }}>
+                  &bull; Strictly isolated from player application
+                </span>
+              </div>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                Classroom & Round Controls
+              </h2>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+                Control live session state stored in Supabase. These controls are never accessible in the player interface.
+              </p>
             </div>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-              Classroom & Round Controls
-            </h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-              These buttons control the live classroom state. They are never rendered or accessible in the student interface.
-            </p>
+
+            {activeSession && (
+              <Button
+                variant="outline-cyan"
+                size="normal"
+                icon={<Sparkles size={16} />}
+                onClick={handleCreateGame}
+                disabled={isCreating}
+              >
+                CREATE NEW GAME
+              </Button>
+            )}
           </div>
 
-          {/* 5 Dedicated Host Buttons */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '1rem'
-          }}>
-            
-            {/* Button 1: Start Game */}
-            <Button
-              id="host-btn-start-game"
-              variant="primary"
-              size="normal"
-              icon={<Play size={16} />}
-              onClick={() => {
-                setCurrentRound(1);
-                triggerAction('Start Game', 'ACTIVE');
-              }}
-            >
-              Start Game
-            </Button>
+          {!activeSession ? (
+            <div style={{
+              background: 'rgba(139, 92, 246, 0.08)',
+              border: '1px dashed var(--border-purple)',
+              borderRadius: 'var(--radius-md)',
+              padding: '2rem',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem'
+            }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                No active session found for your host profile. Launch a session to allow students to join.
+              </p>
+              <Button
+                variant="primary"
+                size="large"
+                icon={<PlusCircle size={18} />}
+                onClick={handleCreateGame}
+                disabled={isCreating}
+                id="host-btn-create-game-empty"
+              >
+                {isCreating ? 'GENERATING CODE...' : 'CREATE GAME SESSION'}
+              </Button>
+            </div>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '1rem'
+            }}>
+              
+              {/* Button 1: Start Game */}
+              <Button
+                id="host-btn-start-game"
+                variant="primary"
+                size="normal"
+                icon={<Play size={16} />}
+                onClick={() => triggerAction('Start Game', 'active', 1)}
+              >
+                Start Game
+              </Button>
 
-            {/* Button 2: Next Round */}
-            <Button
-              id="host-btn-next-round"
-              variant="purple"
-              size="normal"
-              icon={<SkipForward size={16} />}
-              onClick={() => {
-                setCurrentRound(prev => (prev < 7 ? prev + 1 : 1));
-                triggerAction('Next Round', 'ACTIVE');
-              }}
-            >
-              Next Round
-            </Button>
+              {/* Button 2: Next Round */}
+              <Button
+                id="host-btn-next-round"
+                variant="purple"
+                size="normal"
+                icon={<SkipForward size={16} />}
+                onClick={() => {
+                  const nextRound = currentRound < 7 ? currentRound + 1 : 1;
+                  triggerAction(`Advanced to Round ${nextRound}`, 'active', nextRound);
+                }}
+              >
+                Next Round
+              </Button>
 
-            {/* Button 3: Show Results */}
-            <Button
-              id="host-btn-show-results"
-              variant="secondary"
-              size="normal"
-              icon={<BarChart3 size={16} />}
-              onClick={() => triggerAction('Show Results', 'RESULTS')}
-            >
-              Show Results
-            </Button>
+              {/* Button 3: Show Results */}
+              <Button
+                id="host-btn-show-results"
+                variant="secondary"
+                size="normal"
+                icon={<BarChart3 size={16} />}
+                onClick={() => triggerAction('Show Results')}
+              >
+                Show Results
+              </Button>
 
-            {/* Button 4: Reveal Bias */}
-            <Button
-              id="host-btn-reveal-bias"
-              variant="outline-cyan"
-              size="normal"
-              icon={<Eye size={16} />}
-              onClick={() => triggerAction('Reveal Bias', 'REVEAL')}
-            >
-              Reveal Bias
-            </Button>
+              {/* Button 4: Reveal Bias */}
+              <Button
+                id="host-btn-reveal-bias"
+                variant="outline-cyan"
+                size="normal"
+                icon={<Eye size={16} />}
+                onClick={() => triggerAction('Reveal Bias')}
+              >
+                Reveal Bias
+              </Button>
 
-            {/* Button 5: End Game */}
-            <Button
-              id="host-btn-end-game"
-              variant="danger"
-              size="normal"
-              icon={<StopCircle size={16} />}
-              onClick={() => {
-                setCurrentRound(0);
-                triggerAction('End Game', 'COMPLETED');
-              }}
-            >
-              End Game
-            </Button>
+              {/* Button 5: End Game */}
+              <Button
+                id="host-btn-end-game"
+                variant="danger"
+                size="normal"
+                icon={<StopCircle size={16} />}
+                onClick={() => triggerAction('End Game', 'completed', 0)}
+              >
+                End Game
+              </Button>
 
-          </div>
+            </div>
+          )}
         </div>
       </Card>
 

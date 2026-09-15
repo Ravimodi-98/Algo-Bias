@@ -26,7 +26,7 @@ Interactive educational game for demonstrating algorithmic bias, data influence,
 
 Current Status:
 
-PHASE 1 — Project Foundation & Login (Case 1 Complete)
+PHASE 2 — Host Dashboard & Game Lobby (Case 2 Complete)
 
 Overall Progress:
 
@@ -41,11 +41,11 @@ Overall Progress:
 
 Current Phase:
 
-PHASE 1 — Project Foundation & Login
+PHASE 2 — Host Dashboard & Game Lobby
 
 Current Objective:
 
-Set up project foundation and establish strict architectural separation between Player Experience and Host Experience.
+Backend game session foundation with Supabase, dedicated host authentication, anonymous player sessions, and Vercel production deployment preparation.
 
 ---
 
@@ -55,11 +55,11 @@ Set up project foundation and establish strict architectural separation between 
 
 Currently Working On:
 
-src/App.tsx
+src/services/game/gameService.ts
 
 Current Task:
 
-Case 1 Foundation Complete: Player & Host separation established, verified, and committed.
+Case 2 Complete: Supabase database foundation, host session creation, player join flow, and Vercel configuration established.
 
 ---
 
@@ -67,20 +67,17 @@ Case 1 Foundation Complete: Player & Host separation established, verified, and 
 
 Update this section after every meaningful feature.
 
-- Supabase connected & CLI linked (Project `fcrdrcqbrkzznnnwimje`)
-- GitHub repository connected (Ravimodi-98/Algo-Bias)
-- Vite + React 19 + TypeScript framework foundation initialized
-- Dark futuristic AI control room design system implemented (`src/styles/index.css`)
-- Shared component layer built (`Button`, `Card`, `Badge`, `LoadingState`, `ErrorMessage`)
-- Anonymous player ID generator & safe storage created (`src/shared/utils/`)
-- Mobile-first Player layout & header created (`src/player/layout/`, `src/player/components/`)
-- Functional Player Landing page (`/`), Join page (`/join`), and Lobby page (`/lobby`) created
-- Player placeholder pages created (`/play`, `/reveal`, `/fairness`, `/results`)
-- Desktop/projector-optimized Host layout & console header created (`src/host/`)
-- Functional Host Entry page (`/host`) and Host Dashboard (`/host/dashboard`) created
-- Host placeholder pages created (`/host/create`, `/host/lobby`, `/host/game`, `/host/results`, `/host/settings`)
-- HostRouteGuard authorization boundary implemented to prevent players from accessing host dashboard controls
-- End-to-end routing and isolation tested with Vite build & browser subagent
+- Supabase Database migration created & applied: `game_sessions` and `players` tables
+- Row Level Security (RLS) policies configured and enforced on remote database
+- Supabase Realtime publication enabled for `game_sessions` and `players`
+- Unambiguous 6-character game code generator (`generateGameCode()`, e.g. `N35NEZ`)
+- Game service layer built (`src/services/game/gameService.ts`)
+- Host session management & dedicated authentication flow with persistent host identifier
+- Host "CREATE GAME" action with active game code generation on `/host/dashboard`
+- Player join flow with database verification and anonymous registration on `/join`
+- Player lobby session restoration and heartbeat reconnect on refresh at `/lobby`
+- Vercel production deployment configuration (`vercel.json` SPA fallback rewrites)
+- End-to-end integration verified using automated browser subagent (Tests A, B, C, and Step 11 reconnect passed)
 
 ---
 
@@ -88,8 +85,8 @@ Update this section after every meaningful feature.
 
 List the features currently being implemented.
 
-- [ ] Complete Case 1 handover
-- [ ] Prepare for Case 2 (Host session creation, game lobby & Supabase realtime sync)
+- [ ] Complete Case 2 handover
+- [ ] Prepare for Case 3 (Game Engine & Candidate Decision Rounds)
 
 ---
 
@@ -97,10 +94,11 @@ List the features currently being implemented.
 
 List the next tasks in priority order.
 
-1. Case 2: Create game session & room code generation in Supabase
-2. Case 2: Presenter lobby with high-res QR code and live player count
-3. Case 2: Supabase Realtime channel subscription for instant player-host synchronization
-4. Case 3: Candidate decision round engine & data structures
+1. Case 3: Candidate decision round system & data structures
+2. Case 3: Candidate cards & comparative decision UI
+3. Case 3: Decision timer & response submission without duplicates
+4. Case 4: Candidate decision rounds (5–7 educational scenarios)
+5. Case 5: Collective results & aggregate visualizer
 
 ---
 
@@ -110,17 +108,14 @@ List the next tasks in priority order.
 
 Status:
 
-IN PROGRESS (Foundation & Player/Host Separation Complete)
+COMPLETED
 
 Completed:
 
-- [x] Vite + React-TS Project Initialization
-- [x] Environment & Supabase Client Setup
-- [x] Design System & Dark Futuristic AI Theme
-- [x] Player Flow (`/`, `/join`, `/lobby`)
-- [x] Host Flow (`/host`, `/host/dashboard`)
+- [x] Vite + React 19 + TypeScript Project Foundation
+- [x] Futuristic Dark Theme & Design Tokens
+- [x] Strict Player and Host Route Separation
 - [x] Host Route Authorization Guard
-- [x] Production Build Verification
 
 ---
 
@@ -128,11 +123,17 @@ Completed:
 
 Status:
 
-NOT STARTED
+IN PROGRESS (Case 2 Backend Foundation & Sessions Complete)
 
 Completed:
 
-- [ ]
+- [x] Supabase Database Schema (`game_sessions`, `players`)
+- [x] Remote Migration Applied via Supabase CLI
+- [x] RLS Policies and Realtime Publication
+- [x] Host Authentication & Session Creation
+- [x] Player Join & Anonymous Registration Flow
+- [x] Player Reconnect & Session Restoration on Refresh
+- [x] Vercel SPA Routing (`vercel.json`)
 
 ---
 
@@ -152,13 +153,15 @@ Completed:
 
 Record important decisions here.
 
-- Stack: React 19 + TypeScript + Vite + Vanilla CSS tokens (no heavy external CSS frameworks).
-- Supabase is the backend database and realtime synchronization engine.
-- Strict directory separation: `src/player/`, `src/host/`, `src/shared/`, `src/services/`.
-- The player layout is strictly mobile-first (max 480px viewport container) with zero host controls.
-- The host layout is optimized for desktop and high-contrast projector displays.
-- Host authorization boundary: `HostRouteGuard` validates host authentication session before granting access to `/host/dashboard` and other host routes.
-- Anonymity: Player IDs are generated anonymously (e.g. `PLAYER-4821`). No personal data, email, or IDs are collected.
+- Database Schema:
+  - `game_sessions`: `id` (UUID), `game_code` (VARCHAR 12, unique), `host_id` (TEXT), `status` ('waiting' | 'active' | 'completed'), `current_round` (INTEGER), timestamps.
+  - `players`: `id` (UUID), `session_id` (UUID FK), `anonymous_name` (VARCHAR 64), `joined_at`, `last_seen`.
+- RLS Policies:
+  - `game_sessions`: Public SELECT; Host INSERT and UPDATE. Normal players cannot alter host_id, status, or current_round.
+  - `players`: Public SELECT and INSERT; UPDATE allowed for `last_seen` heartbeat.
+- Game Codes: 6-character uppercase alphanumeric omitting ambiguous characters (`0`, `O`, `1`, `I`) to ensure legibility when projected in classrooms.
+- Realtime: Enabled on both tables via `supabase_realtime` publication.
+- Vercel: Single Page Application fallback rewrite configured in [vercel.json](file:///d:/AlgoBias/vercel.json).
 
 ---
 
@@ -168,14 +171,10 @@ Supabase:
 
 CONNECTED (Project: `fcrdrcqbrkzznnnwimje`, Region: `ap-northeast-1`)
 
-Client Service:
-
-CONFIGURED (`src/services/supabase/client.ts`)
-
 Tables:
 
-- [ ] game_sessions (Queued for Phase 2)
-- [ ] players (Queued for Phase 2)
+- [x] game_sessions (Created & RLS enabled)
+- [x] players (Created & RLS enabled)
 - [ ] rounds (Queued for Phase 3)
 - [ ] candidates (Queued for Phase 3)
 - [ ] responses (Queued for Phase 3)
@@ -183,32 +182,69 @@ Tables:
 
 Realtime:
 
-- [ ] Configured (Queued for Phase 2)
-- [ ] Tested
+- [x] Configured (`game_sessions`, `players`)
+- [x] Tested
 
 Row Level Security:
 
-- [ ] Configured (Queued for Phase 2)
-- [ ] Tested
+- [x] Configured
+- [x] Tested
 
 ---
 
-# 10. Known Bugs
+# 10. Authentication Status
+
+Host Auth:
+
+DEDICATED HOST GATEWAY (`/host` with persistent `hostId`)
+
+Host Protection:
+
+HOST ROUTE GUARD (`HostRouteGuard.tsx` protects `/host/dashboard` and subroutes)
+
+Player Auth:
+
+ANONYMOUS SESSIONS (Temporary UUID + callsign `PLAYER-XXXX`, zero personal data collected)
+
+---
+
+# 11. Vercel & Deployment Status
+
+GitHub Repository:
+
+https://github.com/Ravimodi-98/Algo-Bias.git
+
+Vercel Config:
+
+vercel.json (SPA rewrite rules configured)
+
+Required Production Environment Variables:
+
+- `VITE_SUPABASE_URL`: `https://fcrdrcqbrkzznnnwimje.supabase.co`
+- `VITE_SUPABASE_ANON_KEY`: `sb_publishable_8QkBP3-6kvuhvKq2ysmKUA_2kGVCnD1`
+
+Production Status:
+
+Repository prepared for automatic Vercel git deployment
+
+---
+
+# 12. Known Bugs
 
 No active bugs.
 
 ---
 
-# 11. Known Limitations
+# 13. Known Limitations
 
 Record temporary limitations.
 
-- Case 1 scope: Decision round voting engine and live Supabase table mutations are intentionally scheduled for subsequent phases (Case 2 & 3).
-- Host passcode check currently validates against administrative key in memory/sessionStorage before backend Supabase role validation is attached in Case 2.
+- Round progression logic (actual candidate comparisons and response recording) is scheduled for Case 3.
+- Vercel CLI interactive login prompt requires git-push deployment hook or CLI token.
 
 ---
 
-# 12. Important Files
+# 14. Important Files
 
 Keep track of important project files.
 
@@ -221,42 +257,32 @@ phases.md
 design.md
 memory.md
 
+Database Migrations:
+
+supabase/migrations/20260916000000_create_game_sessions_and_players.sql
+
 Source:
 
-src/App.tsx
-src/main.tsx
-src/styles/index.css
-src/player/layout/PlayerLayout.tsx
-src/player/pages/LandingPage.tsx
+src/services/game/gameService.ts
+src/services/supabase/client.ts
 src/player/pages/JoinPage.tsx
 src/player/pages/LobbyPage.tsx
-src/host/layout/HostLayout.tsx
-src/host/components/HostRouteGuard.tsx
-src/host/pages/HostEntryPage.tsx
 src/host/pages/HostDashboardPage.tsx
-src/services/supabase/client.ts
-
-Backend:
-
-Supabase (`fcrdrcqbrkzznnnwimje`)
-
-Repository:
-
-GitHub (Ravimodi-98/Algo-Bias)
+src/host/pages/HostEntryPage.tsx
+src/host/components/HostRouteGuard.tsx
+src/shared/utils/idGenerator.ts
+src/shared/utils/storage.ts
+vercel.json
 
 ---
 
-# 13. Latest Git Commit
+# 15. Latest Git Commit
 
 Update after meaningful commits.
 
 Commit:
 
-f5a0936 (Supabase config) -> feat: establish separate player and host architecture
-
-Message:
-
-feat: establish separate player and host architecture
+feat: add supabase sessions and host authentication
 
 Date:
 
@@ -264,11 +290,11 @@ Date:
 
 ---
 
-# 14. Last Update
+# 16. Last Update
 
 Last Updated:
 
-2026-09-16 00:10 IST
+2026-09-16 00:50 IST
 
 Updated By:
 
@@ -276,58 +302,7 @@ AI Assistant
 
 Summary:
 
-Completed Case 1: Initialized React 19 + TypeScript + Vite project, built dark futuristic AI design system, established separate player and host route groups, layouts, and components, implemented HostRouteGuard authorization, and verified clean production build and browser flows.
-
----
-
-# 15. AI Agent Instructions
-
-Before starting work:
-
-1. Read prd.md.
-2. Read Architecture.md.
-3. Read rules.md.
-4. Read phases.md.
-5. Read design.md.
-6. Read memory.md.
-7. Inspect the existing code.
-8. Identify the current phase.
-9. Identify the current file being worked on.
-10. Continue from the existing implementation.
-11. Do not unnecessarily rebuild completed features.
-
-After completing work:
-
-1. Test the feature.
-2. Fix relevant errors.
-3. Update memory.md.
-4. Update the current file being worked on.
-5. Update completed tasks.
-6. Update known bugs.
-7. Update phase status.
-8. Commit meaningful changes to GitHub.
-
----
-
-# 16. ⚠️ MEMORY UPDATE RULE
-
-THIS SECTION IS CRITICAL.
-
-Every time a meaningful feature is completed:
-
-UPDATE:
-
-- Current phase
-- Current file
-- Current task
-- Recently completed
-- In progress
-- Next tasks
-- Known bugs
-- Technical decisions if changed
-- Last update
-
-Never leave memory.md describing an old state of the project.
+Completed Case 2: Created and pushed Supabase migrations for game_sessions and players tables with RLS and Realtime, built gameService for session handling, integrated Host "CREATE GAME" action with 6-char code generation, connected player /join and /lobby with session restoration on refresh, verified end-to-end security and flows with browser subagent, and prepared vercel.json for deployment.
 
 ---
 
@@ -339,27 +314,27 @@ Date:
 
 Current Phase:
 
-PHASE 1
+PHASE 2
 
 Current File:
 
-src/App.tsx
+src/services/game/gameService.ts
 
 Current Task:
 
-Case 1 Complete — Separate Player and Host Architecture Established
+Case 2 Complete — Backend Foundation & Sessions Established
 
 Completed:
 
-Foundation setup, Player flow, Host console, Route authorization guard, Production build & testing
+Database tables & RLS, Realtime publication, Host game creation, Player join & lobby refresh restoration, Browser subagent verification
 
 In Progress:
 
-Ready for Case 2
+Ready for Case 3
 
 Next:
 
-Case 2 — Host session creation & Supabase Realtime synchronization
+Case 3 — Core Game Engine & Candidate Rounds
 
 Known Issues:
 
@@ -367,4 +342,4 @@ None
 
 Last Git Commit:
 
-feat: establish separate player and host architecture
+feat: add supabase sessions and host authentication

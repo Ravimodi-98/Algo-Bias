@@ -8,6 +8,7 @@ export type GameStatus =
 
 export interface PlayerSession {
   playerId: string;
+  sessionId: string;
   anonymousName: string;
   gameCode: string;
   joinedAt: string;
@@ -15,8 +16,27 @@ export interface PlayerSession {
 
 export interface HostSession {
   isAuthenticated: boolean;
+  hostId: string;
   authenticatedAt?: string;
   role: 'host';
+}
+
+export interface DbGameSession {
+  id: string;
+  game_code: string;
+  host_id: string;
+  status: 'waiting' | 'active' | 'completed';
+  current_round: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbPlayer {
+  id: string;
+  session_id: string;
+  anonymous_name: string;
+  joined_at: string;
+  last_seen: string;
 }
 
 export interface GameMetrics {
@@ -26,3 +46,4 @@ export interface GameMetrics {
   totalRounds: number;
   responsesReceived: number;
 }
+

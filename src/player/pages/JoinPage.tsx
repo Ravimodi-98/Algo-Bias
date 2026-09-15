@@ -6,6 +6,7 @@ import { Card } from '../../shared/components/Card';
 import { ErrorMessage } from '../../shared/components/ErrorMessage';
 import { generateAnonymousPlayerId, normalizeGameCode } from '../../shared/utils/idGenerator';
 import { storage } from '../../shared/utils/storage';
+import { gameService } from '../../services/game/gameService';
 
 export const JoinPage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export const JoinPage: React.FC = () => {
   const [anonymousName, setAnonymousName] = useState('');
   const [defaultId, setDefaultId] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isJoining, setIsJoining] = useState<boolean>(false);
 
   useEffect(() => {
     // Generate a default anonymous identifier
@@ -21,7 +23,7 @@ export const JoinPage: React.FC = () => {
     setAnonymousName(generated);
   }, []);
 
-  const handleJoin = (e: React.FormEvent) => {
+  const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanCode = normalizeGameCode(gameCode);
 
@@ -35,17 +37,39 @@ export const JoinPage: React.FC = () => {
       return;
     }
 
+    setIsJoining(true);
+    setError(null);
+
+    // 1. Validate game code against Supabase
+    const { session, error: gameError } = await gameService.getGameByCode(cleanCode);
+
+    if (gameError || !session) {
+      setIsJoining(false);
+      setError(gameError || 'GAME NOT FOUND. Check the code and try again.');
+      return;
+    }
+
     const finalName = anonymousName.trim() || defaultId;
 
-    // Store anonymous player session
+    // 2. Register anonymous player record in Supabase
+    const { player, error: playerError } = await gameService.joinPlayer(session.id, finalName);
+
+    setIsJoining(false);
+
+    if (playerError || !player) {
+      setError(playerError || 'Could not join game session. Please try again.');
+      return;
+    }
+
+    // 3. Store verified anonymous player session locally
     storage.setPlayerSession({
-      playerId: defaultId,
-      anonymousName: finalName,
-      gameCode: cleanCode,
-      joinedAt: new Date().toISOString()
+      playerId: player.id,
+      sessionId: session.id,
+      anonymousName: player.anonymous_name,
+      gameCode: session.game_code,
+      joinedAt: player.joined_at
     });
 
-    setError(null);
     navigate('/lobby');
   };
 
@@ -86,7 +110,7 @@ export const JoinPage: React.FC = () => {
 
       {error && (
         <ErrorMessage
-          title="Entry Required"
+          title="Entry Error"
           message={error}
           onRetry={() => setError(null)}
         />
@@ -111,7 +135,7 @@ export const JoinPage: React.FC = () => {
               type="text"
               id="input-game-code"
               className="input-control font-mono"
-              placeholder="e.g. DECIDE-2026"
+              placeholder="e.g. A7K92B"
               value={gameCode}
               onChange={(e) => {
                 setGameCode(e.target.value.toUpperCase());
@@ -119,6 +143,7 @@ export const JoinPage: React.FC = () => {
               }}
               autoFocus
               maxLength={12}
+              disabled={isJoining}
             />
           </div>
 
@@ -143,6 +168,7 @@ export const JoinPage: React.FC = () => {
               value={anonymousName}
               onChange={(e) => setAnonymousName(e.target.value)}
               maxLength={16}
+              disabled={isJoining}
             />
             <span style={{
               fontSize: '0.75rem',
@@ -160,9 +186,10 @@ export const JoinPage: React.FC = () => {
             size="large"
             block
             icon={<LogIn size={18} />}
+            disabled={isJoining}
             id="btn-submit-join"
           >
-            ENTER SIMULATOR
+            {isJoining ? 'VERIFYING CODE...' : 'ENTER SIMULATOR'}
           </Button>
         </form>
       </Card>
