@@ -26,7 +26,7 @@ Interactive educational game for demonstrating algorithmic bias, data influence,
 
 Current Status:
 
-PHASE 2 COMPLETE — Multiplayer Lobby, QR Joining & Live Sync (Case 3 Complete)
+PHASE 3 IN PROGRESS — Player Game Interface & Basic Game Engine (Case 4 Complete)
 
 Overall Progress:
 
@@ -41,11 +41,11 @@ Overall Progress:
 
 Current Phase:
 
-PHASE 3 PREPARATION (Case 4 — Candidate Decision Rounds & Engine)
+PHASE 3 — Game Engine (Case 4 Complete, Preparing Case 5)
 
 Current Objective:
 
-Lobby & Realtime synchronization complete. Next objective is Candidate Decision Rounds (scenarios, evaluation cards, timer, duplicate response prevention).
+Player gameplay interface and game engine shell established. Next objective is Case 5: Full 5–7 educational candidate scenarios, round timer, and response database persistence.
 
 ---
 
@@ -55,11 +55,11 @@ Lobby & Realtime synchronization complete. Next objective is Candidate Decision 
 
 Currently Working On:
 
-src/host/pages/HostLobbyPage.tsx
+src/player/pages/PlayPage.tsx
 
 Current Task:
 
-Case 3 Complete: Host game creation, QR code generation, player joining via QR URL pre-fill, live Supabase Realtime synchronization, host ownership enforcement, and transition to /play.
+Case 4 Complete: Player game interface, GameProgressBar, CandidateCard shell, DecisionPanel, reusable decision submitted waiting state, Host round controller with next-round realtime progression, and Vercel production deployment.
 
 ---
 
@@ -67,22 +67,18 @@ Case 3 Complete: Host game creation, QR code generation, player joining via QR U
 
 Update this section after every meaningful feature.
 
-- [x] Host game creation on `/host/dashboard` with unique 6-character room code generation
-- [x] High-contrast Projector Mode on `/host/lobby` with `qrcode.react` generating dynamic QR code pointing to deployed `/join?game=CODE`
-- [x] Game code copy button with one-click clipboard interaction and visual `COPIED!` feedback
-- [x] Direct join URL display for classroom presentation
-- [x] Player join (`/join`) supporting URL query parameters (`?game=CODE`), automatically pre-filling and validating room state
-- [x] Anonymous callsign assignment with optional custom name (e.g. `STUDENT-RAVI-01`), zero personal data collected
-- [x] Prevented duplicate player records in database on refresh or reconnect via existing player ID matching
-- [x] Isolated Player Waiting Room (`/lobby`) with radar pulse animation, room code, callsign, and live player count
-- [x] Supabase Realtime subscription on `players` table updating live player count and roster on host and player screens without refresh
-- [x] Host session ownership verification: `updateGameState` strictly enforces `session.host_id === hostId`, preventing unauthorized mutations
-- [x] Host `START GAME` button updates database `status = 'active'` and `current_round = 1`
-- [x] Realtime listener on `game_sessions` automatically transitions all waiting players to `/play`
-- [x] Host Route Guard strictly protects `/host/*` from unauthorized student access
-- [x] Active game handling on `/host/dashboard` prevents orphaned sessions (offers `OPEN HOST LOBBY` and `CLOSE & CREATE NEW`)
-- [x] Fully deployed and verified on Vercel production: https://algobias.vercel.app
-- [x] All 9 multi-device tests passed successfully (host create, player QR join, live count sync, multi-player join, start game transition, security rejection, refresh restoration)
+- [x] Player `/play` gameplay route built, replacing placeholder with full game shell
+- [x] `GameProgressBar` component: non-color dependent accessibility, visual timeline nodes (Round X / 7), room code badge
+- [x] `CandidateCard` component: structured sections for Experience, Education, Skills, and Projects, mobile-friendly cards
+- [x] `DecisionPanel` component: large touch-friendly candidate selection buttons with confirmation state
+- [x] Reusable `Decision Submitted` waiting state with radar animation and locked-in response display
+- [x] Realtime game state synchronization via Supabase: automatic transition from Lobby → Play on game start
+- [x] Zero-refresh round progression: when Host clicks `NEXT ROUND`, player screen updates to next round with clean selection state
+- [x] Session restoration on refresh: refreshing `/play` restores active round and submitted decision without creating duplicate player records
+- [x] Invalid session recovery: friendly screens for `SESSION NOT FOUND`, `GAME NOT STARTED`, and `GAME ENDED`
+- [x] Host `/host/game` live controller: displays room code, live connected player count, `[ NEXT ROUND ]`, and `[ END SIMULATION ]`
+- [x] Vercel production deployment verified: https://algobias.vercel.app
+- [x] Strict Host/Player separation maintained: HostRouteGuard blocks unauthorized access to `/host/*`
 
 ---
 
@@ -90,8 +86,8 @@ Update this section after every meaningful feature.
 
 List the features currently being implemented.
 
-- [x] Case 3 completed and verified
-- [ ] Prepare Case 4 (Candidate Decision Rounds & Scenarios)
+- [x] Case 4 completed and verified
+- [ ] Prepare Case 5 (5–7 Educational Scenarios, Decision Timer & Response Persistence)
 
 ---
 
@@ -99,11 +95,11 @@ List the features currently being implemented.
 
 List the next tasks in priority order.
 
-1. Case 4: Candidate decision rounds (5–7 educational scenarios)
-2. Case 4: Candidate evaluation cards & comparative decision UI
-3. Case 4: Decision timer & response submission without duplicates
-4. Case 5: Collective results & aggregate visualizer
-5. Case 6: Digital ethics & algorithmic bias reveal module
+1. Case 5: Educational candidate scenarios dataset (5–7 fictional hiring rounds)
+2. Case 5: Synchronized round countdown timer
+3. Case 5: Response recording in Supabase database (`responses` table)
+4. Case 6: Collective results & aggregate visualizer
+5. Case 7: Digital ethics & algorithmic bias reveal module
 
 ---
 
@@ -291,7 +287,7 @@ Update after meaningful commits.
 
 Commit:
 
-feat: add multiplayer game lobby and qr joining
+feat: add player game interface and basic game engine
 
 Date:
 
@@ -303,7 +299,7 @@ Date:
 
 Last Updated:
 
-2026-09-16 10:30 IST
+2026-09-16 11:05 IST
 
 Updated By:
 
@@ -311,7 +307,7 @@ AI Assistant
 
 Summary:
 
-Completed Case 3: Built complete multiplayer lobby experience with host game creation, high-contrast projector mode with QR code (qrcode.react), pre-filled QR player join flow, Supabase Realtime synchronization for live student count and roster, host session ownership enforcement, host start-game action with automatic player transition to /play, and multi-device automated testing on live Vercel production URL (https://algobias.vercel.app).
+Completed Case 4: Built core player gameplay experience on /play with GameProgressBar, CandidateCard shell with structured sections, DecisionPanel with confirmation and submitted waiting state, Supabase Realtime synchronization, Host live round controller on /host/game with next-round progression, and Vercel production deployment.
 
 ---
 
@@ -323,27 +319,27 @@ Date:
 
 Current Phase:
 
-PHASE 3 PREPARATION (Case 4 — Candidate Decision Rounds)
+PHASE 3 (Preparing Case 5 — 5-7 Scenarios & Decision Timer)
 
 Current File:
 
-src/host/pages/HostLobbyPage.tsx
+src/player/pages/PlayPage.tsx
 
 Current Task:
 
-Case 3 Complete — Multiplayer Lobby & Realtime Sync Fully Operational
+Case 4 Complete — Player Game Interface & Basic Game Engine Operational
 
 Completed:
 
-Host game creation, unique code generator, QR joining, player waiting lobby, live player count, host ownership security, Supabase Realtime broadcast, start-game transition to /play, Vercel production deployment
+Player gameplay interface (/play), GameProgressBar (Round X / 7), CandidateCard, DecisionPanel with confirmation, Decision Submitted waiting state, Supabase Realtime auto-transition from Lobby to Play, Host round advancement (/host/game), session persistence on refresh, Vercel production deployment
 
 In Progress:
 
-Ready for Case 4
+Ready for Case 5
 
 Next:
 
-Case 4 — Candidate Decision Rounds & Engine
+Case 5 — 5-7 Candidate Decision Scenarios, Round Timer & Response Persistence
 
 Known Issues:
 
@@ -351,4 +347,4 @@ None
 
 Last Git Commit:
 
-feat: add multiplayer game lobby and qr joining
+feat: add player game interface and basic game engine

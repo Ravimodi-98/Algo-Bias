@@ -455,4 +455,38 @@ Host Game View <----------------------+-----(Realtime UPDATE)---> Transition to 
 - **Strict Host Ownership Verification**: All host game state mutations (`updateGameState`) verify that `session.host_id === caller.host_id`. Imposter hosts or players cannot mutate session state or trigger round advancements.
 - **Frontend Route Isolation**: `HostRouteGuard` blocks unauthorized players attempting to access `/host/*` endpoints with an explicit access restriction screen.
 - **Late Join Rejection**: Once a game session is marked `active` or `completed`, new player attempts to join via `/join` are rejected with clean status messaging.
-- **Duplicate Prevention**: Reconnects and refreshes from existing player sessions restore existing records using `sessionId` and `playerId` rather than creating duplicate rows.
+- **Duplicate Prevention**: Reconnects and refreshes from existing player sessions restore existing records using `sessionId` and `playerId` rather than creating duplicate rows.
+
+---
+
+# 16. Player Gameplay Engine & Round Progression (Case 4)
+
+## 16.1 Player Gameplay State Lifecycle
+```text
+[Lobby] 
+   │ (Supabase Realtime status === 'active')
+   ▼
+[Game Starting Banner] 
+   │
+   ▼
+[Round Screen]
+   ├── GameProgressBar (Round X / 7, non-color accessible dots & track)
+   ├── Candidate Comparison (CandidateCard A vs B)
+   └── DecisionPanel (Selection A/B + Confirmation)
+   │
+   ▼ (Player confirms selection)
+[Decision Submitted Waiting State] 
+   │ (Saved to local session; prevents duplicate answers)
+   │
+   ▼ (Host advances round: game_sessions.current_round = X + 1 via Realtime)
+[Next Round Screen] (Selection reset, candidates refreshed)
+```
+
+## 16.2 Candidate Evaluation Framework
+- **Structured Representation**: Candidate data conforms to a typed contract (`CandidateProfile`): `id`, `name`, `role`, `experience`, `education`, `skills[]`, `projects`, and `highlightMetric`.
+- **Modular Shell**: Designed so Case 5 can plug in the 5–7 educational bias scenarios without modifying UI or state management contracts.
+
+## 16.3 Authoritative Round Controller
+- **Single Source of Truth**: Round progression is controlled globally by the host on `/host/game` via `updateGameState(sessionId, hostId, 'active', nextRound)`.
+- **Zero-Refresh Realtime Sync**: Connected student devices receive postgres changes on `game_sessions` and transition rounds automatically.
+- **Session Restoration**: Refreshing `/play` checks `storage.getPlayerSession()` and verifies the player in Supabase, restoring them directly to their active round state without duplicate records.

@@ -6,7 +6,7 @@ import { PlayerLayout } from './player/layout/PlayerLayout';
 import { LandingPage } from './player/pages/LandingPage';
 import { JoinPage } from './player/pages/JoinPage';
 import { LobbyPage } from './player/pages/LobbyPage';
-import { PlayPlaceholderPage } from './player/pages/PlayPlaceholderPage';
+import { PlayPage } from './player/pages/PlayPage';
 import { RevealPlaceholderPage } from './player/pages/RevealPlaceholderPage';
 import { FairnessPlaceholderPage } from './player/pages/FairnessPlaceholderPage';
 import { ResultsPlaceholderPage } from './player/pages/ResultsPlaceholderPage';
@@ -18,7 +18,7 @@ import { HostLayout } from './host/layout/HostLayout';
 import { HostDashboardPage } from './host/pages/HostDashboardPage';
 import { HostCreatePlaceholderPage } from './host/pages/HostCreatePlaceholderPage';
 import { HostLobbyPage } from './host/pages/HostLobbyPage';
-import { HostGamePlaceholderPage } from './host/pages/HostGamePlaceholderPage';
+import { HostGamePage } from './host/pages/HostGamePage';
 import { HostResultsPlaceholderPage } from './host/pages/HostResultsPlaceholderPage';
 import { HostSettingsPlaceholderPage } from './host/pages/HostSettingsPlaceholderPage';
 
@@ -36,7 +36,7 @@ export const App: React.FC = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/join" element={<JoinPage />} />
           <Route path="/lobby" element={<LobbyPage />} />
-          <Route path="/play" element={<PlayPlaceholderPage />} />
+          <Route path="/play" element={<PlayPage />} />
           <Route path="/reveal" element={<RevealPlaceholderPage />} />
           <Route path="/fairness" element={<FairnessPlaceholderPage />} />
           <Route path="/results" element={<ResultsPlaceholderPage />} />
@@ -55,7 +55,7 @@ export const App: React.FC = () => {
             <Route path="/host/dashboard" element={<HostDashboardPage />} />
             <Route path="/host/create" element={<HostCreatePlaceholderPage />} />
             <Route path="/host/lobby" element={<HostLobbyPage />} />
-            <Route path="/host/game" element={<HostGamePlaceholderPage />} />
+            <Route path="/host/game" element={<HostGamePage />} />
             <Route path="/host/results" element={<HostResultsPlaceholderPage />} />
             <Route path="/host/settings" element={<HostSettingsPlaceholderPage />} />
           </Route>

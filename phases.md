@@ -66,19 +66,19 @@ Build the core round system.
 
 ## Tasks
 
-- Round system
-- Candidate data structure
-- Candidate cards
-- Decision buttons
-- Timer
-- Submit response
-- Prevent duplicate responses
-- Round progression
-- Player progress indicator
+- [x] Round system shell
+- [x] Candidate data structure
+- [x] Candidate cards
+- [x] Decision buttons
+- [ ] Timer (Queued for Case 5)
+- [x] Submit response
+- [x] Prevent duplicate responses
+- [x] Round progression (Host control & Realtime sync)
+- [x] Player progress indicator
 
 ## Result
 
-Students can play complete decision rounds.
+Students can enter gameplay, view candidate profiles, make decisions, see progress indicators, and transition between rounds in real time.
 
 ---
 
