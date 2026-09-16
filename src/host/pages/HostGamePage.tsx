@@ -8,9 +8,11 @@ import {
   ArrowLeft, 
   StopCircle, 
   CheckCircle2, 
-  SkipForward,
+  SkipForward, 
   RefreshCw,
-  ShieldCheck
+  ShieldCheck,
+  Target,
+  Sparkles
 } from 'lucide-react';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
@@ -19,6 +21,7 @@ import { LoadingState } from '../../shared/components/LoadingState';
 import { gameService } from '../../services/game/gameService';
 import { storage } from '../../shared/utils/storage';
 import { supabase } from '../../services/supabase/client';
+import { getRoundData } from '../../shared/data/rounds';
 import type { DbGameSession, DbPlayer } from '../../shared/types';
 
 export const HostGamePage: React.FC = () => {
@@ -117,7 +120,8 @@ export const HostGamePage: React.FC = () => {
 
   if (!session) return null;
 
-  const currentRound = session.current_round || 1;
+  const currentRound = Math.max(1, Math.min(session.current_round || 1, 7));
+  const roundData = getRoundData(currentRound);
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
@@ -130,16 +134,17 @@ export const HostGamePage: React.FC = () => {
         flexWrap: 'wrap',
         gap: '1rem',
         padding: '1.25rem 1.5rem',
-        background: 'var(--bg-surface)',
+        background: '#ffffff',
         borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--border-purple)'
+        border: '1px solid var(--border-purple)',
+        boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Badge variant="success" pulse>
             <Play size={12} style={{ marginRight: '4px' }} />
             SIMULATION ACTIVE
           </Badge>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 700 }}>
             ROUND {currentRound} OF 7 &bull; PRESENTER CONSOLE
           </span>
         </div>
@@ -173,7 +178,7 @@ export const HostGamePage: React.FC = () => {
 
       {actionNotice && (
         <div style={{
-          background: 'rgba(0, 240, 255, 0.1)',
+          background: 'rgba(2, 132, 199, 0.08)',
           border: '1px solid var(--accent-cyan)',
           borderRadius: 'var(--radius-md)',
           padding: '0.85rem 1.25rem',
@@ -181,7 +186,8 @@ export const HostGamePage: React.FC = () => {
           alignItems: 'center',
           gap: '0.75rem',
           color: 'var(--accent-cyan)',
-          fontSize: '0.9rem'
+          fontSize: '0.9rem',
+          fontWeight: 700
         }}>
           <CheckCircle2 size={18} />
           <span>{actionNotice}</span>
@@ -206,7 +212,7 @@ export const HostGamePage: React.FC = () => {
 
         <Card glow="purple">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>CONNECTED PLAYERS</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>CONNECTED PARTICIPANTS</span>
             <Users size={16} color="var(--accent-purple)" />
           </div>
           <span className="font-mono" style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)' }}>
@@ -223,10 +229,83 @@ export const HostGamePage: React.FC = () => {
             <span className="font-mono" style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-warning)' }}>
               {currentRound}
             </span>
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>/ 7</span>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 700 }}>/ 7</span>
           </div>
         </Card>
       </div>
+
+      {/* Active Round Scenario Information for Presenter */}
+      <Card glow="cyan">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.25rem 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Target size={16} color="var(--accent-cyan)" />
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-cyan)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              ROUND {currentRound}: {roundData.title}
+            </span>
+          </div>
+
+          <div>
+            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+              Role: {roundData.role}
+            </h2>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0.35rem 0 0 0', lineHeight: 1.5 }}>
+              {roundData.context}
+            </p>
+          </div>
+
+          <div style={{
+            background: 'var(--bg-surface-secondary)',
+            padding: '0.9rem 1.25rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-subtle)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <Sparkles size={16} color="var(--accent-purple)" style={{ flexShrink: 0 }} />
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+              <strong style={{ color: 'var(--text-primary)' }}>Educational Focus:</strong> {roundData.educationalPurpose}
+            </div>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '1rem',
+            marginTop: '0.25rem'
+          }}>
+            <div style={{
+              background: '#ffffff',
+              padding: '0.85rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid #cbd5e1'
+            }}>
+              <span className="badge badge-cyan" style={{ marginBottom: '0.35rem' }}>CANDIDATE A</span>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                {roundData.candidateA.name}
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
+                {roundData.candidateA.education}
+              </p>
+            </div>
+
+            <div style={{
+              background: '#ffffff',
+              padding: '0.85rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid #cbd5e1'
+            }}>
+              <span className="badge badge-purple" style={{ marginBottom: '0.35rem' }}>CANDIDATE B</span>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                {roundData.candidateB.name}
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
+                {roundData.candidateB.education}
+              </p>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* Host Round Controls Card */}
       <Card glow="purple">
@@ -255,7 +334,7 @@ export const HostGamePage: React.FC = () => {
             gap: '1rem'
           }}>
             <div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', fontWeight: 700 }}>
                 GLOBAL GAME STATE
               </span>
               <span className="font-mono text-cyan" style={{ fontSize: '1.1rem', fontWeight: 800 }}>

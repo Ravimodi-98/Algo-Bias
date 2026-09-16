@@ -22,10 +22,10 @@ export const GameProgressBar: React.FC<GameProgressBarProps> = ({
         flexDirection: 'column',
         gap: '0.75rem',
         padding: '0.85rem 1.25rem',
-        background: 'var(--bg-surface)',
+        background: '#ffffff',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--border-subtle)',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+        boxShadow: '0 2px 10px rgba(15, 23, 42, 0.05)'
       }}
       role="region"
       aria-label="Simulation Progress"
@@ -43,7 +43,7 @@ export const GameProgressBar: React.FC<GameProgressBarProps> = ({
             THE DECISION
           </span>
           {gameCode && (
-            <span className="font-mono text-cyan" style={{ fontSize: '0.75rem', fontWeight: 700 }}>
+            <span className="font-mono text-cyan" style={{ fontSize: '0.75rem', fontWeight: 800 }}>
               [{gameCode}]
             </span>
           )}
@@ -53,12 +53,12 @@ export const GameProgressBar: React.FC<GameProgressBarProps> = ({
           display: 'inline-flex',
           alignItems: 'baseline',
           gap: '0.35rem',
-          background: 'rgba(0, 240, 255, 0.08)',
-          padding: '0.2rem 0.6rem',
-          borderRadius: 'var(--radius-pill)',
-          border: '1px solid rgba(0, 240, 255, 0.2)'
+          background: 'rgba(2, 132, 199, 0.08)',
+          padding: '0.2rem 0.65rem',
+          borderRadius: 'var(--radius-full)',
+          border: '1px solid rgba(2, 132, 199, 0.2)'
         }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>ROUND</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>ROUND</span>
           <span className="font-mono text-cyan" style={{ fontSize: '0.95rem', fontWeight: 900 }}>
             {currentRound}
           </span>
@@ -87,8 +87,8 @@ export const GameProgressBar: React.FC<GameProgressBarProps> = ({
           top: '50%',
           left: '12px',
           right: '12px',
-          height: '2px',
-          background: 'var(--border-subtle)',
+          height: '3px',
+          background: '#e2e8f0',
           transform: 'translateY(-50%)',
           zIndex: 1
         }}>
@@ -119,32 +119,32 @@ export const GameProgressBar: React.FC<GameProgressBarProps> = ({
             >
               <div
                 style={{
-                  width: isActive ? '24px' : '20px',
-                  height: isActive ? '24px' : '20px',
+                  width: isActive ? '26px' : '22px',
+                  height: isActive ? '26px' : '22px',
                   borderRadius: '50%',
                   background: isCompleted 
                     ? 'var(--accent-cyan)' 
                     : isActive 
-                      ? 'var(--bg-surface-secondary)' 
-                      : 'var(--bg-base)',
+                      ? '#ffffff' 
+                      : 'var(--bg-surface-secondary)',
                   border: isActive 
                     ? '2px solid var(--accent-cyan)' 
                     : isCompleted 
                       ? '2px solid var(--accent-cyan)' 
-                      : '1px solid var(--border-subtle)',
-                  color: isCompleted ? '#080A0F' : isActive ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                      : '1px solid #cbd5e1',
+                  color: isCompleted ? '#ffffff' : isActive ? 'var(--accent-cyan)' : 'var(--text-muted)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.7rem',
+                  fontSize: '0.75rem',
                   fontWeight: 800,
-                  boxShadow: isActive ? '0 0 15px rgba(0, 240, 255, 0.6)' : 'none',
+                  boxShadow: isActive ? '0 0 12px rgba(2, 132, 199, 0.4)' : '0 1px 2px rgba(15, 23, 42, 0.05)',
                   transition: 'all 0.3s ease'
                 }}
                 title={`Round ${round}`}
               >
                 {isCompleted ? (
-                  <Check size={12} strokeWidth={3} />
+                  <Check size={13} strokeWidth={3} />
                 ) : (
                   <span>{round}</span>
                 )}

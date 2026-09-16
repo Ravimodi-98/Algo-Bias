@@ -4,75 +4,89 @@
 
 THE DECISION should feel like an interactive AI decision system rather than a normal college website.
 
-The visual style should communicate:
+The visual style communicates:
 
 - Futuristic
 - Intelligent
 - Minimal
-- Slightly mysterious
+- Clean & Tech-focused
 - Professional
 - Interactive
 - Educational
 
-The design must remain easy to understand.
+The design must remain easy to understand and accessible.
 
 Visual effects should never reduce usability.
 
 ---
 
-# 2. Theme
+# 2. Permanent Theme
 
-Primary theme:
+Primary theme (Case 5 onward):
 
-DARK FUTURISTIC AI CONTROL ROOM
+**LIGHT FUTURISTIC AI CONTROL ROOM**
 
-The interface should feel like the player has entered an AI decision-making system.
+The interface feels modern, clean, futuristic, premium, educational, and technology-focused.
 
-Avoid making it look like a generic dashboard.
+Use a light background rather than dark panels:
+- White cards
+- Subtle shadows
+- Soft borders
+- Clean spacing
+- Restrained accent gradients
+- Modern typography
+- Subtle futuristic decorative grid overlays
 
 ---
 
-# 3. Color Direction
+# 3. Color Direction & Tokens
 
-Use a dark base.
-
-Suggested palette:
-
+```css
 Background:
-#080A0F
+#F6F8FC
 
-Surface:
-#11151D
+Surface (Cards, Panels):
+#FFFFFF
 
 Secondary Surface:
-#171C26
+#F8FAFC
+
+Elevated Surface:
+#FFFFFF
 
 Primary Text:
-#F5F7FA
+#0F172A
 
 Secondary Text:
-#9AA4B2
+#475569
 
-Primary Accent:
-Electric Cyan
+Muted Text:
+#64748B
 
-Secondary Accent:
-Violet / Purple
+Border Subtle:
+#E2E8F0
+
+Primary Accent (Electric Blue / Cyan):
+#0284C7 (Text/Icons) / #0369A1 (Hover)
+
+Secondary Accent (Violet / Purple):
+#7C3AED / #6D28D9
 
 Success:
-Green
+#15803D
 
 Warning:
-Amber
+#B45309
 
 Error:
-Red
+#DC2626
+```
 
-Important:
+### Important Accessibility Rules
 
-Do not use color alone to communicate meaning.
-
-Use icons, labels, text, or patterns alongside colors.
+- Maintain strong readability with WCAG AA compliance (4.5:1 text contrast).
+- Never communicate important information using color alone; use icons, badges, labels, and text.
+- Form inputs, buttons, and badges must have clear interactive focus and hover states.
 
 ---
 
@@ -80,11 +94,11 @@ Use icons, labels, text, or patterns alongside colors.
 
 Every screen should have:
 
-1. Main title
-2. Short explanation
-3. Main interaction
-4. Supporting information
-5. Progress/status
+1. Main title / Scenario header
+2. Context explanation
+3. Main interaction (Candidate cards comparison & decision buttons)
+4. Supporting information / details
+5. Progress indicator (Round X / 7)
 
 The primary action must be visually dominant.
 
@@ -92,351 +106,85 @@ The primary action must be visually dominant.
 
 # 5. Typography
 
-Use a modern sans-serif font.
+Modern sans-serif typography:
 
-Recommended:
+- Primary: `Inter`, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif
+- Monospace (Codes, Metrics, Callouts): `JetBrains Mono`, monospace
 
-Inter
-
-Alternative:
-
-Plus Jakarta Sans
-Manrope
-
-Use one primary font family throughout the application.
-
-Avoid using many different fonts.
+Scale:
+- Main Game Title: 36–48px desktop, 28–36px mobile
+- Section Heading: 20–26px
+- Card Titles: 18–20px
+- Body Text: 15–16px
+- Supporting / Muted: 12–14px
+- Button Labels: 15–16px bold
 
 ---
 
-# 6. Typography Scale
+# 6. Candidate Cards
 
-## Main Game Title
+Candidate cards are the most important interactive component.
 
-48–72px desktop
+Each card displays:
+- Candidate Name & ID Badge (A or B)
+- Role Title
+- Core Competencies (Skill chips)
+- Professional Experience
+- Project Portfolio
+- Education & Credentials
+- Optional contextual attributes (Location, Highlight Metrics, Profile details, Presentation style)
 
-32–44px mobile
-
-## Page Title
-
-32–48px desktop
-
-26–34px mobile
-
-## Section Heading
-
-22–30px
-
-## Body Text
-
-16–18px
-
-## Supporting Text
-
-13–15px
-
-## Button Text
-
-15–18px
-
-Text must remain readable on mobile.
+Cards are rendered in crisp `#FFFFFF` with soft `#E2E8F0` borders, subtle box shadows, and distinct accent highlights when selected.
 
 ---
 
-# 7. Candidate Cards
-
-Candidate cards are the most important component.
-
-Each card should clearly display:
-
-Candidate Name / Label
-
-Relevant Skills
-
-Experience
-
-Projects
-
-Interview / Assessment
-
-Additional information
-
-The card should allow fast comparison.
-
-Do not overcrowd the card.
-
----
-
-# 8. Decision Buttons
-
-Primary decision buttons should be:
-
-- Large
-- Easy to tap
-- Clearly labeled
-- Visually distinct
-- Accessible
-
-Example:
-
-SELECT CANDIDATE A
-
-SELECT CANDIDATE B
-
-Minimum comfortable mobile touch target:
-
-approximately 44px.
-
----
-
-# 9. Timer
-
-Timer should be visible but not distracting.
-
-Example:
-
-DECISION TIME
-
-12s
-
-Use animation only when necessary.
-
-Do not create excessive flashing effects.
-
----
-
-# 10. Progress Indicator
-
-Display:
-
-ROUND 3 / 7
-
-or:
-
-● ● ● ○ ○ ○ ○
-
-Players should always know their progress.
-
----
-
-# 11. Animations
-
-Use subtle animations for:
-
-- Page transitions
-- Candidate appearance
-- Button selection
-- Result updates
-- Bias reveal
-- Final message
-
-Preferred style:
-
-Fast
-Smooth
-Purposeful
-
-Avoid:
-
-- Constant background movement
-- Excessive particle effects
-- Long transitions
-- Flashing elements
-
----
-
-# 12. Bias Reveal Design
-
-The reveal should feel different from normal rounds.
-
-Suggested sequence:
-
-Dark screen
-
-"WAIT."
-
-↓
-
-"Something interesting happened."
-
-↓
-
-Your decisions
-
-↓
-
-"The information influenced the decision."
-
-↓
-
-"Some information was relevant."
-
-↓
-
-"Some information was not."
-
-↓
-
-"Now imagine an algorithm learning from thousands of similar decisions."
-
-↓
-
-DATA → ALGORITHM → DECISION → IMPACT
-
-This is the emotional and educational peak of the application.
-
----
-
-# 13. Fairness Challenge Design
-
-The fairness challenge should feel like a system redesign.
-
-Header:
-
-"MAKE IT FAIR"
-
-Prompt:
-
-"Choose the information an algorithm should prioritize."
-
-Display selectable factor cards.
-
-Example:
-
-✓ Skills
-✓ Relevant Experience
-✓ Projects
-✓ Technical Assessment
-✓ Interview Performance
-
-The interface should clearly show selected factors.
-
----
-
-# 14. Results Dashboard
-
-Host dashboard should be optimized for projector viewing.
-
-Use:
-
-- Large numbers
-- Large charts
-- High contrast
-- Minimal text
-- Clear round labels
-
-Example:
-
-PARTICIPANTS
-
-42
-
-CANDIDATE A
-
-64%
-
-CANDIDATE B
-
-36%
-
----
-
-# 15. Mobile Design
+# 7. Mobile Decision Experience
 
 Mobile is the primary player experience.
 
-Design for:
+Recommended layout:
 
-- One-handed interaction
-- Large buttons
-- Vertical cards
-- Minimal scrolling
-- Clear navigation
-- Fast loading
+```text
+ROUND 3 / 7
+━━━━━━━━━━━━━━━━━━━
 
-Avoid desktop-style layouts being squeezed onto mobile.
+Scenario & Question
 
----
+Candidate A
+[card]
 
-# 16. Desktop Design
+VS
 
-Desktop is primarily for:
+Candidate B
+[card]
 
-- Host dashboard
-- Presenter controls
-- Live results
-- Projector display
+WHO WOULD YOU SELECT?
 
-Use available screen space effectively.
+[ SELECT CANDIDATE A ]
+[ SELECT CANDIDATE B ]
 
----
+[ CONFIRM & SELECT CANDIDATE ... ]
+```
 
-# 17. Accessibility
-
-Ensure:
-
-- Strong text contrast
-- Readable font sizes
-- Keyboard navigation
-- Focus indicators
-- Clear labels
-- Screen-reader-friendly controls
-- No color-only instructions
+Decision controls feature minimum 44px touch targets with instant visual feedback upon selection.
 
 ---
 
-# 18. Empty States
+# 8. Tone & Educational Framing
 
-Never leave a screen blank.
-
-Example:
-
-"No players have joined yet."
-
-"Share the QR code to invite participants."
-
----
-
-# 19. Loading States
-
-Use informative loading messages.
-
-Examples:
-
-"Connecting to game..."
-
-"Waiting for the host..."
-
-"Submitting your decision..."
-
-"Preparing the next round..."
+- **No Shaming**: Never display "You are biased", "Bad decision", "Wrong choice", or "You failed".
+- **Neutral Language**:
+  - "Decision recorded."
+  - "Interesting choice. Your decision has been recorded."
+  - "Your selection for Candidate A has been logged for Round 1."
+- **No Correct/Wrong Labels**: Decisions are part of an educational simulation exploring data influence.
 
 ---
 
-# 20. Error States
+# 9. Results & Host Dashboard
 
-Errors should be calm and understandable.
-
-Bad:
-
-SUPABASE_ERROR_23505
-
-Good:
-
-"Something went wrong while submitting your decision."
-
-"Please try again."
-
----
-
-# 21. Design Rule
-
-The interface should make the student think:
-
-"I am making an important decision."
-
-Then the reveal should make them think:
-
-"Wait... the information I was given influenced that decision."
-
-That realization is the core of the visual experience.
+Host console acts as an AI Experiment Control Room (Light Edition):
+- Projector-friendly contrast
+- High-visibility room code & participant count
+- Active round scenario and educational goal overview
+- Seamless Next Round progression controls

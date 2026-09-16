@@ -1,15 +1,10 @@
 # THE DECISION — Project Memory
 
 ⚠️ IMPORTANT:
-
 This file must be updated REGULARLY.
-
 This file is the short-term memory of the development process.
-
 Before making major changes, AI coding agents should read this file.
-
 After completing meaningful work, update this file.
-
 Do not allow this file to become outdated.
 
 ---
@@ -17,19 +12,15 @@ Do not allow this file to become outdated.
 # 1. Project Status
 
 Project:
-
 THE DECISION — Algorithmic Bias & Fairness Simulator
 
 Purpose:
-
 Interactive educational game for demonstrating algorithmic bias, data influence, and algorithmic fairness.
 
 Current Status:
-
-PHASE 3 IN PROGRESS — Player Game Interface & Basic Game Engine (Case 4 Complete)
+CASE 5 COMPLETE — Candidate System & Decision Rounds 1–7 (Light Theme)
 
 Overall Progress:
-
 [ ] Not Started
 [x] In Development
 [ ] Testing
@@ -40,311 +31,102 @@ Overall Progress:
 # 2. Current Phase
 
 Current Phase:
-
-PHASE 3 — Game Engine (Case 4 Complete, Preparing Case 5)
+CASE 5 COMPLETE — Candidate System & 7 Decision Rounds (Preparing Case 6)
 
 Current Objective:
-
-Player gameplay interface and game engine shell established. Next objective is Case 5: Full 5–7 educational candidate scenarios, round timer, and response database persistence.
+Complete candidate data architecture, 7 fictional decision rounds, and permanent transition to the Light Theme (Futuristic AI Control Room — Light Edition).
 
 ---
 
 # 3. Current File Being Worked On
 
-⚠️ UPDATE THIS EVERY TIME THE MAIN DEVELOPMENT TASK CHANGES.
-
 Currently Working On:
-
-src/player/pages/PlayPage.tsx
+src/shared/data/rounds.ts, src/player/pages/PlayPage.tsx, src/player/components/CandidateCard.tsx
 
 Current Task:
-
-Case 4 Complete: Player game interface, GameProgressBar, CandidateCard shell, DecisionPanel, reusable decision submitted waiting state, Host round controller with next-round realtime progression, and Vercel production deployment.
+Case 5 Complete: Full 7-round fictional candidate dataset, upgraded CandidateCard with dynamic sections, mobile-first VS layout, neutral non-shaming decision feedback, Light Theme design system tokens, and Host scenario controller.
 
 ---
 
 # 4. Recently Completed
 
-Update this section after every meaningful feature.
-
-- [x] Player `/play` gameplay route built, replacing placeholder with full game shell
-- [x] `GameProgressBar` component: non-color dependent accessibility, visual timeline nodes (Round X / 7), room code badge
-- [x] `CandidateCard` component: structured sections for Experience, Education, Skills, and Projects, mobile-friendly cards
-- [x] `DecisionPanel` component: large touch-friendly candidate selection buttons with confirmation state
-- [x] Reusable `Decision Submitted` waiting state with radar animation and locked-in response display
-- [x] Realtime game state synchronization via Supabase: automatic transition from Lobby → Play on game start
-- [x] Zero-refresh round progression: when Host clicks `NEXT ROUND`, player screen updates to next round with clean selection state
-- [x] Session restoration on refresh: refreshing `/play` restores active round and submitted decision without creating duplicate player records
-- [x] Invalid session recovery: friendly screens for `SESSION NOT FOUND`, `GAME NOT STARTED`, and `GAME ENDED`
-- [x] Host `/host/game` live controller: displays room code, live connected player count, `[ NEXT ROUND ]`, and `[ END SIMULATION ]`
-- [x] Vercel production deployment verified: https://algobias.vercel.app
-- [x] Strict Host/Player separation maintained: HostRouteGuard blocks unauthorized access to `/host/*`
+- [x] Permanent Light Theme transition across the entire application (Player, Host, Lobby, Game, Cards, Components)
+- [x] Light theme tokens in `src/styles/index.css` (`#F6F8FC` backdrop, `#FFFFFF` surfaces, `#0F172A` text, `#0284C7` and `#7C3AED` accents)
+- [x] Reusable data-driven candidate & round models in `src/shared/data/rounds.ts`
+- [x] Exactly 7 fictional decision rounds implemented:
+  - Round 1: Relevant Skills (Junior Software Developer — Aarav vs Rohan)
+  - Round 2: Educational Background (Junior Cloud Engineer — Maya vs Ishita)
+  - Round 3: Geographic Location (Systems Reliability Specialist — Kabir [Ahmedabad] vs Dev [Pune])
+  - Round 4: Candidate Name (Data Platform Engineer — Aarav vs Maya)
+  - Round 5: Presentation Style (API Integration Developer — Nisha [Structured] vs Anaya [Narrative])
+  - Round 6: Relevant vs Irrelevant Info (Backend Developer — Rohan vs Kabir [Extraneous details])
+  - Round 7: Comprehensive Final Decision (Full Stack Software Developer — Dev vs Ishita)
+- [x] Upgraded `CandidateCard` with dynamic section rendering (skills, experience, projects, education, location, details)
+- [x] Mobile-friendly decision layout (`Candidate A` -> `VS` divider -> `Candidate B` -> `DecisionPanel`)
+- [x] Neutral decision feedback: "Decision recorded.", "Decision submitted." (Zero shaming or "correct/wrong" language)
+- [x] Host game console (`/host/game`) updated for Light Theme with live round scenario info and progression controls
+- [x] Visual verification via browser subagent across Landing, Host Console, Player Join, Round 1 decision, and Round 2 advance
+- [x] Documentation updated: `design.md`, `memory.md`, `phases.md`
 
 ---
 
 # 5. In Progress
 
-List the features currently being implemented.
-
-- [x] Case 4 completed and verified
-- [ ] Prepare Case 5 (5–7 Educational Scenarios, Decision Timer & Response Persistence)
+- [x] Case 5 completed and verified
+- [ ] Prepare Case 6 (Timer, answer submission persistence, and round progression)
 
 ---
 
 # 6. Next Tasks
 
-List the next tasks in priority order.
-
-1. Case 5: Educational candidate scenarios dataset (5–7 fictional hiring rounds)
-2. Case 5: Synchronized round countdown timer
-3. Case 5: Response recording in Supabase database (`responses` table)
-4. Case 6: Collective results & aggregate visualizer
-5. Case 7: Digital ethics & algorithmic bias reveal module
+1. Case 6: Decision countdown timer and synchronized submission
+2. Case 6: Response recording in Supabase database (`responses` table)
+3. Case 7: Host live dashboard and collective classroom results
+4. Case 8: Digital ethics and algorithmic bias reveal sequence
 
 ---
 
 # 7. Completed Phases
 
-## Phase 1
-
-Status:
-
-COMPLETED
-
-Completed:
-
+## Phase 1 — Foundation & Authentication
 - [x] Vite + React 19 + TypeScript Project Foundation
-- [x] Futuristic Dark Theme & Design Tokens
 - [x] Strict Player and Host Route Separation
 - [x] Host Route Authorization Guard
 
----
-
-## Phase 2
-
-Status:
-
-COMPLETED (Case 2 & Case 3 Full Flow Complete)
-
-Completed:
-
+## Phase 2 — Host Dashboard & Game Lobby
 - [x] Supabase Database Schema (`game_sessions`, `players`)
 - [x] Remote Migration Applied via Supabase CLI
 - [x] RLS Policies and Realtime Publication
-- [x] Host Authentication & Session Creation
-- [x] Player Join & Anonymous Registration Flow
-- [x] High-Resolution QR Code Generation & Display
-- [x] Projector-Ready Host Lobby (`/host/lobby`)
+- [x] Host Session Creation & Game Code Generation
+- [x] High-Resolution QR Code Generation
 - [x] Live Realtime Player Roster & Counter
-- [x] Player Lobby (`/lobby`) & Automatic Advance to `/play`
-- [x] Host Ownership Enforcement & Late Join Rejection
-- [x] Vercel Production Deployment (https://algobias.vercel.app)
 
----
-
-## Phase 3
-
-Status:
-
-NOT STARTED
-
-Completed:
-
-- [ ]
+## Phase 3 — Game Engine & Candidate Decision Rounds
+- [x] Player `/play` gameplay route built
+- [x] Permanent Light Theme (Futuristic AI Control Room — Light Edition)
+- [x] Candidate data architecture (`src/shared/data/rounds.ts`)
+- [x] Exactly 7 educational decision rounds
+- [x] Polished `CandidateCard` component
+- [x] Mobile-friendly VS decision layout
+- [x] Neutral non-shaming decision feedback
+- [x] Authoritative round synchronization via Supabase Realtime
 
 ---
 
 # 8. Important Technical Decisions
 
-Record important decisions here.
-
-- Database Schema:
-  - `game_sessions`: `id` (UUID), `game_code` (VARCHAR 12, unique), `host_id` (TEXT), `status` ('waiting' | 'active' | 'completed'), `current_round` (INTEGER), timestamps.
-  - `players`: `id` (UUID), `session_id` (UUID FK), `anonymous_name` (VARCHAR 64), `joined_at`, `last_seen`.
-- RLS Policies:
-  - `game_sessions`: Public SELECT; Host INSERT and UPDATE. Normal players cannot alter host_id, status, or current_round.
-  - `players`: Public SELECT and INSERT; UPDATE allowed for `last_seen` heartbeat.
-- Game Codes: 6-character uppercase alphanumeric omitting ambiguous characters (`0`, `O`, `1`, `I`) to ensure legibility when projected in classrooms.
-- Realtime: Enabled on both tables via `supabase_realtime` publication.
-- Vercel: Single Page Application fallback rewrite configured in [vercel.json](file:///d:/AlgoBias/vercel.json).
+- **Permanent Light Theme**: Clean `#F6F8FC` background, `#FFFFFF` elevated cards, `#0F172A` high-contrast typography, `#E2E8F0` soft borders, and `#0284C7`/`#7C3AED` technology accents.
+- **Candidate Data Architecture**: Content is completely separated from UI inside `src/shared/data/rounds.ts` with typed interfaces (`Candidate`, `RoundData`). UI consumes `getRoundData(currentRound)`.
+- **Fictional Candidates Only**: All profiles use fictional names (Aarav, Maya, Kabir, Nisha, Rohan, Ishita, Dev, Anaya) without real-world people, resumes, or companies.
+- **Neutral Educational Framing**: No "correct" or "wrong" judgments, no shaming language. Decisions explore data influence.
+- **Mobile-First Layout**: On mobile screens, Candidate A and Candidate B stack cleanly around a central `VS` indicator, followed by large touch-friendly decision buttons (>44px height).
 
 ---
 
-# 9. Database Status
-
-Supabase:
-
-CONNECTED (Project: `fcrdrcqbrkzznnnwimje`, Region: `ap-northeast-1`)
-
-Tables:
-
-- [x] game_sessions (Created & RLS enabled)
-- [x] players (Created & RLS enabled)
-- [ ] rounds (Queued for Phase 3)
-- [ ] candidates (Queued for Phase 3)
-- [ ] responses (Queued for Phase 3)
-- [ ] fairness_responses (Queued for Phase 8)
-
-Realtime:
-
-- [x] Configured (`game_sessions`, `players`)
-- [x] Tested
-
-Row Level Security:
-
-- [x] Configured
-- [x] Tested
-
----
-
-# 10. Authentication Status
-
-Host Auth:
-
-DEDICATED HOST GATEWAY (`/host` with persistent `hostId`)
-
-Host Protection:
-
-HOST ROUTE GUARD (`HostRouteGuard.tsx` protects `/host/dashboard` and subroutes)
-
-Player Auth:
-
-ANONYMOUS SESSIONS (Temporary UUID + callsign `PLAYER-XXXX`, zero personal data collected)
-
----
-
-# 11. Vercel & Deployment Status
-
-GitHub Repository:
-
-https://github.com/Ravimodi-98/Algo-Bias.git
-
-Vercel Config:
-
-vercel.json (SPA rewrite rules configured)
-
-Required Production Environment Variables:
-
-- `VITE_SUPABASE_URL`: `https://fcrdrcqbrkzznnnwimje.supabase.co`
-- `VITE_SUPABASE_ANON_KEY`: `sb_publishable_8QkBP3-6kvuhvKq2ysmKUA_2kGVCnD1`
-
-Production Status:
-
-Repository prepared for automatic Vercel git deployment
-
----
-
-# 12. Known Bugs
-
-No active bugs.
-
----
-
-# 13. Known Limitations
-
-Record temporary limitations.
-
-- Round progression logic (actual candidate comparisons and response recording) is scheduled for Case 3.
-- Vercel CLI interactive login prompt requires git-push deployment hook or CLI token.
-
----
-
-# 14. Important Files
-
-Keep track of important project files.
-
-Documentation:
-
-prd.md
-architecture.md
-rules.md
-phases.md
-design.md
-memory.md
-
-Database Migrations:
-
-supabase/migrations/20260916000000_create_game_sessions_and_players.sql
-
-Source:
-
-src/services/game/gameService.ts
-src/services/supabase/client.ts
-src/player/pages/JoinPage.tsx
-src/player/pages/LobbyPage.tsx
-src/host/pages/HostDashboardPage.tsx
-src/host/pages/HostEntryPage.tsx
-src/host/components/HostRouteGuard.tsx
-src/shared/utils/idGenerator.ts
-src/shared/utils/storage.ts
-vercel.json
-
----
-
-# 15. Latest Git Commit
-
-Update after meaningful commits.
+# 9. Latest Git Commit
 
 Commit:
-
-feat: add player game interface and basic game engine
-
-Date:
-
-2026-09-16
-
----
-
-# 16. Last Update
-
-Last Updated:
-
-2026-09-16 11:05 IST
-
-Updated By:
-
-AI Assistant
-
-Summary:
-
-Completed Case 4: Built core player gameplay experience on /play with GameProgressBar, CandidateCard shell with structured sections, DecisionPanel with confirmation and submitted waiting state, Supabase Realtime synchronization, Host live round controller on /host/game with next-round progression, and Vercel production deployment.
-
----
-
-# 17. Current Development Snapshot
+`feat: add candidate system and seven decision rounds`
 
 Date:
-
 2026-09-16
-
-Current Phase:
-
-PHASE 3 (Preparing Case 5 — 5-7 Scenarios & Decision Timer)
-
-Current File:
-
-src/player/pages/PlayPage.tsx
-
-Current Task:
-
-Case 4 Complete — Player Game Interface & Basic Game Engine Operational
-
-Completed:
-
-Player gameplay interface (/play), GameProgressBar (Round X / 7), CandidateCard, DecisionPanel with confirmation, Decision Submitted waiting state, Supabase Realtime auto-transition from Lobby to Play, Host round advancement (/host/game), session persistence on refresh, Vercel production deployment
-
-In Progress:
-
-Ready for Case 5
-
-Next:
-
-Case 5 — 5-7 Candidate Decision Scenarios, Round Timer & Response Persistence
-
-Known Issues:
-
-None
-
-Last Git Commit:
-
-feat: add player game interface and basic game engine

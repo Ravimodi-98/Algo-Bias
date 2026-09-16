@@ -1,20 +1,18 @@
 import React from 'react';
-import { Briefcase, GraduationCap, Code2, FolderGit2, CheckCircle2 } from 'lucide-react';
+import { 
+  Briefcase, 
+  GraduationCap, 
+  Code2, 
+  FolderGit2, 
+  CheckCircle2, 
+  MapPin, 
+  Info
+} from 'lucide-react';
 import { Badge } from '../../shared/components/Badge';
-
-export interface CandidateProfile {
-  id: 'A' | 'B';
-  name: string;
-  role: string;
-  experience: string;
-  education: string;
-  skills: string[];
-  projects: string;
-  highlightMetric?: string;
-}
+import type { Candidate } from '../../shared/data/rounds';
 
 export interface CandidateCardProps {
-  candidate: CandidateProfile;
+  candidate: Candidate;
   isSelected?: boolean;
   onSelect?: (id: 'A' | 'B') => void;
   disabled?: boolean;
@@ -28,15 +26,16 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
 }) => {
   const isA = candidate.id === 'A';
   const accentColor = isA ? 'var(--accent-cyan)' : 'var(--accent-purple)';
-  const borderHighlight = isSelected
+  
+  const borderStyle = isSelected
     ? `2px solid ${accentColor}`
     : '1px solid var(--border-subtle)';
 
-  const glowStyle = isSelected
+  const shadowStyle = isSelected
     ? isA 
-      ? '0 0 25px rgba(0, 240, 255, 0.25)' 
-      : '0 0 25px rgba(139, 92, 246, 0.25)'
-    : 'none';
+      ? '0 6px 24px rgba(2, 132, 199, 0.18)' 
+      : '0 6px 24px rgba(124, 58, 237, 0.18)'
+    : '0 2px 8px rgba(15, 23, 42, 0.04)';
 
   return (
     <div
@@ -47,10 +46,10 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
         flexDirection: 'column',
         gap: '1rem',
         padding: '1.25rem',
-        background: isSelected ? 'var(--bg-surface-secondary)' : 'var(--bg-surface)',
+        background: isSelected ? 'var(--bg-surface-secondary)' : '#ffffff',
         borderRadius: 'var(--radius-lg)',
-        border: borderHighlight,
-        boxShadow: glowStyle,
+        border: borderStyle,
+        boxShadow: shadowStyle,
         cursor: disabled ? 'default' : 'pointer',
         transition: 'all var(--transition-normal)',
         position: 'relative',
@@ -59,7 +58,7 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
       role="button"
       tabIndex={disabled ? -1 : 0}
       aria-pressed={isSelected}
-      aria-label={`Select ${candidate.name}`}
+      aria-label={`Select Candidate ${candidate.id}: ${candidate.name}`}
       onKeyDown={(e) => {
         if (!disabled && onSelect && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
@@ -67,15 +66,28 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
         }
       }}
     >
-      {/* Header: Candidate ID Badge & Name */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+      {/* Header: Candidate ID Badge, Highlight, and Name */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.35rem' }}>
             <Badge variant={isA ? 'cyan' : 'purple'}>
               CANDIDATE {candidate.id}
             </Badge>
-            {candidate.highlightMetric && (
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            {candidate.location && (
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.2rem',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: 'var(--text-muted)'
+              }}>
+                <MapPin size={12} color={accentColor} />
+                {candidate.location}
+              </span>
+            )}
+            {candidate.highlightMetric && !candidate.location && (
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                 &bull; {candidate.highlightMetric}
               </span>
             )}
@@ -94,25 +106,26 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
           <p style={{
             fontSize: '0.85rem',
             color: accentColor,
-            fontWeight: 600,
+            fontWeight: 700,
             margin: '0.2rem 0 0 0'
           }}>
             {candidate.role}
           </p>
         </div>
 
-        {/* Selection Indicator Check */}
+        {/* Selection Indicator Checkbox / Radio Circle */}
         <div style={{
-          width: '28px',
-          height: '28px',
+          width: '30px',
+          height: '30px',
           borderRadius: '50%',
-          border: isSelected ? `2px solid ${accentColor}` : '1px solid var(--border-subtle)',
-          background: isSelected ? accentColor : 'transparent',
-          color: '#080A0F',
+          border: isSelected ? `2px solid ${accentColor}` : '2px solid #cbd5e1',
+          background: isSelected ? accentColor : '#ffffff',
+          color: '#ffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          transition: 'all var(--transition-fast)'
+          transition: 'all var(--transition-fast)',
+          flexShrink: 0
         }}>
           {isSelected && <CheckCircle2 size={18} strokeWidth={3} />}
         </div>
@@ -121,69 +134,19 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
       {/* Structured Sections */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         
-        {/* Experience */}
-        <div style={{
-          background: 'var(--bg-base)',
-          padding: '0.75rem',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-subtle)'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            fontSize: '0.72rem',
-            fontWeight: 700,
-            color: 'var(--text-muted)',
-            marginBottom: '0.25rem',
-            letterSpacing: '0.05em'
-          }}>
-            <Briefcase size={12} color={accentColor} />
-            <span>PROFESSIONAL EXPERIENCE</span>
-          </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-            {candidate.experience}
-          </p>
-        </div>
-
-        {/* Education */}
-        <div style={{
-          background: 'var(--bg-base)',
-          padding: '0.75rem',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-subtle)'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            fontSize: '0.72rem',
-            fontWeight: 700,
-            color: 'var(--text-muted)',
-            marginBottom: '0.25rem',
-            letterSpacing: '0.05em'
-          }}>
-            <GraduationCap size={12} color={accentColor} />
-            <span>EDUCATION & CREDENTIALS</span>
-          </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-            {candidate.education}
-          </p>
-        </div>
-
-        {/* Skills Chips */}
+        {/* Core Competencies / Skills Chips */}
         <div>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.4rem',
             fontSize: '0.72rem',
-            fontWeight: 700,
+            fontWeight: 800,
             color: 'var(--text-muted)',
             marginBottom: '0.4rem',
             letterSpacing: '0.05em'
           }}>
-            <Code2 size={12} color={accentColor} />
+            <Code2 size={13} color={accentColor} />
             <span>CORE COMPETENCIES</span>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
@@ -193,11 +156,13 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
                 className="font-mono"
                 style={{
                   fontSize: '0.75rem',
-                  padding: '0.2rem 0.55rem',
-                  background: 'rgba(255, 255, 255, 0.04)',
+                  fontWeight: 600,
+                  padding: '0.25rem 0.6rem',
+                  background: '#ffffff',
                   border: '1px solid var(--border-subtle)',
                   borderRadius: 'var(--radius-sm)',
-                  color: 'var(--text-primary)'
+                  color: 'var(--text-primary)',
+                  boxShadow: '0 1px 2px rgba(15, 23, 42, 0.03)'
                 }}
               >
                 {skill}
@@ -206,10 +171,10 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
           </div>
         </div>
 
-        {/* Key Project Highlight */}
+        {/* Professional Experience */}
         <div style={{
-          background: 'var(--bg-base)',
-          padding: '0.75rem',
+          background: 'var(--bg-surface-secondary)',
+          padding: '0.75rem 0.85rem',
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--border-subtle)'
         }}>
@@ -218,7 +183,32 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
             alignItems: 'center',
             gap: '0.4rem',
             fontSize: '0.72rem',
-            fontWeight: 700,
+            fontWeight: 800,
+            color: 'var(--text-muted)',
+            marginBottom: '0.25rem',
+            letterSpacing: '0.05em'
+          }}>
+            <Briefcase size={12} color={accentColor} />
+            <span>PROFESSIONAL EXPERIENCE</span>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+            {candidate.experience}
+          </p>
+        </div>
+
+        {/* Project Portfolio */}
+        <div style={{
+          background: 'var(--bg-surface-secondary)',
+          padding: '0.75rem 0.85rem',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--border-subtle)'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            fontSize: '0.72rem',
+            fontWeight: 800,
             color: 'var(--text-muted)',
             marginBottom: '0.25rem',
             letterSpacing: '0.05em'
@@ -226,10 +216,68 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
             <FolderGit2 size={12} color={accentColor} />
             <span>PROJECT PORTFOLIO</span>
           </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
+          <p style={{ 
+            fontSize: '0.85rem', 
+            color: 'var(--text-secondary)', 
+            margin: 0, 
+            lineHeight: 1.45,
+            fontStyle: candidate.presentationStyle === 'narrative' ? 'italic' : 'normal'
+          }}>
             {candidate.projects}
           </p>
         </div>
+
+        {/* Education & Credentials */}
+        <div style={{
+          background: 'var(--bg-surface-secondary)',
+          padding: '0.75rem 0.85rem',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--border-subtle)'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            fontSize: '0.72rem',
+            fontWeight: 800,
+            color: 'var(--text-muted)',
+            marginBottom: '0.25rem',
+            letterSpacing: '0.05em'
+          }}>
+            <GraduationCap size={12} color={accentColor} />
+            <span>EDUCATION & CREDENTIALS</span>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+            {candidate.education}
+          </p>
+        </div>
+
+        {/* Additional / Contextual Details (When present) */}
+        {candidate.details && (
+          <div style={{
+            background: 'var(--bg-surface-secondary)',
+            padding: '0.75rem 0.85rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-subtle)'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              color: 'var(--text-muted)',
+              marginBottom: '0.25rem',
+              letterSpacing: '0.05em'
+            }}>
+              <Info size={12} color={accentColor} />
+              <span>PROFILE DETAILS</span>
+            </div>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+              {candidate.details}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

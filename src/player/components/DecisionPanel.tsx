@@ -46,24 +46,24 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'rgba(139, 92, 246, 0.15)',
-              border: '1px solid rgba(139, 92, 246, 0.4)',
+              background: 'rgba(124, 58, 237, 0.12)',
+              border: '1px solid rgba(124, 58, 237, 0.3)',
               animation: 'decision-pulse 2.5s infinite ease-out'
             }} />
             <div style={{
-              width: '48px',
-              height: '48px',
+              width: '50px',
+              height: '50px',
               borderRadius: '50%',
-              background: 'var(--bg-surface-secondary)',
-              border: '1px solid var(--accent-purple)',
+              background: '#ffffff',
+              border: '2px solid var(--accent-purple)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'var(--accent-purple)',
-              boxShadow: '0 0 20px rgba(139, 92, 246, 0.5)',
+              boxShadow: '0 4px 16px rgba(124, 58, 237, 0.25)',
               zIndex: 2
             }}>
-              <Clock size={22} />
+              <Clock size={24} />
             </div>
           </div>
 
@@ -78,32 +78,32 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
               fontWeight: 800,
               color: 'var(--text-primary)',
               letterSpacing: '-0.01em',
-              margin: '0.5rem 0 0.25rem 0'
+              margin: '0.6rem 0 0.25rem 0'
             }}>
-              DECISION SUBMITTED
+              Decision Submitted
             </h2>
 
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: 0 }}>
-              You selected <strong className="text-cyan font-mono">CANDIDATE {selectedCandidate}</strong> for Round {currentRound}.
+            <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', margin: 0, fontWeight: 500 }}>
+              Your selection for <strong className="text-cyan font-mono">CANDIDATE {selectedCandidate}</strong> has been logged for Round {currentRound}.
             </p>
           </div>
 
           <div style={{
-            background: 'var(--bg-base)',
+            background: 'var(--bg-surface-secondary)',
             padding: '0.9rem 1.25rem',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-subtle)',
-            fontSize: '0.82rem',
-            color: 'var(--text-muted)',
+            fontSize: '0.85rem',
+            color: 'var(--text-secondary)',
             lineHeight: 1.5,
-            maxWidth: '380px'
+            maxWidth: '400px'
           }}>
-            Waiting for the host to advance the simulation. Your screen will automatically load Round {currentRound + 1} when initiated.
+            Standing by for presenter progression. Your device will automatically load Round {Math.min(currentRound + 1, 7)} when initiated by the host.
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
             <ShieldCheck size={14} color="var(--color-success)" />
-            <span>Response locked in. Prevents duplicate submissions.</span>
+            <span>Response locked in. One decision per participant per round.</span>
           </div>
         </div>
 
@@ -130,7 +130,7 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             display: 'block',
             marginBottom: '0.25rem'
           }}>
-            ACTION REQUIRED
+            DECISION REQUIRED
           </span>
 
           <h2 style={{
@@ -140,15 +140,15 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             letterSpacing: '-0.01em',
             margin: 0
           }}>
-            MAKE YOUR DECISION
+            Select Candidate
           </h2>
 
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
-            Select the candidate that best aligns with your algorithmic evaluation criteria.
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
+            Choose the candidate that your automated evaluation system would advance to the next stage.
           </p>
         </div>
 
-        {/* Quick Selection Buttons Grid */}
+        {/* Selection Buttons Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
@@ -159,25 +159,26 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             onClick={() => onSelectCandidate('A')}
             disabled={isSubmitting}
             style={{
-              padding: '1rem',
+              padding: '1.1rem 0.85rem',
               borderRadius: 'var(--radius-md)',
               border: selectedCandidate === 'A' 
                 ? '2px solid var(--accent-cyan)' 
-                : '1px solid var(--border-subtle)',
+                : '1px solid #cbd5e1',
               background: selectedCandidate === 'A' 
-                ? 'rgba(0, 240, 255, 0.15)' 
-                : 'var(--bg-base)',
+                ? 'rgba(2, 132, 199, 0.08)' 
+                : '#ffffff',
               color: selectedCandidate === 'A' ? 'var(--accent-cyan)' : 'var(--text-primary)',
               cursor: 'pointer',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               gap: '0.35rem',
-              transition: 'all var(--transition-fast)'
+              transition: 'all var(--transition-fast)',
+              boxShadow: selectedCandidate === 'A' ? '0 2px 10px rgba(2, 132, 199, 0.15)' : '0 1px 2px rgba(15, 23, 42, 0.03)'
             }}
             aria-pressed={selectedCandidate === 'A'}
           >
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 1</span>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 1</span>
             <span className="font-mono" style={{ fontSize: '1.15rem', fontWeight: 900 }}>
               CANDIDATE A
             </span>
@@ -188,25 +189,26 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             onClick={() => onSelectCandidate('B')}
             disabled={isSubmitting}
             style={{
-              padding: '1rem',
+              padding: '1.1rem 0.85rem',
               borderRadius: 'var(--radius-md)',
               border: selectedCandidate === 'B' 
                 ? '2px solid var(--accent-purple)' 
-                : '1px solid var(--border-subtle)',
+                : '1px solid #cbd5e1',
               background: selectedCandidate === 'B' 
-                ? 'rgba(139, 92, 246, 0.15)' 
-                : 'var(--bg-base)',
+                ? 'rgba(124, 58, 237, 0.08)' 
+                : '#ffffff',
               color: selectedCandidate === 'B' ? 'var(--accent-purple)' : 'var(--text-primary)',
               cursor: 'pointer',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               gap: '0.35rem',
-              transition: 'all var(--transition-fast)'
+              transition: 'all var(--transition-fast)',
+              boxShadow: selectedCandidate === 'B' ? '0 2px 10px rgba(124, 58, 237, 0.15)' : '0 1px 2px rgba(15, 23, 42, 0.03)'
             }}
             aria-pressed={selectedCandidate === 'B'}
           >
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 2</span>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 2</span>
             <span className="font-mono" style={{ fontSize: '1.15rem', fontWeight: 900 }}>
               CANDIDATE B
             </span>
@@ -226,7 +228,7 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             padding: '1rem',
             fontSize: '1rem',
             fontWeight: 800,
-            letterSpacing: '0.05em'
+            letterSpacing: '0.04em'
           }}
         >
           {isSubmitting 

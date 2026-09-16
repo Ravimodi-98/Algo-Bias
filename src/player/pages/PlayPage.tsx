@@ -6,10 +6,11 @@ import {
   Sparkles,
   Wifi,
   WifiOff,
-  LogOut
+  LogOut,
+  Target
 } from 'lucide-react';
 import { GameProgressBar } from '../components/GameProgressBar';
-import { CandidateCard, CandidateProfile } from '../components/CandidateCard';
+import { CandidateCard } from '../components/CandidateCard';
 import { DecisionPanel } from '../components/DecisionPanel';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
@@ -18,33 +19,8 @@ import { LoadingState } from '../../shared/components/LoadingState';
 import { storage } from '../../shared/utils/storage';
 import { gameService } from '../../services/game/gameService';
 import { supabase } from '../../services/supabase/client';
+import { getRoundData } from '../../shared/data/rounds';
 import type { PlayerSession, DbGameSession } from '../../shared/types';
-
-// Fictional round candidates generator for Case 4 gameplay shell
-const getFictionalCandidatesForRound = (round: number): { a: CandidateProfile; b: CandidateProfile } => {
-  return {
-    a: {
-      id: 'A',
-      name: `Candidate ${String(round).padStart(2, '0')}-A`,
-      role: 'Software Systems Engineer',
-      experience: `${3 + (round % 3)} years experience building distributed backend services and real-time processing pipelines.`,
-      education: 'B.S. in Computer Science, State University (Honors Graduate)',
-      skills: ['Python', 'TypeScript', 'Distributed Systems', 'PostgreSQL', 'Docker'],
-      projects: 'Architected high-throughput data synchronization engine processing 40k events/sec.',
-      highlightMetric: 'Top 5% Technical Screening Score'
-    },
-    b: {
-      id: 'B',
-      name: `Candidate ${String(round).padStart(2, '0')}-B`,
-      role: 'Software Systems Engineer',
-      experience: `${4 + (round % 2)} years experience in enterprise systems architecture, fault tolerance, and API performance.`,
-      education: 'B.S. in Software Engineering, Institute of Technology',
-      skills: ['Go', 'Kubernetes', 'Cloud Architecture', 'Redis', 'Microservices'],
-      projects: 'Engineered mission-critical payment settlement gateway maintaining 99.99% uptime.',
-      highlightMetric: 'Extensive Production Architecture Experience'
-    }
-  };
-};
 
 export const PlayPage: React.FC = () => {
   const navigate = useNavigate();
@@ -92,7 +68,6 @@ export const PlayPage: React.FC = () => {
     setGameSession(game);
 
     if (game.status === 'waiting') {
-      // Game has not started yet
       setErrorNotice('GAME_NOT_STARTED');
       setIsLoading(false);
       return;
@@ -104,7 +79,7 @@ export const PlayPage: React.FC = () => {
       return;
     }
 
-    const roundNum = game.current_round > 0 ? game.current_round : 1;
+    const roundNum = Math.max(1, Math.min(game.current_round || 1, 7));
     setCurrentRound(roundNum);
 
     // Check if decision was already recorded for this round in local storage
@@ -165,10 +140,19 @@ export const PlayPage: React.FC = () => {
             }
 
             if (updated.status === 'active' && updated.current_round !== currentRound) {
-              const nextRound = updated.current_round;
+              const nextRound = Math.max(1, Math.min(updated.current_round || 1, 7));
               setCurrentRound(nextRound);
-              setSelectedCandidate(null);
-              setHasSubmitted(false);
+              
+              // Restore previously recorded decision if player already voted in this round
+              const saved = localStorage.getItem(`decision_${session.sessionId}_round_${nextRound}`);
+              if (saved === 'A' || saved === 'B') {
+                setSelectedCandidate(saved);
+                setHasSubmitted(true);
+              } else {
+                setSelectedCandidate(null);
+                setHasSubmitted(false);
+              }
+
               setRoundNotification(`ROUND ${nextRound} INITIATED BY HOST`);
               setTimeout(() => setRoundNotification(null), 4000);
             }
@@ -193,7 +177,7 @@ export const PlayPage: React.FC = () => {
     setTimeout(() => {
       setIsSubmitting(false);
       setHasSubmitted(true);
-    }, 400);
+    }, 350);
   };
 
   const handleLeaveGame = () => {
@@ -273,12 +257,13 @@ export const PlayPage: React.FC = () => {
     );
   }
 
-  const candidates = getFictionalCandidatesForRound(currentRound);
+  // Authoritative Round Data for current round
+  const roundData = getRoundData(currentRound);
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       
-      {/* Network Status & Callsign Info Bar */}
+      {/* Network Status & Callsign Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Badge variant={connectionStatus === 'connected' ? 'cyan' : 'warning'}>
@@ -295,7 +280,7 @@ export const PlayPage: React.FC = () => {
             )}
           </Badge>
 
-          <span className="font-mono text-cyan" style={{ fontSize: '0.8rem', fontWeight: 700 }}>
+          <span className="font-mono text-cyan" style={{ fontSize: '0.8rem', fontWeight: 800 }}>
             {session?.anonymousName}
           </span>
         </div>
@@ -310,7 +295,8 @@ export const PlayPage: React.FC = () => {
             fontSize: '0.75rem',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.25rem'
+            gap: '0.25rem',
+            padding: '0.25rem 0.5rem'
           }}
           title="Exit Session"
         >
@@ -323,7 +309,7 @@ export const PlayPage: React.FC = () => {
         <div 
           className="animate-fade-in"
           style={{
-            background: 'linear-gradient(90deg, rgba(0, 240, 255, 0.2), rgba(139, 92, 246, 0.2))',
+            background: 'rgba(2, 132, 199, 0.08)',
             border: '1px solid var(--accent-cyan)',
             borderRadius: 'var(--radius-md)',
             padding: '0.75rem 1rem',
@@ -331,7 +317,7 @@ export const PlayPage: React.FC = () => {
             fontSize: '0.88rem',
             fontWeight: 800,
             color: 'var(--accent-cyan)',
-            letterSpacing: '0.05em'
+            letterSpacing: '0.04em'
           }}
         >
           {roundNotification}
@@ -345,41 +331,94 @@ export const PlayPage: React.FC = () => {
         gameCode={gameSession?.game_code || session?.gameCode} 
       />
 
-      {/* Instruction Note */}
+      {/* Scenario Context Card */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.02)',
-        padding: '0.75rem 1rem',
-        borderRadius: 'var(--radius-md)',
+        background: '#ffffff',
+        padding: '1rem 1.15rem',
+        borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--border-subtle)',
-        fontSize: '0.82rem',
-        color: 'var(--text-secondary)',
-        lineHeight: 1.4
+        boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.4rem'
       }}>
-        <span style={{ color: 'var(--accent-cyan)', fontWeight: 700 }}>SCENARIO:</span> Compare Candidate A and Candidate B below. Determine which candidate your automated screening system selects.
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <Target size={14} color="var(--accent-cyan)" />
+          <span style={{
+            fontSize: '0.72rem',
+            fontWeight: 800,
+            letterSpacing: '0.1em',
+            color: 'var(--accent-cyan)',
+            textTransform: 'uppercase'
+          }}>
+            ROUND {currentRound} &bull; {roundData.title}
+          </span>
+        </div>
+
+        <h1 style={{
+          fontSize: '1.15rem',
+          fontWeight: 800,
+          color: 'var(--text-primary)',
+          margin: 0,
+          letterSpacing: '-0.01em'
+        }}>
+          {roundData.role}
+        </h1>
+
+        <p style={{
+          fontSize: '0.85rem',
+          color: 'var(--text-secondary)',
+          lineHeight: 1.45,
+          margin: 0
+        }}>
+          {roundData.context}
+        </p>
       </div>
 
-      {/* Candidate Comparison Cards Grid (Mobile-First 1 Column, Desktop 2 Columns) */}
+      {/* Candidate A Card */}
+      <CandidateCard
+        candidate={roundData.candidateA}
+        isSelected={selectedCandidate === 'A'}
+        onSelect={(id) => !hasSubmitted && setSelectedCandidate(id)}
+        disabled={hasSubmitted}
+      />
+
+      {/* Mobile-Friendly VS Divider */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '1.25rem'
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '0.1rem 0'
       }}>
-        <CandidateCard
-          candidate={candidates.a}
-          isSelected={selectedCandidate === 'A'}
-          onSelect={(id) => !hasSubmitted && setSelectedCandidate(id)}
-          disabled={hasSubmitted}
-        />
-
-        <CandidateCard
-          candidate={candidates.b}
-          isSelected={selectedCandidate === 'B'}
-          onSelect={(id) => !hasSubmitted && setSelectedCandidate(id)}
-          disabled={hasSubmitted}
-        />
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '38px',
+          height: '38px',
+          borderRadius: '50%',
+          background: '#ffffff',
+          border: '1px solid #cbd5e1',
+          boxShadow: '0 2px 8px rgba(15, 23, 42, 0.06)',
+          color: 'var(--text-muted)',
+          fontFamily: 'var(--font-mono)',
+          fontSize: '0.8rem',
+          fontWeight: 900,
+          letterSpacing: '0.05em'
+        }}>
+          VS
+        </div>
       </div>
 
-      {/* Decision Area & Submitted Waiting Transition */}
+      {/* Candidate B Card */}
+      <CandidateCard
+        candidate={roundData.candidateB}
+        isSelected={selectedCandidate === 'B'}
+        onSelect={(id) => !hasSubmitted && setSelectedCandidate(id)}
+        disabled={hasSubmitted}
+      />
+
+      {/* Decision Area & Submitted Waiting State */}
       <DecisionPanel
         selectedCandidate={selectedCandidate}
         onSelectCandidate={(id) => !hasSubmitted && setSelectedCandidate(id)}

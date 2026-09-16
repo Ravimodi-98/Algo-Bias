@@ -20,12 +20,12 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
       <div style={{
         width: '40px',
         height: '40px',
-        border: '3px solid rgba(0, 240, 255, 0.2)',
+        border: '3px solid rgba(2, 132, 199, 0.15)',
         borderTopColor: 'var(--accent-cyan)',
         borderRadius: '50%',
         animation: 'spin 0.8s linear infinite'
       }} />
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', fontWeight: 500 }}>
         {message}
       </p>
       <style>{`

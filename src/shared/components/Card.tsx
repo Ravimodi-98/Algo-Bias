@@ -13,12 +13,13 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   const glowStyle: React.CSSProperties = {
     padding: '1.5rem',
+    background: '#ffffff',
     boxShadow: 
       glow === 'cyan' 
-        ? '0 0 25px rgba(0, 240, 255, 0.12)' 
+        ? '0 4px 20px rgba(2, 132, 199, 0.12), 0 1px 3px rgba(15, 23, 42, 0.05)' 
         : glow === 'purple' 
-        ? '0 0 25px rgba(139, 92, 246, 0.12)' 
-        : 'none',
+        ? '0 4px 20px rgba(124, 58, 237, 0.12), 0 1px 3px rgba(15, 23, 42, 0.05)' 
+        : '0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.03)',
     borderColor:
       glow === 'cyan'
         ? 'var(--border-cyan)'

@@ -8,7 +8,7 @@
 
 .player-container {
   width: 100%;
-  max-width: 480px;
+  max-width: 580px;
   margin: 0 auto;
   min-height: 100vh;
   display: flex;
@@ -17,15 +17,15 @@
   border-right: 1px solid var(--border-subtle);
   background: var(--bg-surface);
   position: relative;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 30px rgba(15, 23, 42, 0.06);
 }
 
 .player-content {
   flex: 1;
-  padding: 1.5rem 1.25rem;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .player-footer {
@@ -34,10 +34,10 @@
   font-size: 0.72rem;
   color: var(--text-muted);
   border-top: 1px solid var(--border-subtle);
-  background: rgba(8, 10, 15, 0.6);
+  background: var(--bg-surface-secondary);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 580px) {
   .player-container {
     border-left: none;
     border-right: none;
