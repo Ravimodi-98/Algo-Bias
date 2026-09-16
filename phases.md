@@ -68,10 +68,10 @@ Build the core round system.
 
 - [x] Round system shell
 - [x] Candidate data structure
-- [x] Candidate cards
+- [x] Compact candidate cards
 - [x] Decision buttons
-- [ ] Timer (Queued for Case 5)
-- [x] Submit response
+- [x] Synchronized Countdown Timer (Case 6)
+- [x] Submit response to database
 - [x] Prevent duplicate responses
 - [x] Round progression (Host control & Realtime sync)
 - [x] Player progress indicator
@@ -358,6 +358,6 @@ After each phase:
 
 # Current Phase
  
-- PHASE 4 COMPLETE — Candidate Decision Rounds (Preparing Phase 5: Live Results & Persisted Submissions)
+- CASE 6 COMPLETE — Timer, Decision Submission, Compact Cards & Round Progression (Preparing Case 7: Live Results)
 
 Update this section whenever development progresses.

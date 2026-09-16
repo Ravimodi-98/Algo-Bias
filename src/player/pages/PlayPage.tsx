@@ -10,6 +10,7 @@ import {
   Target
 } from 'lucide-react';
 import { GameProgressBar } from '../components/GameProgressBar';
+import { CountdownTimer } from '../components/CountdownTimer';
 import { CandidateCard } from '../components/CandidateCard';
 import { DecisionPanel } from '../components/DecisionPanel';
 import { Card } from '../../shared/components/Card';
@@ -19,7 +20,7 @@ import { LoadingState } from '../../shared/components/LoadingState';
 import { storage } from '../../shared/utils/storage';
 import { gameService } from '../../services/game/gameService';
 import { supabase } from '../../services/supabase/client';
-import { getRoundData } from '../../shared/data/rounds';
+import { getRoundData, ROUND_TIME_LIMIT } from '../../shared/data/rounds';
 import type { PlayerSession, DbGameSession } from '../../shared/types';
 
 export const PlayPage: React.FC = () => {
@@ -30,6 +31,7 @@ export const PlayPage: React.FC = () => {
   const [selectedCandidate, setSelectedCandidate] = useState<'A' | 'B' | null>(null);
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'reconnecting'>('connected');
@@ -79,17 +81,38 @@ export const PlayPage: React.FC = () => {
       return;
     }
 
+    // Authoritative current round (clamped 1 to 7)
     const roundNum = Math.max(1, Math.min(game.current_round || 1, 7));
     setCurrentRound(roundNum);
 
-    // Check if decision was already recorded for this round in local storage
-    const savedRoundDecision = localStorage.getItem(`decision_${activePlayer.sessionId}_round_${roundNum}`);
-    if (savedRoundDecision === 'A' || savedRoundDecision === 'B') {
-      setSelectedCandidate(savedRoundDecision);
+    // Check if decision was already recorded in database
+    const dbResponse = await gameService.getPlayerResponse(activePlayer.sessionId, activePlayer.playerId, roundNum);
+    if (dbResponse) {
+      setSelectedCandidate(dbResponse.selected_candidate);
       setHasSubmitted(true);
+      setIsTimedOut(false);
     } else {
-      setSelectedCandidate(null);
-      setHasSubmitted(false);
+      // Check local storage fallback
+      const savedRoundDecision = localStorage.getItem(`decision_${activePlayer.sessionId}_round_${roundNum}`);
+      if (savedRoundDecision === 'A' || savedRoundDecision === 'B') {
+        setSelectedCandidate(savedRoundDecision);
+        setHasSubmitted(true);
+        setIsTimedOut(false);
+      } else {
+        setSelectedCandidate(null);
+        setHasSubmitted(false);
+
+        // Check if authoritative round timer has expired
+        const startTimeStr = game.round_started_at || game.updated_at;
+        if (startTimeStr) {
+          const elapsed = (Date.now() - new Date(startTimeStr).getTime()) / 1000;
+          if (elapsed >= ROUND_TIME_LIMIT) {
+            setIsTimedOut(true);
+          } else {
+            setIsTimedOut(false);
+          }
+        }
+      }
     }
 
     setIsLoading(false);
@@ -129,7 +152,7 @@ export const PlayPage: React.FC = () => {
           table: 'game_sessions',
           filter: `id=eq.${session.sessionId}`
         },
-        (payload) => {
+        async (payload) => {
           const updated = payload.new as DbGameSession;
           if (updated) {
             setGameSession(updated);
@@ -142,11 +165,12 @@ export const PlayPage: React.FC = () => {
             if (updated.status === 'active' && updated.current_round !== currentRound) {
               const nextRound = Math.max(1, Math.min(updated.current_round || 1, 7));
               setCurrentRound(nextRound);
-              
-              // Restore previously recorded decision if player already voted in this round
-              const saved = localStorage.getItem(`decision_${session.sessionId}_round_${nextRound}`);
-              if (saved === 'A' || saved === 'B') {
-                setSelectedCandidate(saved);
+              setIsTimedOut(false);
+
+              // Check if player already submitted response for this round
+              const existingResponse = await gameService.getPlayerResponse(session.sessionId, session.playerId, nextRound);
+              if (existingResponse) {
+                setSelectedCandidate(existingResponse.selected_candidate);
                 setHasSubmitted(true);
               } else {
                 setSelectedCandidate(null);
@@ -154,7 +178,7 @@ export const PlayPage: React.FC = () => {
               }
 
               setRoundNotification(`ROUND ${nextRound} INITIATED BY HOST`);
-              setTimeout(() => setRoundNotification(null), 4000);
+              setTimeout(() => setRoundNotification(null), 3500);
             }
           }
         }
@@ -164,20 +188,37 @@ export const PlayPage: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [session?.sessionId, currentRound]);
+  }, [session?.sessionId, session?.playerId, currentRound]);
 
-  // 4. Decision Submission Handler
-  const handleSubmitDecision = () => {
-    if (!selectedCandidate || !session) return;
+  // 4. Decision Submission Handler (Database Persisted)
+  const handleSubmitDecision = async () => {
+    if (!selectedCandidate || !session || isSubmitting || isTimedOut) return;
     setIsSubmitting(true);
 
-    // Save decision state for current round
-    localStorage.setItem(`decision_${session.sessionId}_round_${currentRound}`, selectedCandidate);
+    try {
+      // Save in Supabase responses table with duplicate protection
+      await gameService.submitResponse(
+        session.sessionId,
+        session.playerId,
+        currentRound,
+        selectedCandidate
+      );
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+      // Fallback local storage backup
+      localStorage.setItem(`decision_${session.sessionId}_round_${currentRound}`, selectedCandidate);
+
       setHasSubmitted(true);
-    }, 350);
+    } catch (err) {
+      console.error('Error submitting response:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleTimeout = () => {
+    if (!hasSubmitted) {
+      setIsTimedOut(true);
+    }
   };
 
   const handleLeaveGame = () => {
@@ -243,10 +284,10 @@ export const PlayPage: React.FC = () => {
           <div style={{ padding: '1.5rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
             <Sparkles size={40} color="var(--accent-cyan)" />
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-              THIS GAME HAS ENDED
+              SIMULATION CONCLUDED
             </h2>
             <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', maxWidth: '340px' }}>
-              Thanks for participating in THE DECISION algorithmic fairness simulation.
+              All decision rounds have been completed. Thank you for participating in THE DECISION.
             </p>
             <Button variant="secondary" onClick={handleLeaveGame}>
               JOIN ANOTHER GAME
@@ -261,7 +302,7 @@ export const PlayPage: React.FC = () => {
   const roundData = getRoundData(currentRound);
 
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
       
       {/* Network Status & Callsign Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -312,9 +353,9 @@ export const PlayPage: React.FC = () => {
             background: 'rgba(2, 132, 199, 0.08)',
             border: '1px solid var(--accent-cyan)',
             borderRadius: 'var(--radius-md)',
-            padding: '0.75rem 1rem',
+            padding: '0.65rem 1rem',
             textAlign: 'center',
-            fontSize: '0.88rem',
+            fontSize: '0.85rem',
             fontWeight: 800,
             color: 'var(--accent-cyan)',
             letterSpacing: '0.04em'
@@ -331,23 +372,31 @@ export const PlayPage: React.FC = () => {
         gameCode={gameSession?.game_code || session?.gameCode} 
       />
 
-      {/* Scenario Context Card */}
+      {/* Synchronized Countdown Timer */}
+      <CountdownTimer
+        roundStartedAt={gameSession?.round_started_at || gameSession?.updated_at}
+        isSubmitted={hasSubmitted}
+        onTimeout={handleTimeout}
+        timeLimit={ROUND_TIME_LIMIT}
+      />
+
+      {/* Compact Scenario Header Card */}
       <div style={{
         background: '#ffffff',
-        padding: '1rem 1.15rem',
-        borderRadius: 'var(--radius-lg)',
+        padding: '0.75rem 0.95rem',
+        borderRadius: 'var(--radius-md)',
         border: '1px solid var(--border-subtle)',
-        boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.4rem'
+        gap: '0.25rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <Target size={14} color="var(--accent-cyan)" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Target size={13} color="var(--accent-cyan)" />
           <span style={{
-            fontSize: '0.72rem',
+            fontSize: '0.7rem',
             fontWeight: 800,
-            letterSpacing: '0.1em',
+            letterSpacing: '0.08em',
             color: 'var(--accent-cyan)',
             textTransform: 'uppercase'
           }}>
@@ -355,32 +404,22 @@ export const PlayPage: React.FC = () => {
           </span>
         </div>
 
-        <h1 style={{
-          fontSize: '1.15rem',
-          fontWeight: 800,
-          color: 'var(--text-primary)',
-          margin: 0,
-          letterSpacing: '-0.01em'
-        }}>
-          {roundData.role}
-        </h1>
-
         <p style={{
-          fontSize: '0.85rem',
+          fontSize: '0.82rem',
           color: 'var(--text-secondary)',
-          lineHeight: 1.45,
+          lineHeight: 1.4,
           margin: 0
         }}>
           {roundData.context}
         </p>
       </div>
 
-      {/* Candidate A Card */}
+      {/* Candidate A Card (Compact) */}
       <CandidateCard
         candidate={roundData.candidateA}
         isSelected={selectedCandidate === 'A'}
-        onSelect={(id) => !hasSubmitted && setSelectedCandidate(id)}
-        disabled={hasSubmitted}
+        onSelect={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
+        disabled={hasSubmitted || isTimedOut}
       />
 
       {/* Mobile-Friendly VS Divider */}
@@ -388,21 +427,21 @@ export const PlayPage: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        margin: '0.1rem 0'
+        margin: '0.05rem 0'
       }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '38px',
-          height: '38px',
+          width: '32px',
+          height: '32px',
           borderRadius: '50%',
           background: '#ffffff',
           border: '1px solid #cbd5e1',
-          boxShadow: '0 2px 8px rgba(15, 23, 42, 0.06)',
+          boxShadow: '0 1px 4px rgba(15, 23, 42, 0.06)',
           color: 'var(--text-muted)',
           fontFamily: 'var(--font-mono)',
-          fontSize: '0.8rem',
+          fontSize: '0.75rem',
           fontWeight: 900,
           letterSpacing: '0.05em'
         }}>
@@ -410,21 +449,22 @@ export const PlayPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Candidate B Card */}
+      {/* Candidate B Card (Compact) */}
       <CandidateCard
         candidate={roundData.candidateB}
         isSelected={selectedCandidate === 'B'}
-        onSelect={(id) => !hasSubmitted && setSelectedCandidate(id)}
-        disabled={hasSubmitted}
+        onSelect={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
+        disabled={hasSubmitted || isTimedOut}
       />
 
-      {/* Decision Area & Submitted Waiting State */}
+      {/* Decision Area & Submitted/Timeout Waiting State */}
       <DecisionPanel
         selectedCandidate={selectedCandidate}
-        onSelectCandidate={(id) => !hasSubmitted && setSelectedCandidate(id)}
+        onSelectCandidate={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
         onSubmitDecision={handleSubmitDecision}
         isSubmitting={isSubmitting}
         hasSubmitted={hasSubmitted}
+        isTimedOut={isTimedOut}
         currentRound={currentRound}
       />
     </div>

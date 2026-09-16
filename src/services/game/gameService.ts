@@ -1,6 +1,6 @@
 import { supabase } from '../supabase/client';
 import { generateGameCode } from '../../shared/utils/idGenerator';
-import type { DbGameSession, DbPlayer } from '../../shared/types';
+import type { DbGameSession, DbPlayer, DbResponse } from '../../shared/types';
 
 export const gameService = {
   /**
@@ -37,7 +37,8 @@ export const gameService = {
           game_code: uniqueCode,
           host_id: hostId,
           status: 'waiting',
-          current_round: 0
+          current_round: 0,
+          round_started_at: new Date().toISOString()
         })
         .select()
         .single();
@@ -244,8 +245,96 @@ export const gameService = {
   },
 
   /**
+   * Submits a player's decision for a specific round.
+   * Enforces single submission per player per round via unique constraint.
+   */
+  async submitResponse(
+    sessionId: string,
+    playerId: string,
+    roundNumber: number,
+    selectedCandidate: 'A' | 'B'
+  ): Promise<{ response: DbResponse | null; error: string | null; isDuplicate?: boolean }> {
+    try {
+      const { data, error } = await supabase
+        .from('responses')
+        .insert({
+          session_id: sessionId,
+          player_id: playerId,
+          round_number: roundNumber,
+          selected_candidate: selectedCandidate
+        })
+        .select()
+        .single();
+
+      if (error) {
+        // If unique constraint violation (code 23505), fetch existing response
+        if (error.code === '23505') {
+          const existing = await this.getPlayerResponse(sessionId, playerId, roundNumber);
+          return { response: existing, error: null, isDuplicate: true };
+        }
+        console.error('Error submitting response:', error);
+        return { response: null, error: 'Could not record decision.' };
+      }
+
+      return { response: data as DbResponse, error: null };
+    } catch (err) {
+      console.error('Unexpected error in submitResponse:', err);
+      return { response: null, error: 'System error while recording response.' };
+    }
+  },
+
+  /**
+   * Retrieves a player's submitted decision for a given round.
+   */
+  async getPlayerResponse(
+    sessionId: string,
+    playerId: string,
+    roundNumber: number
+  ): Promise<DbResponse | null> {
+    try {
+      const { data, error } = await supabase
+        .from('responses')
+        .select('*')
+        .eq('session_id', sessionId)
+        .eq('player_id', playerId)
+        .eq('round_number', roundNumber)
+        .maybeSingle();
+
+      if (error || !data) {
+        return null;
+      }
+
+      return data as DbResponse;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Retrieves all responses for a specific round in a session (for Host response count).
+   */
+  async getSessionRoundResponses(sessionId: string, roundNumber: number): Promise<DbResponse[]> {
+    try {
+      const { data, error } = await supabase
+        .from('responses')
+        .select('*')
+        .eq('session_id', sessionId)
+        .eq('round_number', roundNumber);
+
+      if (error || !data) {
+        return [];
+      }
+
+      return data as DbResponse[];
+    } catch {
+      return [];
+    }
+  },
+
+  /**
    * Host updates game state (status or round).
    * Strictly verifies that the caller owns this game session before updating.
+   * Updates round_started_at so countdown timers synchronize across all student devices.
    */
   async updateGameState(
     sessionId: string, 
@@ -275,6 +364,9 @@ export const gameService = {
       };
       if (typeof currentRound === 'number') {
         payload.current_round = currentRound;
+        payload.round_started_at = new Date().toISOString();
+      } else if (status === 'active') {
+        payload.round_started_at = new Date().toISOString();
       }
 
       const { error } = await supabase

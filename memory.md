@@ -18,7 +18,7 @@ Purpose:
 Interactive educational game for demonstrating algorithmic bias, data influence, and algorithmic fairness.
 
 Current Status:
-CASE 5 COMPLETE — Candidate System & Decision Rounds 1–7 (Light Theme)
+CASE 6 COMPLETE — Timer, Decision Submission, Compact Candidate Cards, Round Progression & Vercel Deployment
 
 Overall Progress:
 [ ] Not Started
@@ -31,58 +31,51 @@ Overall Progress:
 # 2. Current Phase
 
 Current Phase:
-CASE 5 COMPLETE — Candidate System & 7 Decision Rounds (Preparing Case 6)
+CASE 6 COMPLETE — Timer + Decision Submission + Round Progression (Preparing Case 7)
 
 Current Objective:
-Complete candidate data architecture, 7 fictional decision rounds, and permanent transition to the Light Theme (Futuristic AI Control Room — Light Edition).
+Establish compact candidate UX, synchronized countdown timer, database-persisted single decision submission, timeout handling, host round progression, and production Vercel verification.
 
 ---
 
 # 3. Current File Being Worked On
 
 Currently Working On:
-src/shared/data/rounds.ts, src/player/pages/PlayPage.tsx, src/player/components/CandidateCard.tsx
+src/player/components/CandidateCard.tsx, src/player/components/CountdownTimer.tsx, src/player/pages/PlayPage.tsx, src/host/pages/HostGamePage.tsx
 
 Current Task:
-Case 5 Complete: Full 7-round fictional candidate dataset, upgraded CandidateCard with dynamic sections, mobile-first VS layout, neutral non-shaming decision feedback, Light Theme design system tokens, and Host scenario controller.
+Case 6 Complete: Streamlined candidate data, compact CandidateCard, CountdownTimer anchored to authoritative timestamp, Supabase responses table with unique constraint and RLS, live Host responses counter, and Vercel deployment.
 
 ---
 
 # 4. Recently Completed
 
-- [x] Permanent Light Theme transition across the entire application (Player, Host, Lobby, Game, Cards, Components)
-- [x] Light theme tokens in `src/styles/index.css` (`#F6F8FC` backdrop, `#FFFFFF` surfaces, `#0F172A` text, `#0284C7` and `#7C3AED` accents)
-- [x] Reusable data-driven candidate & round models in `src/shared/data/rounds.ts`
-- [x] Exactly 7 fictional decision rounds implemented:
-  - Round 1: Relevant Skills (Junior Software Developer — Aarav vs Rohan)
-  - Round 2: Educational Background (Junior Cloud Engineer — Maya vs Ishita)
-  - Round 3: Geographic Location (Systems Reliability Specialist — Kabir [Ahmedabad] vs Dev [Pune])
-  - Round 4: Candidate Name (Data Platform Engineer — Aarav vs Maya)
-  - Round 5: Presentation Style (API Integration Developer — Nisha [Structured] vs Anaya [Narrative])
-  - Round 6: Relevant vs Irrelevant Info (Backend Developer — Rohan vs Kabir [Extraneous details])
-  - Round 7: Comprehensive Final Decision (Full Stack Software Developer — Dev vs Ishita)
-- [x] Upgraded `CandidateCard` with dynamic section rendering (skills, experience, projects, education, location, details)
-- [x] Mobile-friendly decision layout (`Candidate A` -> `VS` divider -> `Candidate B` -> `DecisionPanel`)
-- [x] Neutral decision feedback: "Decision recorded.", "Decision submitted." (Zero shaming or "correct/wrong" language)
-- [x] Host game console (`/host/game`) updated for Light Theme with live round scenario info and progression controls
-- [x] Visual verification via browser subagent across Landing, Host Console, Player Join, Round 1 decision, and Round 2 advance
-- [x] Documentation updated: `design.md`, `memory.md`, `phases.md`
+- [x] **Compact Candidate Cards**: Reduced candidate content to 2–4 concise information groups per round (inline skills, 1-sentence experience, 1-line projects/education/details).
+- [x] **Synchronized Countdown Timer**: Added `CountdownTimer` component with configurable `ROUND_TIME_LIMIT = 30` seconds, calculated from authoritative `round_started_at` timestamp.
+- [x] **Database Responses Table**: Created and applied remote migration for `public.responses` with `UNIQUE(session_id, player_id, round_number)`, indexes, RLS, and Realtime publication.
+- [x] **Authoritative Decision Submission**: Implemented `gameService.submitResponse` with automatic duplicate submission protection and fallback local storage.
+- [x] **Neutral Timeout & Completion States**: Handled "TIME'S UP" window closure and Round 7 "All Rounds Completed" waiting state.
+- [x] **Host Live Responses Counter**: Upgraded Host Game Console (`/host/game`) to track live responses (`Responses: X / Y`) in real time via Supabase Realtime.
+- [x] **Host Round Progression**: Enforced host-authoritative round transitions that reset `round_started_at = now()` and automatically advance student screens.
+- [x] **Multiplayer & Reconnection Testing**: Verified page reload restores the locked decision recorded state without duplicate submissions.
+- [x] **Documentation Updates**: Updated `design.md`, `memory.md`, `phases.md`, and created `walkthrough.md`.
+- [x] **Vercel Production Deployment**: Promoted and verified live deployment at `https://algobias.vercel.app`.
 
 ---
 
 # 5. In Progress
 
-- [x] Case 5 completed and verified
-- [ ] Prepare Case 6 (Timer, answer submission persistence, and round progression)
+- [x] Case 6 completed and verified
+- [ ] Prepare Case 7 (Live Host Dashboard + Classroom Collective Results)
 
 ---
 
 # 6. Next Tasks
 
-1. Case 6: Decision countdown timer and synchronized submission
-2. Case 6: Response recording in Supabase database (`responses` table)
-3. Case 7: Host live dashboard and collective classroom results
-4. Case 8: Digital ethics and algorithmic bias reveal sequence
+1. Case 7: Realtime aggregate response charts and candidate percentage visualization
+2. Case 7: Projector-optimized presenter display with large numbers
+3. Case 8: Digital ethics and algorithmic bias reveal sequence (DATA → ALGORITHM → DECISION → IMPACT)
+4. Case 9: Fairness Challenge simulation
 
 ---
 
@@ -106,27 +99,27 @@ Case 5 Complete: Full 7-round fictional candidate dataset, upgraded CandidateCar
 - [x] Permanent Light Theme (Futuristic AI Control Room — Light Edition)
 - [x] Candidate data architecture (`src/shared/data/rounds.ts`)
 - [x] Exactly 7 educational decision rounds
-- [x] Polished `CandidateCard` component
-- [x] Mobile-friendly VS decision layout
-- [x] Neutral non-shaming decision feedback
-- [x] Authoritative round synchronization via Supabase Realtime
+- [x] Compact, scannable `CandidateCard` component
+- [x] Synchronized `CountdownTimer` with authoritative timestamp
+- [x] Supabase `responses` table with duplicate protection
+- [x] Host live responses counter and round advancement controller
+- [x] Mobile-friendly layout with minimal scrolling
 
 ---
 
 # 8. Important Technical Decisions
 
-- **Permanent Light Theme**: Clean `#F6F8FC` background, `#FFFFFF` elevated cards, `#0F172A` high-contrast typography, `#E2E8F0` soft borders, and `#0284C7`/`#7C3AED` technology accents.
-- **Candidate Data Architecture**: Content is completely separated from UI inside `src/shared/data/rounds.ts` with typed interfaces (`Candidate`, `RoundData`). UI consumes `getRoundData(currentRound)`.
-- **Fictional Candidates Only**: All profiles use fictional names (Aarav, Maya, Kabir, Nisha, Rohan, Ishita, Dev, Anaya) without real-world people, resumes, or companies.
-- **Neutral Educational Framing**: No "correct" or "wrong" judgments, no shaming language. Decisions explore data influence.
-- **Mobile-First Layout**: On mobile screens, Candidate A and Candidate B stack cleanly around a central `VS` indicator, followed by large touch-friendly decision buttons (>44px height).
+- **Compact Candidate Information**: Candidates display strictly 2–4 concise information groups targeted to the specific educational focus of that round.
+- **Authoritative Timing**: Timers are anchored to `round_started_at` in `game_sessions`. Browser refresh calculates remaining time from this timestamp, preventing students from resetting the clock.
+- **Duplicate Submission Protection**: Database constraint `UNIQUE(session_id, player_id, round_number)` guarantees one decision per student per round.
+- **Light Theme**: The entire application uses the permanent Light Futuristic AI Control Room aesthetic.
 
 ---
 
 # 9. Latest Git Commit
 
 Commit:
-`feat: add candidate system and seven decision rounds`
+`feat: add decision timer submission and round progression`
 
 Date:
-2026-09-16
+2026-09-17

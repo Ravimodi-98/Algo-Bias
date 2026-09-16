@@ -12,7 +12,8 @@ import {
   RefreshCw,
   ShieldCheck,
   Target,
-  Sparkles
+  Sparkles,
+  CheckCheck
 } from 'lucide-react';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
@@ -22,12 +23,13 @@ import { gameService } from '../../services/game/gameService';
 import { storage } from '../../shared/utils/storage';
 import { supabase } from '../../services/supabase/client';
 import { getRoundData } from '../../shared/data/rounds';
-import type { DbGameSession, DbPlayer } from '../../shared/types';
+import type { DbGameSession, DbPlayer, DbResponse } from '../../shared/types';
 
 export const HostGamePage: React.FC = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<DbGameSession | null>(null);
   const [players, setPlayers] = useState<DbPlayer[]>([]);
+  const [responses, setResponses] = useState<DbResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAdvancing, setIsAdvancing] = useState<boolean>(false);
   const [isEnding, setIsEnding] = useState<boolean>(false);
@@ -47,6 +49,10 @@ export const HostGamePage: React.FC = () => {
       setSession(active);
       const playerList = await gameService.getSessionPlayers(active.id);
       setPlayers(playerList);
+
+      const roundNum = Math.max(1, Math.min(active.current_round || 1, 7));
+      const roundResponses = await gameService.getSessionRoundResponses(active.id, roundNum);
+      setResponses(roundResponses);
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +62,9 @@ export const HostGamePage: React.FC = () => {
     loadActiveGame();
   }, [loadActiveGame]);
 
-  // Realtime subscription for any new player joining while game is active
+  const currentRound = Math.max(1, Math.min(session?.current_round || 1, 7));
+
+  // 1. Realtime subscription for new players joining
   useEffect(() => {
     if (!session?.id) return;
 
@@ -85,6 +93,37 @@ export const HostGamePage: React.FC = () => {
     };
   }, [session?.id]);
 
+  // 2. Realtime subscription for student decision submissions
+  useEffect(() => {
+    if (!session?.id) return;
+
+    const channel = supabase
+      .channel(`host-game-responses-${session.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'responses',
+          filter: `session_id=eq.${session.id}`
+        },
+        (payload) => {
+          const newResp = payload.new as DbResponse;
+          if (newResp.round_number === currentRound) {
+            setResponses((prev) => {
+              if (prev.some((r) => r.id === newResp.id)) return prev;
+              return [...prev, newResp];
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.id, currentRound]);
+
   const handleNextRound = async () => {
     if (!session) return;
     const nextRoundNumber = Math.min((session.current_round || 1) + 1, 7);
@@ -101,6 +140,10 @@ export const HostGamePage: React.FC = () => {
 
     if (result.success) {
       setSession((prev) => prev ? { ...prev, current_round: nextRoundNumber } : null);
+      // Fetch responses for the new round
+      const newRoundResponses = await gameService.getSessionRoundResponses(session.id, nextRoundNumber);
+      setResponses(newRoundResponses);
+
       setActionNotice(`ROUND ADVANCED TO ROUND ${nextRoundNumber}. All student screens updated.`);
       setTimeout(() => setActionNotice(null), 4000);
     }
@@ -120,7 +163,6 @@ export const HostGamePage: React.FC = () => {
 
   if (!session) return null;
 
-  const currentRound = Math.max(1, Math.min(session.current_round || 1, 7));
   const roundData = getRoundData(currentRound);
 
   return (
@@ -197,7 +239,7 @@ export const HostGamePage: React.FC = () => {
       {/* Grid: Round Stats */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: '1.25rem'
       }}>
         <Card glow="cyan">
@@ -222,7 +264,22 @@ export const HostGamePage: React.FC = () => {
 
         <Card glow="purple">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>CURRENT ROUND</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>RESPONSES LOGGED</span>
+            <CheckCheck size={16} color="var(--color-success)" />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
+            <span className="font-mono" style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-success)' }}>
+              {responses.length}
+            </span>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+              / {players.length}
+            </span>
+          </div>
+        </Card>
+
+        <Card glow="purple">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>ACTIVE ROUND</span>
             <Layers size={16} color="var(--color-warning)" />
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
@@ -236,7 +293,7 @@ export const HostGamePage: React.FC = () => {
 
       {/* Active Round Scenario Information for Presenter */}
       <Card glow="cyan">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.25rem 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', padding: '0.25rem 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Target size={16} color="var(--accent-cyan)" />
             <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-cyan)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
@@ -245,63 +302,26 @@ export const HostGamePage: React.FC = () => {
           </div>
 
           <div>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-              Role: {roundData.role}
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+              Target Role: {roundData.role}
             </h2>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0.35rem 0 0 0', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0', lineHeight: 1.45 }}>
               {roundData.context}
             </p>
           </div>
 
           <div style={{
             background: 'var(--bg-surface-secondary)',
-            padding: '0.9rem 1.25rem',
+            padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-subtle)',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.75rem'
+            gap: '0.65rem'
           }}>
-            <Sparkles size={16} color="var(--accent-purple)" style={{ flexShrink: 0 }} />
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+            <Sparkles size={15} color="var(--accent-purple)" style={{ flexShrink: 0 }} />
+            <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
               <strong style={{ color: 'var(--text-primary)' }}>Educational Focus:</strong> {roundData.educationalPurpose}
-            </div>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: '1rem',
-            marginTop: '0.25rem'
-          }}>
-            <div style={{
-              background: '#ffffff',
-              padding: '0.85rem 1rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid #cbd5e1'
-            }}>
-              <span className="badge badge-cyan" style={{ marginBottom: '0.35rem' }}>CANDIDATE A</span>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-                {roundData.candidateA.name}
-              </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
-                {roundData.candidateA.education}
-              </p>
-            </div>
-
-            <div style={{
-              background: '#ffffff',
-              padding: '0.85rem 1rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid #cbd5e1'
-            }}>
-              <span className="badge badge-purple" style={{ marginBottom: '0.35rem' }}>CANDIDATE B</span>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-                {roundData.candidateB.name}
-              </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0' }}>
-                {roundData.candidateB.education}
-              </p>
             </div>
           </div>
         </div>
@@ -318,7 +338,7 @@ export const HostGamePage: React.FC = () => {
               Round Progression Controller
             </h2>
             <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
-              Advancing the round updates the authoritative game session in Supabase. Connected student devices will automatically receive the update and transition into the next round.
+              Advancing the round updates the authoritative game session in Supabase. Connected student devices will automatically receive the update, start a fresh 30s countdown, and load the next scenario.
             </p>
           </div>
 
@@ -338,7 +358,7 @@ export const HostGamePage: React.FC = () => {
                 GLOBAL GAME STATE
               </span>
               <span className="font-mono text-cyan" style={{ fontSize: '1.1rem', fontWeight: 800 }}>
-                Active Round: {currentRound} / 7
+                Active Round: {currentRound} / 7 &bull; {responses.length} / {players.length} submitted
               </span>
             </div>
 
@@ -373,7 +393,7 @@ export const HostGamePage: React.FC = () => {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
             <ShieldCheck size={14} color="var(--color-success)" />
-            <span>Authorized as Host ({hostId}). Realtime distribution to {players.length} students.</span>
+            <span>Authorized Host ({hostId}). Realtime distribution to {players.length} participants.</span>
           </div>
         </div>
       </Card>

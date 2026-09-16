@@ -121,22 +121,31 @@ Scale:
 
 ---
 
-# 6. Candidate Cards
+# 6. Compact Candidate Cards (Case 6)
 
-Candidate cards are the most important interactive component.
+Candidate information must be scannable at a glance to prioritize decision-making over reading mini-resumes.
 
-Each card displays:
-- Candidate Name & ID Badge (A or B)
-- Role Title
-- Core Competencies (Skill chips)
-- Professional Experience
-- Project Portfolio
-- Education & Credentials
-- Optional contextual attributes (Location, Highlight Metrics, Profile details, Presentation style)
+### Content Density Principles
+- **Scannable at a glance**: Candidates should be understood in seconds, not read like long resumes.
+- **Strict Content Limits**:
+  - Name: 1 short line
+  - Role: 1 short line
+  - Skills: 3–4 items presented inline (`Python · SQL · React`)
+  - Experience: 1 short sentence
+  - Projects: 1–2 short names (only when relevant)
+  - Education / Location / Details: Rendered strictly when relevant to that specific round.
+- **Max 2–4 Information Groups**: Never overcrowd candidate cards with unnecessary properties.
+- **Mobile-First Height**: Cards are compact so both candidates and decision controls remain visible with minimal scrolling on mobile.
 
-Cards are rendered in crisp `#FFFFFF` with soft `#E2E8F0` borders, subtle box shadows, and distinct accent highlights when selected.
+# 7. Countdown Timer Design
 
----
+The timer provides synchronized decision pacing for classroom gameplay:
+- Clear visual countdown display (`TIME REMAINING: 00:24`).
+- Progress bar indicator showing time elapsed.
+- Accessible low-time indicator (<10s) with pulsing icon and text label (never color alone).
+- Authoritative calculation anchored to the database `round_started_at` timestamp to prevent refresh resets.
+- Decision locks instantly on submission, pausing the player's countdown.
+
 
 # 7. Mobile Decision Experience
 

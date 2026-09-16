@@ -1,12 +1,12 @@
 import React from 'react';
 import { 
-  Briefcase, 
-  GraduationCap, 
-  Code2, 
-  FolderGit2, 
   CheckCircle2, 
   MapPin, 
-  Info
+  Sparkles, 
+  GraduationCap, 
+  Briefcase, 
+  Code2, 
+  FolderGit2 
 } from 'lucide-react';
 import { Badge } from '../../shared/components/Badge';
 import type { Candidate } from '../../shared/data/rounds';
@@ -33,9 +33,9 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
 
   const shadowStyle = isSelected
     ? isA 
-      ? '0 6px 24px rgba(2, 132, 199, 0.18)' 
-      : '0 6px 24px rgba(124, 58, 237, 0.18)'
-    : '0 2px 8px rgba(15, 23, 42, 0.04)';
+      ? '0 4px 16px rgba(2, 132, 199, 0.16)' 
+      : '0 4px 16px rgba(124, 58, 237, 0.16)'
+    : '0 1px 4px rgba(15, 23, 42, 0.04)';
 
   return (
     <div
@@ -44,14 +44,14 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem',
-        padding: '1.25rem',
+        gap: '0.65rem',
+        padding: '0.9rem 1rem',
         background: isSelected ? 'var(--bg-surface-secondary)' : '#ffffff',
         borderRadius: 'var(--radius-lg)',
         border: borderStyle,
         boxShadow: shadowStyle,
         cursor: disabled ? 'default' : 'pointer',
-        transition: 'all var(--transition-normal)',
+        transition: 'all var(--transition-fast)',
         position: 'relative',
         outline: 'none'
       }}
@@ -66,57 +66,33 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
         }
       }}
     >
-      {/* Header: Candidate ID Badge, Highlight, and Name */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.35rem' }}>
-            <Badge variant={isA ? 'cyan' : 'purple'}>
-              CANDIDATE {candidate.id}
-            </Badge>
-            {candidate.location && (
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.2rem',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                color: 'var(--text-muted)'
-              }}>
-                <MapPin size={12} color={accentColor} />
-                {candidate.location}
-              </span>
-            )}
-            {candidate.highlightMetric && !candidate.location && (
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                &bull; {candidate.highlightMetric}
-              </span>
-            )}
-          </div>
-
-          <h2 style={{
-            fontSize: '1.25rem',
+      {/* Header: Candidate ID Badge, Name, Role, and Selection Radio */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <Badge variant={isA ? 'cyan' : 'purple'}>
+            CANDIDATE {candidate.id}
+          </Badge>
+          <span style={{
+            fontSize: '1.05rem',
             fontWeight: 800,
             color: 'var(--text-primary)',
-            letterSpacing: '-0.01em',
-            margin: 0
+            letterSpacing: '-0.01em'
           }}>
             {candidate.name}
-          </h2>
-
-          <p style={{
-            fontSize: '0.85rem',
+          </span>
+          <span style={{
+            fontSize: '0.8rem',
             color: accentColor,
-            fontWeight: 700,
-            margin: '0.2rem 0 0 0'
+            fontWeight: 700
           }}>
-            {candidate.role}
-          </p>
+            &bull; {candidate.role}
+          </span>
         </div>
 
-        {/* Selection Indicator Checkbox / Radio Circle */}
+        {/* Selection Check Circle */}
         <div style={{
-          width: '30px',
-          height: '30px',
+          width: '26px',
+          height: '26px',
           borderRadius: '50%',
           border: isSelected ? `2px solid ${accentColor}` : '2px solid #cbd5e1',
           background: isSelected ? accentColor : '#ffffff',
@@ -127,155 +103,113 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
           transition: 'all var(--transition-fast)',
           flexShrink: 0
         }}>
-          {isSelected && <CheckCircle2 size={18} strokeWidth={3} />}
+          {isSelected && <CheckCircle2 size={16} strokeWidth={3} />}
         </div>
       </div>
 
-      {/* Structured Sections */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {/* Compact Information Rows (Max 2-4 Groups) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
         
-        {/* Core Competencies / Skills Chips */}
-        <div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            color: 'var(--text-muted)',
-            marginBottom: '0.4rem',
-            letterSpacing: '0.05em'
-          }}>
-            <Code2 size={13} color={accentColor} />
-            <span>CORE COMPETENCIES</span>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-            {candidate.skills.map((skill, idx) => (
-              <span
-                key={idx}
-                className="font-mono"
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  padding: '0.25rem 0.6rem',
-                  background: '#ffffff',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--text-primary)',
-                  boxShadow: '0 1px 2px rgba(15, 23, 42, 0.03)'
-                }}
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Professional Experience */}
+        {/* 1. Skills (Compact Inline presentation) */}
         <div style={{
-          background: 'var(--bg-surface-secondary)',
-          padding: '0.75rem 0.85rem',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-subtle)'
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.45rem',
+          fontSize: '0.82rem',
+          color: 'var(--text-primary)'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            color: 'var(--text-muted)',
-            marginBottom: '0.25rem',
-            letterSpacing: '0.05em'
-          }}>
-            <Briefcase size={12} color={accentColor} />
-            <span>PROFESSIONAL EXPERIENCE</span>
-          </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
-            {candidate.experience}
-          </p>
+          <Code2 size={13} color={accentColor} style={{ flexShrink: 0 }} />
+          <span style={{ fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+            Skills:
+          </span>
+          <span className="font-mono" style={{ fontWeight: 600, fontSize: '0.8rem' }}>
+            {candidate.skills.join(' · ')}
+          </span>
         </div>
 
-        {/* Project Portfolio */}
+        {/* 2. Experience (1 short sentence) */}
         <div style={{
-          background: 'var(--bg-surface-secondary)',
-          padding: '0.75rem 0.85rem',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-subtle)'
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.45rem',
+          fontSize: '0.82rem',
+          color: 'var(--text-secondary)'
         }}>
+          <Briefcase size={13} color={accentColor} style={{ flexShrink: 0 }} />
+          <span style={{ fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+            Exp:
+          </span>
+          <span>{candidate.experience}</span>
+        </div>
+
+        {/* 3. Projects (Only when relevant) */}
+        {candidate.projects && (
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            color: 'var(--text-muted)',
-            marginBottom: '0.25rem',
-            letterSpacing: '0.05em'
+            gap: '0.45rem',
+            fontSize: '0.82rem',
+            color: 'var(--text-secondary)'
           }}>
-            <FolderGit2 size={12} color={accentColor} />
-            <span>PROJECT PORTFOLIO</span>
+            <FolderGit2 size={13} color={accentColor} style={{ flexShrink: 0 }} />
+            <span style={{ fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+              Projects:
+            </span>
+            <span style={{ fontStyle: candidate.presentationStyle === 'narrative' ? 'italic' : 'normal' }}>
+              {candidate.projects}
+            </span>
           </div>
-          <p style={{ 
-            fontSize: '0.85rem', 
-            color: 'var(--text-secondary)', 
-            margin: 0, 
-            lineHeight: 1.45,
-            fontStyle: candidate.presentationStyle === 'narrative' ? 'italic' : 'normal'
-          }}>
-            {candidate.projects}
-          </p>
-        </div>
+        )}
 
-        {/* Education & Credentials */}
-        <div style={{
-          background: 'var(--bg-surface-secondary)',
-          padding: '0.75rem 0.85rem',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-subtle)'
-        }}>
+        {/* 4. Education (Only when relevant, e.g. Round 2) */}
+        {candidate.education && (
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            color: 'var(--text-muted)',
-            marginBottom: '0.25rem',
-            letterSpacing: '0.05em'
+            gap: '0.45rem',
+            fontSize: '0.82rem',
+            color: 'var(--text-secondary)'
           }}>
-            <GraduationCap size={12} color={accentColor} />
-            <span>EDUCATION & CREDENTIALS</span>
+            <GraduationCap size={13} color={accentColor} style={{ flexShrink: 0 }} />
+            <span style={{ fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+              College:
+            </span>
+            <span>{candidate.education}</span>
           </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
-            {candidate.education}
-          </p>
-        </div>
+        )}
 
-        {/* Additional / Contextual Details (When present) */}
-        {candidate.details && (
+        {/* 5. Location (Only when relevant, e.g. Round 3) */}
+        {candidate.location && (
           <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.45rem',
+            fontSize: '0.82rem',
+            color: 'var(--text-secondary)'
+          }}>
+            <MapPin size={13} color={accentColor} style={{ flexShrink: 0 }} />
+            <span style={{ fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+              Location:
+            </span>
+            <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{candidate.location}</span>
+          </div>
+        )}
+
+        {/* 6. Highlight Metric or Extraneous/Presentation Details */}
+        {(candidate.highlightMetric || candidate.details) && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.45rem',
+            fontSize: '0.8rem',
+            color: 'var(--text-secondary)',
             background: 'var(--bg-surface-secondary)',
-            padding: '0.75rem 0.85rem',
-            borderRadius: 'var(--radius-md)',
+            padding: '0.35rem 0.5rem',
+            borderRadius: 'var(--radius-sm)',
             border: '1px solid var(--border-subtle)'
           }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.72rem',
-              fontWeight: 800,
-              color: 'var(--text-muted)',
-              marginBottom: '0.25rem',
-              letterSpacing: '0.05em'
-            }}>
-              <Info size={12} color={accentColor} />
-              <span>PROFILE DETAILS</span>
-            </div>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
-              {candidate.details}
-            </p>
+            <Sparkles size={12} color={accentColor} style={{ flexShrink: 0 }} />
+            <span>{candidate.highlightMetric || candidate.details}</span>
           </div>
         )}
       </div>

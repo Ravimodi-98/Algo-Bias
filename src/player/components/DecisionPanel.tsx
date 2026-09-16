@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Clock, Send, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Clock, Send, ShieldCheck, AlertTriangle, Sparkles } from 'lucide-react';
 import { Button } from '../../shared/components/Button';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
@@ -10,6 +10,7 @@ export interface DecisionPanelProps {
   onSubmitDecision: () => void;
   isSubmitting?: boolean;
   hasSubmitted?: boolean;
+  isTimedOut?: boolean;
   currentRound: number;
 }
 
@@ -19,8 +20,77 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
   onSubmitDecision,
   isSubmitting = false,
   hasSubmitted = false,
+  isTimedOut = false,
   currentRound
 }) => {
+  const isFinalRound = currentRound >= 7;
+
+  // 1. Timeout State (No selection before timer expired)
+  if (isTimedOut && !hasSubmitted) {
+    return (
+      <Card glow="purple" className="animate-fade-in">
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          gap: '1.1rem',
+          padding: '1rem 0'
+        }}>
+          <div style={{
+            width: '54px',
+            height: '54px',
+            borderRadius: '50%',
+            background: '#fffbeb',
+            border: '2px solid var(--color-warning)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--color-warning)'
+          }}>
+            <AlertTriangle size={26} />
+          </div>
+
+          <div>
+            <Badge variant="warning">
+              WINDOW CLOSED
+            </Badge>
+
+            <h2 style={{
+              fontSize: '1.35rem',
+              fontWeight: 800,
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.01em',
+              margin: '0.5rem 0 0.25rem 0'
+            }}>
+              TIME'S UP
+            </h2>
+
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0 }}>
+              Your decision window for Round {currentRound} has closed.
+            </p>
+          </div>
+
+          <div style={{
+            background: 'var(--bg-surface-secondary)',
+            padding: '0.85rem 1.15rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-subtle)',
+            fontSize: '0.85rem',
+            color: 'var(--text-secondary)',
+            lineHeight: 1.5,
+            maxWidth: '380px'
+          }}>
+            {isFinalRound
+              ? 'All 7 rounds completed. Standing by for presenter to launch the final results and analysis.'
+              : `Standing by for presenter progression. Your device will automatically load Round ${currentRound + 1} when initiated.`}
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  // 2. Decision Submitted Waiting State
   if (hasSubmitted) {
     return (
       <Card glow="purple" className="animate-fade-in">
@@ -35,8 +105,8 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
           {/* Animated Waiting Pulse */}
           <div style={{
             position: 'relative',
-            width: '76px',
-            height: '76px',
+            width: '72px',
+            height: '72px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
@@ -51,8 +121,8 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
               animation: 'decision-pulse 2.5s infinite ease-out'
             }} />
             <div style={{
-              width: '50px',
-              height: '50px',
+              width: '48px',
+              height: '48px',
               borderRadius: '50%',
               background: '#ffffff',
               border: '2px solid var(--accent-purple)',
@@ -63,7 +133,7 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
               boxShadow: '0 4px 16px rgba(124, 58, 237, 0.25)',
               zIndex: 2
             }}>
-              <Clock size={24} />
+              {isFinalRound ? <Sparkles size={22} /> : <Clock size={22} />}
             </div>
           </div>
 
@@ -74,36 +144,38 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             </Badge>
 
             <h2 style={{
-              fontSize: '1.4rem',
+              fontSize: '1.35rem',
               fontWeight: 800,
               color: 'var(--text-primary)',
               letterSpacing: '-0.01em',
-              margin: '0.6rem 0 0.25rem 0'
+              margin: '0.5rem 0 0.2rem 0'
             }}>
-              Decision Submitted
+              {isFinalRound ? 'All Rounds Completed' : 'Decision Submitted'}
             </h2>
 
-            <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', margin: 0, fontWeight: 500 }}>
-              Your selection for <strong className="text-cyan font-mono">CANDIDATE {selectedCandidate}</strong> has been logged for Round {currentRound}.
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0, fontWeight: 500 }}>
+              Your selection for <strong className="text-cyan font-mono">CANDIDATE {selectedCandidate}</strong> is saved for Round {currentRound}.
             </p>
           </div>
 
           <div style={{
             background: 'var(--bg-surface-secondary)',
-            padding: '0.9rem 1.25rem',
+            padding: '0.85rem 1.15rem',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-subtle)',
             fontSize: '0.85rem',
             color: 'var(--text-secondary)',
             lineHeight: 1.5,
-            maxWidth: '400px'
+            maxWidth: '380px'
           }}>
-            Standing by for presenter progression. Your device will automatically load Round {Math.min(currentRound + 1, 7)} when initiated by the host.
+            {isFinalRound
+              ? 'All 7 rounds completed. Standing by for presenter to initiate the collective results and algorithmic analysis.'
+              : `Standing by for presenter progression. Your device will automatically load Round ${currentRound + 1} when initiated.`}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
             <ShieldCheck size={14} color="var(--color-success)" />
-            <span>Response locked in. One decision per participant per round.</span>
+            <span>Response locked into database. Single response per participant.</span>
           </div>
         </div>
 
@@ -117,9 +189,10 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
     );
   }
 
+  // 3. Active Decision Selection & Submission
   return (
     <Card glow="cyan" className="animate-fade-in">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
           <span style={{
             fontSize: '0.72rem',
@@ -128,38 +201,34 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             color: 'var(--accent-cyan)',
             textTransform: 'uppercase',
             display: 'block',
-            marginBottom: '0.25rem'
+            marginBottom: '0.2rem'
           }}>
-            DECISION REQUIRED
+            YOUR SELECTION
           </span>
 
           <h2 style={{
-            fontSize: '1.35rem',
+            fontSize: '1.25rem',
             fontWeight: 900,
             color: 'var(--text-primary)',
             letterSpacing: '-0.01em',
             margin: 0
           }}>
-            Select Candidate
+            Choose Candidate
           </h2>
-
-          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
-            Choose the candidate that your automated evaluation system would advance to the next stage.
-          </p>
         </div>
 
         {/* Selection Buttons Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '0.75rem'
+          gap: '0.65rem'
         }}>
           <button
             type="button"
             onClick={() => onSelectCandidate('A')}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isTimedOut}
             style={{
-              padding: '1.1rem 0.85rem',
+              padding: '0.9rem 0.75rem',
               borderRadius: 'var(--radius-md)',
               border: selectedCandidate === 'A' 
                 ? '2px solid var(--accent-cyan)' 
@@ -168,18 +237,19 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
                 ? 'rgba(2, 132, 199, 0.08)' 
                 : '#ffffff',
               color: selectedCandidate === 'A' ? 'var(--accent-cyan)' : 'var(--text-primary)',
-              cursor: 'pointer',
+              cursor: (isSubmitting || isTimedOut) ? 'not-allowed' : 'pointer',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.35rem',
+              gap: '0.25rem',
               transition: 'all var(--transition-fast)',
-              boxShadow: selectedCandidate === 'A' ? '0 2px 10px rgba(2, 132, 199, 0.15)' : '0 1px 2px rgba(15, 23, 42, 0.03)'
+              boxShadow: selectedCandidate === 'A' ? '0 2px 8px rgba(2, 132, 199, 0.15)' : 'none',
+              minHeight: '48px'
             }}
             aria-pressed={selectedCandidate === 'A'}
           >
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 1</span>
-            <span className="font-mono" style={{ fontSize: '1.15rem', fontWeight: 900 }}>
+            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 1</span>
+            <span className="font-mono" style={{ fontSize: '1.05rem', fontWeight: 900 }}>
               CANDIDATE A
             </span>
           </button>
@@ -187,9 +257,9 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
           <button
             type="button"
             onClick={() => onSelectCandidate('B')}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isTimedOut}
             style={{
-              padding: '1.1rem 0.85rem',
+              padding: '0.9rem 0.75rem',
               borderRadius: 'var(--radius-md)',
               border: selectedCandidate === 'B' 
                 ? '2px solid var(--accent-purple)' 
@@ -198,18 +268,19 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
                 ? 'rgba(124, 58, 237, 0.08)' 
                 : '#ffffff',
               color: selectedCandidate === 'B' ? 'var(--accent-purple)' : 'var(--text-primary)',
-              cursor: 'pointer',
+              cursor: (isSubmitting || isTimedOut) ? 'not-allowed' : 'pointer',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.35rem',
+              gap: '0.25rem',
               transition: 'all var(--transition-fast)',
-              boxShadow: selectedCandidate === 'B' ? '0 2px 10px rgba(124, 58, 237, 0.15)' : '0 1px 2px rgba(15, 23, 42, 0.03)'
+              boxShadow: selectedCandidate === 'B' ? '0 2px 8px rgba(124, 58, 237, 0.15)' : 'none',
+              minHeight: '48px'
             }}
             aria-pressed={selectedCandidate === 'B'}
           >
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 2</span>
-            <span className="font-mono" style={{ fontSize: '1.15rem', fontWeight: 900 }}>
+            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 2</span>
+            <span className="font-mono" style={{ fontSize: '1.05rem', fontWeight: 900 }}>
               CANDIDATE B
             </span>
           </button>
@@ -220,22 +291,23 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
           variant="primary"
           size="large"
           block
-          icon={<Send size={18} />}
+          icon={<Send size={16} />}
           onClick={onSubmitDecision}
-          disabled={!selectedCandidate || isSubmitting}
+          disabled={!selectedCandidate || isSubmitting || isTimedOut}
           id="btn-submit-decision"
           style={{
-            padding: '1rem',
-            fontSize: '1rem',
+            padding: '0.85rem',
+            fontSize: '0.95rem',
             fontWeight: 800,
-            letterSpacing: '0.04em'
+            letterSpacing: '0.04em',
+            minHeight: '48px'
           }}
         >
           {isSubmitting 
-            ? 'RECORDING DECISION...' 
+            ? 'SAVING DECISION...' 
             : selectedCandidate 
               ? `CONFIRM & SELECT CANDIDATE ${selectedCandidate}` 
-              : 'SELECT A CANDIDATE ABOVE'}
+              : 'SELECT CANDIDATE A OR B'}
         </Button>
       </div>
     </Card>
