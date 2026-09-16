@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Play, 
   SkipForward, 
@@ -24,6 +25,7 @@ import { supabase } from '../../services/supabase/client';
 import type { DbGameSession, DbPlayer } from '../../shared/types';
 
 export const HostDashboardPage: React.FC = () => {
+  const navigate = useNavigate();
   const [activeSession, setActiveSession] = useState<DbGameSession | null>(null);
   const [players, setPlayers] = useState<DbPlayer[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -102,26 +104,47 @@ export const HostDashboardPage: React.FC = () => {
 
     setActiveSession(session);
     setPlayers([]);
-    setLastActionMessage(`GAME CREATED. Room Code: ${session.game_code}`);
-    setTimeout(() => setLastActionMessage(null), 5000);
+    // Redirect to Host Lobby as required by Step 2
+    navigate('/host/lobby');
+  };
+
+  const handleCloseAndCreateNew = async () => {
+    if (activeSession) {
+      setIsCreating(true);
+      await gameService.closeGameSession(activeSession.id, hostId);
+      const { session, error } = await gameService.createGameSession(hostId);
+      setIsCreating(false);
+
+      if (error || !session) {
+        setErrorMessage(error || 'Failed to create new game session.');
+        return;
+      }
+
+      setActiveSession(session);
+      setPlayers([]);
+      navigate('/host/lobby');
+    }
   };
 
   const triggerAction = async (actionName: string, nextStatus?: 'waiting' | 'active' | 'completed', roundNumber?: number) => {
     if (activeSession && nextStatus) {
-      const updated = await gameService.updateGameState(
+      const result = await gameService.updateGameState(
         activeSession.id, 
+        hostId,
         nextStatus, 
         typeof roundNumber === 'number' ? roundNumber : activeSession.current_round
       );
-      if (updated) {
+      if (result.success) {
         setActiveSession(prev => prev ? { 
           ...prev, 
           status: nextStatus, 
           current_round: typeof roundNumber === 'number' ? roundNumber : prev.current_round 
         } : null);
+        setLastActionMessage(`Command acknowledged: [${actionName}].`);
+      } else {
+        setErrorMessage(result.error || `Failed to execute ${actionName}.`);
       }
     }
-    setLastActionMessage(`Command acknowledged: [${actionName}].`);
     setTimeout(() => setLastActionMessage(null), 4000);
   };
 
@@ -249,6 +272,64 @@ export const HostDashboardPage: React.FC = () => {
           fontSize: '0.9rem'
         }}>
           {errorMessage}
+        </div>
+      )}
+
+      {/* Active Game Handling Banner (Step 17) */}
+      {activeSession && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(0, 240, 255, 0.08) 100%)',
+          border: '1px solid var(--accent-purple)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.25rem 1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          boxShadow: '0 0 20px rgba(139, 92, 246, 0.15)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              padding: '0.75rem',
+              borderRadius: 'var(--radius-md)',
+              background: 'rgba(139, 92, 246, 0.2)',
+              color: 'var(--accent-purple)'
+            }}>
+              <Tv size={24} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Badge variant="purple" pulse>ACTIVE GAME</Badge>
+                <span className="font-mono text-cyan" style={{ fontWeight: 800, fontSize: '1.1rem' }}>{activeSession.game_code}</span>
+              </div>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                You already have a game in progress with {players.length} {players.length === 1 ? 'student' : 'students'} joined.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Button
+              variant="primary"
+              size="normal"
+              icon={<Tv size={16} />}
+              onClick={() => navigate('/host/lobby')}
+              id="btn-open-host-lobby"
+            >
+              OPEN HOST LOBBY & QR
+            </Button>
+
+            <Button
+              variant="secondary"
+              size="normal"
+              icon={<PlusCircle size={16} />}
+              onClick={handleCloseAndCreateNew}
+              disabled={isCreating}
+            >
+              CLOSE & CREATE NEW
+            </Button>
+          </div>
         </div>
       )}
 

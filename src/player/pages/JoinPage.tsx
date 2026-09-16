@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LogIn, Key, User, ArrowLeft } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { LogIn, Key, User, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Button } from '../../shared/components/Button';
 import { Card } from '../../shared/components/Card';
 import { ErrorMessage } from '../../shared/components/ErrorMessage';
@@ -10,18 +10,36 @@ import { gameService } from '../../services/game/gameService';
 
 export const JoinPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [gameCode, setGameCode] = useState('');
   const [anonymousName, setAnonymousName] = useState('');
   const [defaultId, setDefaultId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isJoining, setIsJoining] = useState<boolean>(false);
+  const [isQrJoined, setIsQrJoined] = useState<boolean>(false);
 
   useEffect(() => {
     // Generate a default anonymous identifier
     const generated = generateAnonymousPlayerId();
     setDefaultId(generated);
-    setAnonymousName(generated);
-  }, []);
+
+    const existingSession = storage.getPlayerSession();
+    if (existingSession?.anonymousName) {
+      setAnonymousName(existingSession.anonymousName);
+    } else {
+      setAnonymousName(generated);
+    }
+
+    // Read game code from QR code URL (?game=A7K92B or ?code=A7K92B)
+    const queryCode = searchParams.get('game') || searchParams.get('code') || '';
+    if (queryCode) {
+      const clean = normalizeGameCode(queryCode);
+      setGameCode(clean);
+      setIsQrJoined(true);
+    } else if (existingSession?.gameCode) {
+      setGameCode(existingSession.gameCode);
+    }
+  }, [searchParams]);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,14 +63,24 @@ export const JoinPage: React.FC = () => {
 
     if (gameError || !session) {
       setIsJoining(false);
-      setError(gameError || 'GAME NOT FOUND. Check the code and try again.');
+      setError(gameError || 'GAME NOT FOUND. Check the game code and try again.');
       return;
     }
 
     const finalName = anonymousName.trim() || defaultId;
 
-    // 2. Register anonymous player record in Supabase
-    const { player, error: playerError } = await gameService.joinPlayer(session.id, finalName);
+    // 2. Check if player was already registered in this session to prevent duplicates
+    const existingSession = storage.getPlayerSession();
+    const existingPlayerId = (existingSession?.sessionId === session.id || existingSession?.gameCode === session.game_code)
+      ? existingSession.playerId
+      : undefined;
+
+    // 3. Register or restore anonymous player record in Supabase
+    const { player, error: playerError } = await gameService.joinPlayer(
+      session.id, 
+      finalName,
+      existingPlayerId
+    );
 
     setIsJoining(false);
 
@@ -61,7 +89,7 @@ export const JoinPage: React.FC = () => {
       return;
     }
 
-    // 3. Store verified anonymous player session locally
+    // 4. Store verified anonymous player session locally
     storage.setPlayerSession({
       playerId: player.id,
       sessionId: session.id,
@@ -145,6 +173,20 @@ export const JoinPage: React.FC = () => {
               maxLength={12}
               disabled={isJoining}
             />
+            {isQrJoined && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                fontSize: '0.75rem',
+                color: 'var(--accent-cyan)',
+                marginTop: '0.4rem',
+                fontWeight: 600
+              }}>
+                <CheckCircle2 size={13} color="var(--accent-cyan)" />
+                <span>Game Code detected and pre-filled from QR code.</span>
+              </div>
+            )}
           </div>
 
           <div>

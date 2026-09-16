@@ -1,44 +1,128 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlayCircle, ArrowLeft } from 'lucide-react';
+import { PlayCircle, ArrowLeft, Radio, Sparkles } from 'lucide-react';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
+import { storage } from '../../shared/utils/storage';
 
 export const PlayPlaceholderPage: React.FC = () => {
   const navigate = useNavigate();
+  const session = storage.getPlayerSession();
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', textAlign: 'center' }}>
-      <Badge variant="cyan">
-        <PlayCircle size={12} style={{ marginRight: '4px' }} />
-        DECISION ROUNDS
-      </Badge>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Badge variant="success" pulse>
+          <Radio size={12} style={{ marginRight: '4px' }} />
+          LIVE SESSION ACTIVE
+        </Badge>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+        <span style={{
+          fontSize: '0.8rem',
+          letterSpacing: '0.2em',
+          fontWeight: 700,
+          color: 'var(--accent-purple)',
+          textTransform: 'uppercase'
+        }}>
+          THE DECISION
+        </span>
+
+        <h1 style={{
+          fontSize: '2rem',
+          fontWeight: 900,
+          color: 'var(--accent-cyan)',
+          letterSpacing: '-0.02em',
+          margin: 0
+        }}>
+          GAME STARTING...
+        </h1>
+
+        <p style={{
+          fontSize: '1.1rem',
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+          margin: 0
+        }}>
+          Round 1 is about to begin.
+        </p>
+      </div>
 
       <Card glow="cyan">
-        <div style={{ padding: '1rem 0', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-            Candidate Decision Arena
-          </h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            The decision rounds engine is scheduled for development in Phase 3. In the full experiment, you will evaluate fictional candidate profiles and make automated selection calls.
-          </p>
+        <div style={{ padding: '1rem 0', display: 'flex', flexDirection: 'column', gap: '1.25rem', alignItems: 'center' }}>
+          
           <div style={{
-            background: 'var(--bg-surface-secondary)',
-            padding: '0.75rem',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-subtle)',
-            fontSize: '0.8rem',
-            color: 'var(--accent-cyan)'
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            background: 'rgba(0, 240, 255, 0.1)',
+            border: '1px solid var(--accent-cyan)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--accent-cyan)',
+            boxShadow: '0 0 25px rgba(0, 240, 255, 0.35)'
           }}>
-            Status: Foundation established. Engine queued for Phase 3.
+            <PlayCircle size={32} />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxWidth: '380px' }}>
+            <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              The host has initiated the simulation. You will be acting as an automated screening algorithm evaluating candidate profiles.
+            </p>
+          </div>
+
+          {session && (
+            <div style={{
+              width: '100%',
+              background: 'var(--bg-surface-secondary)',
+              borderRadius: 'var(--radius-md)',
+              padding: '0.9rem',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '0.5rem',
+              border: '1px solid var(--border-subtle)',
+              textAlign: 'left'
+            }}>
+              <div>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>ROOM</span>
+                <span className="font-mono text-cyan" style={{ fontSize: '1.1rem', fontWeight: 800 }}>
+                  {session.gameCode}
+                </span>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>OPERATOR</span>
+                <span className="font-mono" style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                  {session.anonymousName}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: 'rgba(139, 92, 246, 0.1)',
+            padding: '0.6rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            fontSize: '0.8rem',
+            color: 'var(--accent-purple)'
+          }}>
+            <Sparkles size={14} />
+            <span>Candidate evaluation scenarios scheduled for Case 4.</span>
           </div>
         </div>
       </Card>
 
-      <Button variant="secondary" onClick={() => navigate('/lobby')} icon={<ArrowLeft size={16} />}>
-        Return to Lobby
-      </Button>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Button variant="secondary" size="small" onClick={() => navigate('/lobby')} icon={<ArrowLeft size={16} />}>
+          Return to Lobby
+        </Button>
+      </div>
     </div>
   );
 };

@@ -17,7 +17,7 @@ import { HostRouteGuard } from './host/components/HostRouteGuard';
 import { HostLayout } from './host/layout/HostLayout';
 import { HostDashboardPage } from './host/pages/HostDashboardPage';
 import { HostCreatePlaceholderPage } from './host/pages/HostCreatePlaceholderPage';
-import { HostLobbyPlaceholderPage } from './host/pages/HostLobbyPlaceholderPage';
+import { HostLobbyPage } from './host/pages/HostLobbyPage';
 import { HostGamePlaceholderPage } from './host/pages/HostGamePlaceholderPage';
 import { HostResultsPlaceholderPage } from './host/pages/HostResultsPlaceholderPage';
 import { HostSettingsPlaceholderPage } from './host/pages/HostSettingsPlaceholderPage';
@@ -54,7 +54,7 @@ export const App: React.FC = () => {
           <Route element={<HostLayout />}>
             <Route path="/host/dashboard" element={<HostDashboardPage />} />
             <Route path="/host/create" element={<HostCreatePlaceholderPage />} />
-            <Route path="/host/lobby" element={<HostLobbyPlaceholderPage />} />
+            <Route path="/host/lobby" element={<HostLobbyPage />} />
             <Route path="/host/game" element={<HostGamePlaceholderPage />} />
             <Route path="/host/results" element={<HostResultsPlaceholderPage />} />
             <Route path="/host/settings" element={<HostSettingsPlaceholderPage />} />

@@ -42,19 +42,19 @@ Allow the presenter to create and control a game session.
 
 ## Tasks
 
-- Host dashboard
-- Create game session
-- Generate game code
-- Generate QR-friendly join URL
-- Player lobby
-- Live player count
-- Waiting state
-- Start Game button
-- Supabase Realtime synchronization
+- [x] Host dashboard
+- [x] Create game session
+- [x] Generate game code
+- [x] Generate QR-friendly join URL
+- [x] Player lobby
+- [x] Live player count
+- [x] Waiting state
+- [x] Start Game button
+- [x] Supabase Realtime synchronization
 
 ## Result
 
-Host creates a game and students join using their phones.
+Host creates a game and students join using their phones via QR or code. Realtime synchronization, projector mode, and host ownership verified.
 
 ---
 

@@ -102,7 +102,11 @@ export const gameService = {
       }
 
       if (data.status === 'completed') {
-        return { session: null, error: 'This game has already completed.' };
+        return { session: null, error: 'This game has already ended.' };
+      }
+
+      if (data.status === 'active') {
+        return { session: null, error: 'GAME ALREADY STARTED. Please wait for the next game.' };
       }
 
       return { session: data as DbGameSession, error: null };
@@ -113,10 +117,62 @@ export const gameService = {
   },
 
   /**
-   * Creates an anonymous player record in Supabase when joining a session.
+   * Retrieves a game session by its UUID.
    */
-  async joinPlayer(sessionId: string, anonymousName: string): Promise<{ player: DbPlayer | null; error: string | null }> {
+  async getSessionById(sessionId: string): Promise<DbGameSession | null> {
     try {
+      const { data, error } = await supabase
+        .from('game_sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (error || !data) {
+        return null;
+      }
+
+      return data as DbGameSession;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Creates an anonymous player record in Supabase when joining a session,
+   * or restores an existing player record to prevent duplicate player rows.
+   */
+  async joinPlayer(
+    sessionId: string, 
+    anonymousName: string, 
+    existingPlayerId?: string
+  ): Promise<{ player: DbPlayer | null; error: string | null }> {
+    try {
+      // Prevent duplicate player records if player already has an ID in this session
+      if (existingPlayerId) {
+        const { data: existingPlayer } = await supabase
+          .from('players')
+          .select('*')
+          .eq('id', existingPlayerId)
+          .eq('session_id', sessionId)
+          .maybeSingle();
+
+        if (existingPlayer) {
+          const finalName = anonymousName || existingPlayer.anonymous_name;
+          await supabase
+            .from('players')
+            .update({
+              anonymous_name: finalName,
+              last_seen: new Date().toISOString()
+            })
+            .eq('id', existingPlayer.id);
+
+          return { 
+            player: { ...existingPlayer, anonymous_name: finalName } as DbPlayer, 
+            error: null 
+          };
+        }
+      }
+
       const { data, error } = await supabase
         .from('players')
         .insert({
@@ -189,13 +245,30 @@ export const gameService = {
 
   /**
    * Host updates game state (status or round).
+   * Strictly verifies that the caller owns this game session before updating.
    */
   async updateGameState(
     sessionId: string, 
+    hostId: string,
     status: 'waiting' | 'active' | 'completed', 
     currentRound?: number
-  ): Promise<boolean> {
+  ): Promise<{ success: boolean; error: string | null }> {
     try {
+      // Enforce host ownership authorization
+      const { data: session, error: fetchErr } = await supabase
+        .from('game_sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (fetchErr || !session) {
+        return { success: false, error: 'Game session not found.' };
+      }
+
+      if (session.host_id !== hostId) {
+        return { success: false, error: 'Unauthorized: You do not own this game session.' };
+      }
+
       const payload: Partial<DbGameSession> = {
         status,
         updated_at: new Date().toISOString()
@@ -211,13 +284,20 @@ export const gameService = {
 
       if (error) {
         console.error('Error updating game state:', error);
-        return false;
+        return { success: false, error: 'Failed to update game state.' };
       }
 
-      return true;
+      return { success: true, error: null };
     } catch (err) {
       console.error('Unexpected error in updateGameState:', err);
-      return false;
+      return { success: false, error: 'Unexpected system error updating game state.' };
     }
+  },
+
+  /**
+   * Closes a game session safely.
+   */
+  async closeGameSession(sessionId: string, hostId: string): Promise<{ success: boolean; error: string | null }> {
+    return this.updateGameState(sessionId, hostId, 'completed');
   }
 };

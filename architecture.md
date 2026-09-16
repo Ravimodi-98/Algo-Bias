@@ -425,3 +425,34 @@ Keep the project:
 - Easy to extend
 
 Do not create unnecessary abstractions.
+
+---
+
+# 15. Multiplayer & Realtime Synchronization Architecture (Case 3)
+
+## 15.1 Game Session Flow
+```text
+HOST                             SUPABASE                             PLAYER
+Create Game ----(insert)-----> game_sessions (waiting)
+                                      ^
+QR Generated <------------------------+
+Scan QR / Join -----(insert)--> players (anonymous callsign)
+                                      |
+Live Roster <---(Realtime INSERT)-----+-----(Realtime INSERT)---> Player Counter
+                                      |
+Host Starts Game -(update active)----+
+                                      |
+Host Game View <----------------------+-----(Realtime UPDATE)---> Transition to /play
+```
+
+## 15.2 Host/Player Communication & Realtime
+- **Database-Driven Authority**: Supabase `game_sessions` and `players` are the single source of truth.
+- **State Broadcast**: Realtime publication on `game_sessions` notifies player clients on `UPDATE`. When `status` transitions to `active`, connected players immediately redirect from `/lobby` to `/play`.
+- **Roster Broadcast**: Realtime publication on `players` notifies host clients on `INSERT` to update the connected student roster and count in real time without refreshing.
+- **Heartbeat & Presence**: Periodic heartbeat every 20-25s updates `last_seen` timestamp in `players`.
+
+## 15.3 Game Ownership & Authorization Model
+- **Strict Host Ownership Verification**: All host game state mutations (`updateGameState`) verify that `session.host_id === caller.host_id`. Imposter hosts or players cannot mutate session state or trigger round advancements.
+- **Frontend Route Isolation**: `HostRouteGuard` blocks unauthorized players attempting to access `/host/*` endpoints with an explicit access restriction screen.
+- **Late Join Rejection**: Once a game session is marked `active` or `completed`, new player attempts to join via `/join` are rejected with clean status messaging.
+- **Duplicate Prevention**: Reconnects and refreshes from existing player sessions restore existing records using `sessionId` and `playerId` rather than creating duplicate rows.
