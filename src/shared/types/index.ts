@@ -31,6 +31,17 @@ export interface DbGameSession {
   updated_at: string;
   round_started_at?: string;
   results_visible?: boolean;
+  game_stage?: 'lobby' | 'round' | 'results' | 'reveal' | 'fairness' | 'completed';
+  reveal_step?: number;
+}
+
+export type RevealStepNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+
+export interface RevealStepData {
+  stepNumber: RevealStepNumber;
+  title: string;
+  subtitle: string;
+  section: 'INTRO' | 'DATA_REVIEW' | 'FACTORS' | 'QUESTION' | 'SCALE' | 'ALGORITHM' | 'IMPACT' | 'FAIRNESS_LESSON' | 'NEXT_STEPS';
 }
 
 export interface DbPlayer {

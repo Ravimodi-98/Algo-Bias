@@ -14,13 +14,15 @@ import {
   Clock,
   Eye,
   AlertTriangle,
-  Award
+  Award,
+  Sparkles
 } from 'lucide-react';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
 import { LoadingState } from '../../shared/components/LoadingState';
 import { AggregateResultsView } from '../components/AggregateResultsView';
+import { HostRevealView } from '../components/HostRevealView';
 import { gameService } from '../../services/game/gameService';
 import { storage } from '../../shared/utils/storage';
 import { supabase } from '../../services/supabase/client';
@@ -38,6 +40,7 @@ export const HostGamePage: React.FC = () => {
     candidateA: { count: 0, percentage: 0 },
     candidateB: { count: 0, percentage: 0 }
   });
+  const [allAggregates, setAllAggregates] = useState<Record<number, RoundAggregate>>({});
   const [timeLeft, setTimeLeft] = useState<number>(ROUND_TIME_LIMIT);
   const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -86,6 +89,9 @@ export const HostGamePage: React.FC = () => {
       const roundResponses = await gameService.getSessionRoundResponses(active.id, roundNum);
       setResponses(roundResponses);
       setAggregate(computeAggregate(roundNum, roundResponses));
+
+      const allAggs = await gameService.getSessionAllRoundsAggregates(active.id);
+      setAllAggregates(allAggs);
 
       // Synchronize timer
       const startTimeStr = active.round_started_at || active.updated_at;
@@ -276,6 +282,78 @@ export const HostGamePage: React.FC = () => {
         setTimeout(() => setActionNotice(null), 4000);
       } else {
         setActionNotice(result.error || 'Failed to advance round.');
+        setTimeout(() => setActionNotice(null), 4000);
+      }
+    } finally {
+      setIsActionInProgress(false);
+      actionLockRef.current = false;
+    }
+  };
+
+  // Handler: Start Bias Reveal
+  const handleStartReveal = async () => {
+    if (!session || actionLockRef.current || isActionInProgress) return;
+    actionLockRef.current = true;
+    setIsActionInProgress(true);
+
+    try {
+      const allAggs = await gameService.getSessionAllRoundsAggregates(session.id);
+      setAllAggregates(allAggs);
+
+      const result = await gameService.startBiasReveal(session.id, hostId);
+      if (result.success) {
+        setSession((prev) => prev ? {
+          ...prev,
+          game_stage: 'reveal',
+          reveal_step: 1,
+          results_visible: true
+        } : null);
+        setActionNotice('EDUCATIONAL BIAS REVEAL INITIATED. Synchronizing with all student devices.');
+        setTimeout(() => setActionNotice(null), 4000);
+      } else {
+        setActionNotice(result.error || 'Failed to start bias reveal.');
+        setTimeout(() => setActionNotice(null), 4000);
+      }
+    } finally {
+      setIsActionInProgress(false);
+      actionLockRef.current = false;
+    }
+  };
+
+  // Handler: Step Navigation in Reveal
+  const handleSetRevealStep = async (step: number) => {
+    if (!session || actionLockRef.current || isActionInProgress) return;
+    actionLockRef.current = true;
+    setIsActionInProgress(true);
+
+    try {
+      const result = await gameService.setRevealStep(session.id, hostId, step);
+      if (result.success) {
+        setSession((prev) => prev ? { ...prev, reveal_step: step } : null);
+      } else {
+        setActionNotice(result.error || 'Failed to update reveal step.');
+        setTimeout(() => setActionNotice(null), 3000);
+      }
+    } finally {
+      setIsActionInProgress(false);
+      actionLockRef.current = false;
+    }
+  };
+
+  // Handler: Transition from Reveal to Fairness Stage
+  const handleTransitionToFairness = async () => {
+    if (!session || actionLockRef.current || isActionInProgress) return;
+    actionLockRef.current = true;
+    setIsActionInProgress(true);
+
+    try {
+      const result = await gameService.transitionToFairnessStage(session.id, hostId);
+      if (result.success) {
+        setSession((prev) => prev ? { ...prev, game_stage: 'fairness' } : null);
+        setActionNotice('TRANSITIONING TO FAIRNESS CHALLENGE (CASE 9)');
+        setTimeout(() => setActionNotice(null), 4000);
+      } else {
+        setActionNotice(result.error || 'Failed to transition stage.');
         setTimeout(() => setActionNotice(null), 4000);
       }
     } finally {
@@ -527,144 +605,196 @@ export const HostGamePage: React.FC = () => {
         </div>
       </Card>
 
-      {/* Aggregate Results Component (Concealed until revealed or Host Peeks) */}
-      <AggregateResultsView
-        aggregate={aggregate}
-        roundData={roundData}
-        resultsVisible={resultsVisible}
-        totalPlayers={totalPlayersCount}
-        onShowResults={handleShowResults}
-        isActionInProgress={isActionInProgress}
-      />
-
-      {/* Scenario Overview Details */}
-      <Card glow="purple">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', padding: '0.25rem 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Target size={16} color="var(--accent-purple)" />
-            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-purple)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              ROUND {currentRound} SCENARIO SPECIFICATION
-            </span>
+      {session.game_stage === 'reveal' ? (
+        /* Bias Reveal Presentation Mode */
+        <HostRevealView
+          currentStep={session.reveal_step || 1}
+          onSetStep={handleSetRevealStep}
+          onTransitionToFairness={handleTransitionToFairness}
+          allAggregates={allAggregates}
+          totalPlayers={totalPlayersCount}
+          isActionInProgress={isActionInProgress}
+        />
+      ) : session.game_stage === 'fairness' ? (
+        /* Fairness Stage Queued Banner */
+        <Card glow="cyan" style={{ padding: '2.5rem', textAlign: 'center' }}>
+          <Badge variant="cyan" pulse>NEXT STAGE QUEUED</Badge>
+          <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '1rem 0 0.5rem 0' }}>
+            MAKE IT FAIR &bull; Fairness Challenge
+          </h2>
+          <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', maxWidth: '560px', margin: '0 auto 1.5rem auto', lineHeight: 1.6 }}>
+            The Bias Reveal sequence has concluded. In Case 9, students will actively evaluate and select candidate attributes to redesign the decision process.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <Button variant="secondary" onClick={() => handleSetRevealStep(1)}>
+              REVIEW BIAS REVEAL AGAIN
+            </Button>
+            <Button variant="primary" onClick={() => navigate('/host/dashboard')}>
+              RETURN TO HOST DASHBOARD
+            </Button>
           </div>
+        </Card>
+      ) : (
+        /* Active Simulation Rounds View (Rounds 1 to 7) */
+        <>
+          {/* Aggregate Results Component (Concealed until revealed or Host Peeks) */}
+          <AggregateResultsView
+            aggregate={aggregate}
+            roundData={roundData}
+            resultsVisible={resultsVisible}
+            totalPlayers={totalPlayersCount}
+            onShowResults={handleShowResults}
+            isActionInProgress={isActionInProgress}
+          />
 
-          <div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-              {roundData.title} &bull; Target Role: {roundData.role}
-            </h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0.3rem 0 0 0', lineHeight: 1.45 }}>
-              {roundData.context}
-            </p>
-          </div>
+          {/* Scenario Overview Details */}
+          <Card glow="purple">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', padding: '0.25rem 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Target size={16} color="var(--accent-purple)" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-purple)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  ROUND {currentRound} SCENARIO SPECIFICATION
+                </span>
+              </div>
 
-          <div style={{
-            background: 'var(--bg-surface-secondary)',
-            padding: '0.85rem 1.15rem',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-subtle)',
-            fontSize: '0.85rem',
-            color: 'var(--text-secondary)',
-            lineHeight: 1.45
-          }}>
-            <strong style={{ color: 'var(--text-primary)' }}>Educational Scenario Purpose:</strong> {roundData.educationalPurpose}
-          </div>
-        </div>
-      </Card>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                  {roundData.title} &bull; Target Role: {roundData.role}
+                </h3>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0.3rem 0 0 0', lineHeight: 1.45 }}>
+                  {roundData.context}
+                </p>
+              </div>
 
-      {/* Host Command Center Controls */}
-      <Card glow="cyan">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', padding: '0.5rem 0' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-              <Badge variant="cyan">PRESENTER GAME CONTROLLER</Badge>
+              <div style={{
+                background: 'var(--bg-surface-secondary)',
+                padding: '0.85rem 1.15rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-subtle)',
+                fontSize: '0.85rem',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.45
+              }}>
+                <strong style={{ color: 'var(--text-primary)' }}>Educational Scenario Purpose:</strong> {roundData.educationalPurpose}
+              </div>
             </div>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
-              Classroom Presentation Actions
-            </h2>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
-              Control the classroom presentation flow. Click <strong>SHOW RESULTS</strong> to broadcast collective results to students, then click <strong>NEXT ROUND</strong> when ready.
-            </p>
-          </div>
+          </Card>
 
-          <div style={{
-            background: 'var(--bg-surface-secondary)',
-            padding: '1.25rem',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-subtle)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '1.25rem'
-          }}>
-            <div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', fontWeight: 700 }}>
-                CURRENT ROUND STATE
-              </span>
-              <span className="font-mono text-cyan" style={{ fontSize: '1.15rem', fontWeight: 800 }}>
-                Round {currentRound} of 7 &bull; {resultsVisible ? 'Results Revealed to Classroom' : 'Results Concealed'}
-              </span>
+          {/* Host Command Center Controls */}
+          <Card glow="cyan">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', padding: '0.5rem 0' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                  <Badge variant="cyan">PRESENTER GAME CONTROLLER</Badge>
+                </div>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
+                  Classroom Presentation Actions
+                </h2>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
+                  {currentRound >= 7
+                    ? 'All 7 rounds completed! Click START BIAS REVEAL to transition the classroom into the educational explanation.'
+                    : 'Control the classroom presentation flow. Click SHOW RESULTS to broadcast collective results to students, then click NEXT ROUND when ready.'}
+                </p>
+              </div>
+
+              <div style={{
+                background: 'var(--bg-surface-secondary)',
+                padding: '1.25rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-subtle)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '1.25rem'
+              }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', fontWeight: 700 }}>
+                    CURRENT ROUND STATE
+                  </span>
+                  <span className="font-mono text-cyan" style={{ fontSize: '1.15rem', fontWeight: 800 }}>
+                    Round {currentRound} of 7 &bull; {resultsVisible ? 'Results Revealed to Classroom' : 'Results Concealed'}
+                  </span>
+                </div>
+
+                {/* Action Buttons (Protected against double clicks) */}
+                <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
+                  
+                  {/* Button: Show Results */}
+                  <Button
+                    variant={resultsVisible ? 'secondary' : 'primary'}
+                    size="normal"
+                    icon={<Eye size={16} />}
+                    onClick={handleShowResults}
+                    disabled={isActionInProgress || resultsVisible}
+                    id="btn-host-show-results"
+                    style={{ minHeight: '44px' }}
+                  >
+                    {resultsVisible 
+                      ? 'RESULTS VISIBLE TO CLASS' 
+                      : isActionInProgress 
+                        ? 'BROADCASTING...' 
+                        : 'SHOW RESULTS'}
+                  </Button>
+
+                  {/* Button: Next Round OR Start Bias Reveal */}
+                  {currentRound >= 7 ? (
+                    <Button
+                      variant="primary"
+                      size="normal"
+                      icon={<Sparkles size={16} />}
+                      onClick={handleStartReveal}
+                      disabled={isActionInProgress}
+                      id="btn-host-start-reveal"
+                      style={{
+                        minHeight: '44px',
+                        background: 'linear-gradient(135deg, #7c3aed, #0284c7)',
+                        boxShadow: '0 4px 14px rgba(124, 58, 237, 0.25)'
+                      }}
+                    >
+                      {isActionInProgress ? 'STARTING REVEAL...' : 'START BIAS REVEAL'}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant={resultsVisible ? 'primary' : 'secondary'}
+                      size="normal"
+                      icon={<SkipForward size={16} />}
+                      onClick={handleNextRound}
+                      disabled={isActionInProgress}
+                      id="btn-host-next-round"
+                      style={{ minHeight: '44px' }}
+                    >
+                      {isActionInProgress 
+                        ? 'ADVANCING...' 
+                        : `NEXT ROUND (${currentRound + 1} / 7)`}
+                    </Button>
+                  )}
+
+                  {/* Button: End Game */}
+                  <Button
+                    variant="danger"
+                    size="normal"
+                    icon={<StopCircle size={16} />}
+                    onClick={handleEndGame}
+                    disabled={isActionInProgress}
+                    id="btn-host-end-game"
+                    style={{ minHeight: '44px' }}
+                  >
+                    {isActionInProgress ? 'ENDING...' : 'END SIMULATION'}
+                  </Button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+                <ShieldCheck size={15} color="var(--color-success)" />
+                <span>
+                  Host authorized ({hostId}). Actions execute authoritatively in Supabase and synchronize to all {totalPlayersCount} student devices.
+                </span>
+              </div>
             </div>
-
-            {/* Action Buttons (Protected against double clicks) */}
-            <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
-              
-              {/* Button: Show Results */}
-              <Button
-                variant={resultsVisible ? 'secondary' : 'primary'}
-                size="normal"
-                icon={<Eye size={16} />}
-                onClick={handleShowResults}
-                disabled={isActionInProgress || resultsVisible}
-                id="btn-host-show-results"
-                style={{ minHeight: '44px' }}
-              >
-                {resultsVisible 
-                  ? 'RESULTS VISIBLE TO CLASS' 
-                  : isActionInProgress 
-                    ? 'BROADCASTING...' 
-                    : 'SHOW RESULTS'}
-              </Button>
-
-              {/* Button: Next Round */}
-              <Button
-                variant={resultsVisible ? 'primary' : 'secondary'}
-                size="normal"
-                icon={<SkipForward size={16} />}
-                onClick={handleNextRound}
-                disabled={isActionInProgress || currentRound >= 7}
-                id="btn-host-next-round"
-                style={{ minHeight: '44px' }}
-              >
-                {isActionInProgress 
-                  ? 'ADVANCING...' 
-                  : currentRound >= 7 
-                    ? 'FINAL ROUND REACHED' 
-                    : `NEXT ROUND (${currentRound + 1} / 7)`}
-              </Button>
-
-              {/* Button: End Game */}
-              <Button
-                variant="danger"
-                size="normal"
-                icon={<StopCircle size={16} />}
-                onClick={handleEndGame}
-                disabled={isActionInProgress}
-                id="btn-host-end-game"
-                style={{ minHeight: '44px' }}
-              >
-                {isActionInProgress ? 'ENDING...' : 'END SIMULATION'}
-              </Button>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-            <ShieldCheck size={15} color="var(--color-success)" />
-            <span>
-              Host authorized ({hostId}). Actions execute authoritatively in Supabase and synchronize to all {totalPlayersCount} student devices.
-            </span>
-          </div>
-        </div>
-      </Card>
+          </Card>
+        </>
+      )}
 
     </div>
   );

@@ -234,3 +234,34 @@ When results are broadcast by the host, student mobile devices transition in rea
 - **Reflection Tone**: "Interesting... The classroom decision pattern has been recorded."
 - **Waiting Cue**: Animated status indicator showing "Standing by for host to begin Round X+1..."
 - **Zero Identity Leakage**: Completely anonymous; no individual scores, leaderboard, or student comparisons.
+
+---
+
+# 12. Bias Reveal Visual Design (Case 8)
+
+The Bias Reveal transitions the classroom from gameplay to theoretical comprehension across 9 structured steps:
+
+- **Step Tracker**:
+  - Clean numbered indicator `STEP X OF 9` with active progress dots.
+  - Distinct purple/violet accent gradient (`#7C3AED` to `#6D28D9`) to denote the educational phase transition.
+- **Hero Presentation Elements (Projector)**:
+  - Step 1: Dramatic high-contrast "WAIT." hero text (5rem) with subtle scale entrance animation.
+  - Step 2: Grid of all 7 completed rounds with classroom percentage split bars and delta callouts.
+  - Step 3: Clear side-by-side comparison tables highlighting "Identical Qualifications" vs "Contextual Variation".
+  - Step 4: Two-column classification cards (Relevant in Emerald `#059669` vs Less Relevant in Slate `#64748B`).
+  - Step 5: Large projector prompt card ("DID THE INFORMATION INFLUENCE THE DECISION?") with presenter discussion cues.
+  - Step 6: Visual scale progression (1 decision → 100 decisions → 10,000 algorithmic training inputs).
+  - Step 7: Animated interactive pipeline flowchart: `DATA → ALGORITHM → DECISION`.
+  - Step 8: Extended societal impact flowchart: `DATA → ALGORITHM → DECISION → IMPACT` with high-emphasis "AUTOMATION ≠ FAIRNESS" alert card.
+  - Step 9: Action-oriented summary card ("Make the decision process more thoughtful") with seamless bridge button to the Stage 2 Fairness Challenge.
+- **Mobile Device Synchronization**:
+  - Students see the exact same educational slides and diagrams formatted for mobile touchscreens.
+  - Step transitions are controlled strictly by the presenter, keeping the entire room aligned in real time.
+
+---
+
+# 13. Educational Tone & Non-Shaming Ethics
+
+- **Strict Non-Shaming Language**: Never accuse students of bias. Avoid phrases like "You failed," "Wrong choice," or "You are biased."
+- **Objective Structural Focus**: Frame shifts as "The decisions changed when the information changed."
+- **Data-Driven Grounding**: All reveal stats are derived directly from actual classroom submissions in Supabase, keeping the discussion authentic and participatory.

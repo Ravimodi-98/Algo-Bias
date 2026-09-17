@@ -132,33 +132,32 @@ The presenter can control the classroom presentation flow (Start Round → Colle
 
 ---
 
-# PHASE 6 — Bias Reveal
+# PHASE 6 — Bias Reveal (CASE 8)
 
 ## Goal
 
-Create the main educational reveal.
+Create the central educational reveal experience connecting classroom decisions to algorithmic data pipelines.
 
 ## Tasks
 
-Create reveal sequence:
-
-1. Pause
-2. "Something interesting happened."
-3. Show decisions
-4. Identify relevant information
-5. Identify irrelevant information
-6. Ask whether the information influenced decisions
-7. Explain the connection to algorithmic bias
-
-Important:
-
-Do not accuse students.
-
-The reveal should focus on information and decision-making.
+- [x] Database migration: `game_stage` ('round' | 'reveal' | 'fairness') and `reveal_step` (1 to 9) in `game_sessions`
+- [x] Shared data: Complete 9-step educational sequence in `revealSteps.ts` with `ROUND_COMPARISON_FACTS`
+- [x] Host control center: Projector-first `HostRevealView` with navigation controls (PREV, NEXT, CONTINUE TO FAIRNESS)
+- [x] Mobile synchronized view: Responsive `PlayerRevealView` synchronized via Supabase Realtime
+- [x] Step 1: The Transition ("WAIT. Something interesting happened.")
+- [x] Step 2: Classroom Decisions Summary (Aggregate session percentages without individual labels)
+- [x] Step 3: What Changed? (Side-by-side core qualifications vs contextual variations)
+- [x] Step 4: Relevant vs Less-Relevant Information (Factual classification of skills vs names/location)
+- [x] Step 5: The Central Question ("DID THE INFORMATION INFLUENCE THE DECISION?")
+- [x] Step 6: Human Decisions Become Data (Scaling 1 → 100 → 10,000 decisions into training pipelines)
+- [x] Step 7: The Algorithm (`DATA → ALGORITHM → DECISION` flow)
+- [x] Step 8: Impact & Automation ≠ Fairness (`DATA → ALGORITHM → DECISION → IMPACT`)
+- [x] Step 9: Toward Responsible Design ("SO WHAT CAN WE DO?" → transition to Fairness Challenge)
+- [x] Non-shaming educational tone: Zero student labeling, accusing, or individual voting exposure
 
 ## Result
 
-Students understand the core concept before the theoretical explanation.
+Students experience a high-impact, projector-synchronized 9-step educational reveal that clearly links human decision patterns in the classroom to real-world algorithmic training data and systemic societal impacts without shaming participants.
 
 ---
 

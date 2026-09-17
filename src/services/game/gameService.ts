@@ -485,6 +485,189 @@ export const gameService = {
   },
 
   /**
+   * Host starts the Bias Reveal stage authoritatively.
+   * Sets game_stage = 'reveal' and reveal_step = 1.
+   */
+  async startBiasReveal(sessionId: string, hostId: string): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { data: session, error: fetchErr } = await supabase
+        .from('game_sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (fetchErr || !session) {
+        return { success: false, error: 'Game session not found.' };
+      }
+
+      if (session.host_id !== hostId) {
+        return { success: false, error: 'Unauthorized: You do not own this game session.' };
+      }
+
+      const { error } = await supabase
+        .from('game_sessions')
+        .update({
+          game_stage: 'reveal',
+          reveal_step: 1,
+          results_visible: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error starting bias reveal:', error);
+        return { success: false, error: 'Failed to start bias reveal.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in startBiasReveal:', err);
+      return { success: false, error: 'Unexpected system error starting bias reveal.' };
+    }
+  },
+
+  /**
+   * Host advances or navigates reveal steps authoritatively (1 to 9).
+   */
+  async setRevealStep(sessionId: string, hostId: string, step: number): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { data: session, error: fetchErr } = await supabase
+        .from('game_sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (fetchErr || !session) {
+        return { success: false, error: 'Game session not found.' };
+      }
+
+      if (session.host_id !== hostId) {
+        return { success: false, error: 'Unauthorized: You do not own this game session.' };
+      }
+
+      const clampedStep = Math.max(1, Math.min(step, 9));
+      const { error } = await supabase
+        .from('game_sessions')
+        .update({
+          game_stage: 'reveal',
+          reveal_step: clampedStep,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error updating reveal step:', error);
+        return { success: false, error: 'Failed to update reveal step.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in setRevealStep:', err);
+      return { success: false, error: 'Unexpected system error updating reveal step.' };
+    }
+  },
+
+  /**
+   * Host transitions session from reveal to fairness challenge placeholder (Case 9).
+   */
+  async transitionToFairnessStage(sessionId: string, hostId: string): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { data: session, error: fetchErr } = await supabase
+        .from('game_sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (fetchErr || !session) {
+        return { success: false, error: 'Game session not found.' };
+      }
+
+      if (session.host_id !== hostId) {
+        return { success: false, error: 'Unauthorized: You do not own this game session.' };
+      }
+
+      const { error } = await supabase
+        .from('game_sessions')
+        .update({
+          game_stage: 'fairness',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error transitioning to fairness stage:', error);
+        return { success: false, error: 'Failed to transition to fairness challenge.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in transitionToFairnessStage:', err);
+      return { success: false, error: 'Unexpected system error transitioning stage.' };
+    }
+  },
+
+  /**
+   * Retrieves classroom aggregates across all completed rounds (1 to 7) using actual session response data.
+   */
+  async getSessionAllRoundsAggregates(sessionId: string): Promise<Record<number, RoundAggregate>> {
+    try {
+      const { data, error } = await supabase
+        .from('responses')
+        .select('round_number, selected_candidate')
+        .eq('session_id', sessionId);
+
+      const result: Record<number, RoundAggregate> = {};
+      for (let r = 1; r <= 7; r++) {
+        result[r] = {
+          roundNumber: r,
+          totalResponses: 0,
+          candidateA: { count: 0, percentage: 0 },
+          candidateB: { count: 0, percentage: 0 }
+        };
+      }
+
+      if (error || !data) {
+        return result;
+      }
+
+      data.forEach((row) => {
+        const r = row.round_number;
+        if (result[r]) {
+          if (row.selected_candidate === 'A') {
+            result[r].candidateA.count++;
+          } else if (row.selected_candidate === 'B') {
+            result[r].candidateB.count++;
+          }
+        }
+      });
+
+      for (let r = 1; r <= 7; r++) {
+        const total = result[r].candidateA.count + result[r].candidateB.count;
+        result[r].totalResponses = total;
+        if (total > 0) {
+          const pctA = Math.round((result[r].candidateA.count / total) * 100);
+          result[r].candidateA.percentage = pctA;
+          result[r].candidateB.percentage = 100 - pctA;
+        }
+      }
+
+      return result;
+    } catch (err) {
+      console.error('Error fetching all rounds aggregates:', err);
+      const fallback: Record<number, RoundAggregate> = {};
+      for (let r = 1; r <= 7; r++) {
+        fallback[r] = {
+          roundNumber: r,
+          totalResponses: 0,
+          candidateA: { count: 0, percentage: 0 },
+          candidateB: { count: 0, percentage: 0 }
+        };
+      }
+      return fallback;
+    }
+  },
+
+  /**
    * Closes a game session safely.
    */
   async closeGameSession(sessionId: string, hostId: string): Promise<{ success: boolean; error: string | null }> {

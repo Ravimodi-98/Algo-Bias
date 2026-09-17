@@ -215,12 +215,32 @@ Suggested tables:
 
 ## game_sessions
 
-- id
-- game_code
-- status
-- current_round
-- created_at
-- ended_at
+- id (UUID, PK)
+- host_id (VARCHAR)
+- game_code (VARCHAR 6)
+- status ('waiting' | 'active' | 'completed')
+- current_round (INTEGER 1..7)
+- round_started_at (TIMESTAMPTZ)
+- results_visible (BOOLEAN)
+- game_stage ('round' | 'reveal' | 'fairness' | 'completed')
+- reveal_step (INTEGER 0..9)
+- created_at (TIMESTAMPTZ)
+- updated_at (TIMESTAMPTZ)
+- ended_at (TIMESTAMPTZ)
+
+## Reveal System Architecture (Case 8)
+
+The Bias Reveal is an authoritative 9-step progression synchronized in real time between the Host projector dashboard and Player mobile devices:
+
+1. **The Transition**: Pause & reset cognitive context ("WAIT. Something interesting happened.")
+2. **Classroom Decisions**: Anonymized summary of classroom percentages across key rounds.
+3. **What Changed?**: Side-by-side comparison isolating core qualifications vs framing variations.
+4. **Relevant vs. Less-Relevant Information**: Objective breakdown of skills/experience vs location/name/format.
+5. **The Question**: Factual inquiry: "DID THE INFORMATION INFLUENCE THE DECISION?"
+6. **Scale**: Visualizing how 1 decision becomes 100, then 10,000 algorithmic training points.
+7. **The Algorithm**: Concrete flow diagram: `DATA → ALGORITHM → DECISION`.
+8. **Impact & Automation ≠ Fairness**: Societal pipeline: `DATA → ALGORITHM → DECISION → IMPACT`.
+9. **Toward Solutions**: Bridge to responsible design and the Stage 2 Fairness Challenge.
 
 ## players
 

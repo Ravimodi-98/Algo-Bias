@@ -18,7 +18,7 @@ Purpose:
 Interactive educational game for demonstrating algorithmic bias, data influence, and algorithmic fairness.
 
 Current Status:
-CASE 7 COMPLETE — Live Host Dashboard + Classroom Collective Results & Realtime Sync
+CASE 8 COMPLETE — Bias Reveal + Educational Bias Explanation (DATA → ALGORITHM → DECISION → IMPACT)
 
 Overall Progress:
 [ ] Not Started
@@ -31,33 +31,33 @@ Overall Progress:
 # 2. Current Phase
 
 Current Phase:
-CASE 7 COMPLETE — Live Host Dashboard + Classroom Results (Preparing Case 8)
+CASE 8 COMPLETE — Bias Reveal + Educational Bias Explanation (Ready for Case 9: Fairness Challenge)
 
 Current Objective:
-Upgrade Host live game control center, implement projector-friendly aggregate results visualization, authoritative results reveal state, live response progress tracking, and mobile-first student results screen.
+Transition classroom from "Here are the decisions you made" to "Why did those decisions happen?" through a synchronized 9-step educational sequence connecting human choices to training data, algorithms, and real-world societal impact.
 
 ---
 
 # 3. Current File Being Worked On
 
 Currently Working On:
-src/host/pages/HostGamePage.tsx, src/host/components/AggregateResultsView.tsx, src/player/pages/PlayPage.tsx, src/player/components/PlayerResultsCard.tsx
+src/host/components/HostRevealView.tsx, src/player/components/PlayerRevealView.tsx, src/shared/data/revealSteps.ts, src/services/game/gameService.ts
 
 Current Task:
-Case 7 Complete: Live player and response counts, projector-optimized large stat displays, concealed vs revealed results states, dual-color comparative distribution bar, neutral educational feedback, and zero student identification.
+Case 8 Complete: 9-step authoritative educational reveal, projector-first presenter mode, synchronized mobile experience, Realtime step broadcasting, neutral non-shaming tone, and zero student identification.
 
 ---
 
 # 4. Recently Completed
 
-- [x] **Projector-First Host Control Center**: Upgraded `/host/game` with large high-contrast metrics: Room Code (2.5rem monospace), Connected Players (2.5rem), Live Responses (2.5rem `X / Y`), and Round Timer (`00:14`).
-- [x] **Live Response Counter & Progress**: High-visibility 18px progress bar with percentage and text counter (`15 of 18 players responded (83%)`), updated instantly via Supabase Realtime without polling.
-- [x] **Concealed vs Revealed Results Architecture**: Concealed state on projector prevents classroom bias during voting; Host triggers `SHOW RESULTS` to reveal results synchronously across projector and student phones.
-- [x] **Authoritative Aggregate Calculations**: Backend aggregation in `gameService.getRoundAggregates` returns anonymized vote counts and percentages for Candidate A and Candidate B.
-- [x] **High-Contrast Result Visualization**: Big percentage displays (4.25rem), majority choice badge, and animated dual-color split distribution bar (Electric Blue `#0284c7` vs Royal Violet `#7c3aed`).
-- [x] **Mobile-First Student Results Screen**: `PlayerResultsCard` displays class percentages with animated bars, personal selection indicator ("Your pick"), and neutral reflection quote (*"Interesting... The classroom decision pattern has been recorded."*).
-- [x] **Zero Student Identification**: Anonymized classroom aggregates only. Individual student identities and decision mappings are strictly concealed.
-- [x] **Button Safety & Double-Click Protection**: Host actions are secured with `actionLockRef` and `isActionInProgress` to prevent duplicate requests or skipped rounds.
+- [x] **Database Migration for Reveal**: Added `game_stage VARCHAR(32) NOT NULL DEFAULT 'round'` and `reveal_step INTEGER NOT NULL DEFAULT 0` to `game_sessions`.
+- [x] **Shared Educational Sequence Data**: Authored structured 9-step reveal configuration in `revealSteps.ts` with `ROUND_COMPARISON_FACTS` directly tying into the 7 candidate scenarios.
+- [x] **Host Projector-First Reveal Center**: Built `HostRevealView.tsx` with high-contrast projector typography, stage progress indicator, side-by-side comparison tables, interactive pipeline diagrams, and presenter discussion prompts.
+- [x] **Realtime Synchronized Mobile Experience**: Built `PlayerRevealView.tsx` and integrated it in `PlayPage.tsx` and `RevealPlaceholderPage.tsx`, allowing player devices to mirror the presenter's active reveal step instantly.
+- [x] **Authoritative Stage Progression**: Implemented `startBiasReveal`, `setRevealStep`, `transitionToFairnessStage`, and `getSessionAllRoundsAggregates` in `gameService.ts`.
+- [x] **DATA → ALGORITHM → DECISION → IMPACT Pipeline**: Interactive flowcharts visually demonstrating how human decisions scale from 1 to 10,000 to train algorithms that automate outcomes, highlighting "Automation ≠ Fairness".
+- [x] **Non-Shaming Educational Ethics**: Strictly maintained objective framing ("The decisions changed when the information changed") with zero individual student shaming, labeling, or identity leakage.
+- [x] **Integration & Build Verification**: TypeScript type-checked and verified with automated integration test `test_case8_reveal.cjs`. Production build passed.
 - [x] **Reconnection Resilience**: Host and student reloads restore active game sessions, current round, response count, remaining timer, and results visibility from Supabase.
 - [x] **Documentation & Production Testing**: Updated `memory.md`, `design.md`, `phases.md`, verified build, and deployed to Vercel.
 

@@ -14,6 +14,7 @@ import { CountdownTimer } from '../components/CountdownTimer';
 import { CandidateCard } from '../components/CandidateCard';
 import { DecisionPanel } from '../components/DecisionPanel';
 import { PlayerResultsCard } from '../components/PlayerResultsCard';
+import { PlayerRevealView } from '../components/PlayerRevealView';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
@@ -35,6 +36,7 @@ export const PlayPage: React.FC = () => {
   const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
   const [resultsVisible, setResultsVisible] = useState<boolean>(false);
   const [roundAggregate, setRoundAggregate] = useState<RoundAggregate | null>(null);
+  const [allAggregates, setAllAggregates] = useState<Record<number, RoundAggregate>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'reconnecting'>('connected');
@@ -103,6 +105,15 @@ export const PlayPage: React.FC = () => {
       await fetchAggregate(game.id, roundNum);
     } else {
       setResultsVisible(false);
+    }
+
+    if (game.game_stage === 'reveal' || (game.current_round && game.current_round >= 7)) {
+      try {
+        const aggs = await gameService.getSessionAllRoundsAggregates(game.id);
+        setAllAggregates(aggs);
+      } catch (err) {
+        console.error('Error fetching all aggregates in loadAndVerifySession:', err);
+      }
     }
 
     // Check if decision was already recorded in database
@@ -190,6 +201,12 @@ export const PlayPage: React.FC = () => {
               } else {
                 setResultsVisible(false);
               }
+            }
+
+            // Bias Reveal Stage Sync
+            if (updated.game_stage === 'reveal') {
+              const aggs = await gameService.getSessionAllRoundsAggregates(session.sessionId);
+              setAllAggregates(aggs);
             }
 
             // Round advancement initiated by host
@@ -398,15 +415,48 @@ export const PlayPage: React.FC = () => {
         </div>
       )}
 
-      {/* Accessible Game Progress Bar */}
-      <GameProgressBar 
-        currentRound={currentRound} 
-        totalRounds={7} 
-        gameCode={gameSession?.game_code || session?.gameCode} 
-      />
+      {/* Accessible Game Progress Bar (Only during rounds) */}
+      {gameSession?.game_stage !== 'reveal' && gameSession?.game_stage !== 'fairness' && (
+        <GameProgressBar 
+          currentRound={currentRound} 
+          totalRounds={7} 
+          gameCode={gameSession?.game_code || session?.gameCode} 
+        />
+      )}
 
-      {/* CONDITIONAL DISPLAY: Results Screen vs Gameplay Decision Flow */}
-      {resultsVisible ? (
+      {/* CONDITIONAL DISPLAY: Reveal Stage vs Fairness Stage vs Results vs Gameplay Flow */}
+      {gameSession?.game_stage === 'reveal' ? (
+        <PlayerRevealView
+          currentStep={((gameSession.reveal_step || 1) as any)}
+          allAggregates={allAggregates}
+        />
+      ) : gameSession?.game_stage === 'fairness' ? (
+        <div style={{
+          background: '#ffffff',
+          padding: '2.5rem 1.5rem',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--border-subtle)',
+          boxShadow: '0 4px 16px rgba(15, 23, 42, 0.06)',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            display: 'inline-flex',
+            padding: '0.75rem',
+            borderRadius: '9999px',
+            background: 'rgba(124, 58, 237, 0.1)',
+            color: 'var(--accent-purple)',
+            marginBottom: '1rem'
+          }}>
+            <Target size={32} />
+          </div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+            Fairness Challenge Ahead
+          </h2>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            Look at the main screen! The host will initiate the hands-on fairness algorithm challenge shortly.
+          </p>
+        </div>
+      ) : resultsVisible ? (
         roundAggregate ? (
           /* 1. Classroom Result Screen (Triggered by Host SHOW RESULTS) */
           <PlayerResultsCard
