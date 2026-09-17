@@ -884,13 +884,16 @@ export const gameService = {
         }
       });
 
-      for (let r = 1; r <= 7; r++) {
+      for (let r = 1; r <= TOTAL_ROUNDS; r++) {
         const total = result[r].candidateA.count + result[r].candidateB.count;
         result[r].totalResponses = total;
         if (total > 0) {
           const pctA = Math.round((result[r].candidateA.count / total) * 100);
           result[r].candidateA.percentage = pctA;
           result[r].candidateB.percentage = 100 - pctA;
+        } else {
+          result[r].candidateA.percentage = 0;
+          result[r].candidateB.percentage = 0;
         }
       }
 
@@ -898,7 +901,7 @@ export const gameService = {
     } catch (err) {
       console.error('Error fetching all rounds aggregates:', err);
       const fallback: Record<number, RoundAggregate> = {};
-      for (let r = 1; r <= 7; r++) {
+      for (let r = 1; r <= TOTAL_ROUNDS; r++) {
         fallback[r] = {
           roundNumber: r,
           totalResponses: 0,

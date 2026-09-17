@@ -76,8 +76,9 @@ export const PlayerRevealView: React.FC<PlayerRevealViewProps> = ({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
               {ROUND_COMPARISON_FACTS.slice(0, 5).map((fact) => {
                 const agg = allAggregates[fact.roundNumber];
-                const pctA = agg?.candidateA.percentage || 50;
-                const pctB = agg?.candidateB.percentage || 50;
+                const hasVotes = (agg?.totalResponses ?? 0) > 0;
+                const pctA = hasVotes ? agg.candidateA.percentage : 0;
+                const pctB = hasVotes ? agg.candidateB.percentage : 0;
 
                 return (
                   <div
@@ -94,7 +95,9 @@ export const PlayerRevealView: React.FC<PlayerRevealViewProps> = ({
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
                       <span className="font-mono text-purple" style={{ fontWeight: 800 }}>R{fact.roundNumber}: {fact.title}</span>
-                      <span style={{ fontWeight: 700 }}>A: {pctA}% &bull; B: {pctB}%</span>
+                      <span style={{ fontWeight: 700 }}>
+                        {hasVotes ? `A: ${pctA}% • B: ${pctB}%` : 'No votes recorded'}
+                      </span>
                     </div>
 
                     <div style={{ height: '6px', width: '100%', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden', display: 'flex' }}>

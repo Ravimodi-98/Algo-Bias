@@ -21,17 +21,6 @@ export const HostRevealPage: React.FC = () => {
   const hostSession = storage.getHostSession();
   const hostId = hostSession?.hostId || 'HOST-DEMO';
 
-  // Realistic sample aggregates for demonstration/preview when no live votes exist
-  const sampleAggregates: Record<number, RoundAggregate> = {
-    1: { roundNumber: 1, totalResponses: 24, candidateA: { count: 21, percentage: 88 }, candidateB: { count: 3, percentage: 12 } },
-    2: { roundNumber: 2, totalResponses: 24, candidateA: { count: 18, percentage: 75 }, candidateB: { count: 6, percentage: 25 } },
-    3: { roundNumber: 3, totalResponses: 24, candidateA: { count: 17, percentage: 71 }, candidateB: { count: 7, percentage: 29 } },
-    4: { roundNumber: 4, totalResponses: 24, candidateA: { count: 16, percentage: 67 }, candidateB: { count: 8, percentage: 33 } },
-    5: { roundNumber: 5, totalResponses: 24, candidateA: { count: 19, percentage: 79 }, candidateB: { count: 5, percentage: 21 } },
-    6: { roundNumber: 6, totalResponses: 24, candidateA: { count: 15, percentage: 62 }, candidateB: { count: 9, percentage: 38 } },
-    7: { roundNumber: 7, totalResponses: 24, candidateA: { count: 17, percentage: 71 }, candidateB: { count: 7, percentage: 29 } },
-  };
-
   const loadSession = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -40,16 +29,16 @@ export const HostRevealPage: React.FC = () => {
         setActiveSession(session);
         setCurrentStep(session.reveal_step && session.reveal_step > 0 ? session.reveal_step : 1);
 
-        // Fetch actual round aggregates if available
+        // Fetch actual round aggregates
         try {
           const aggregates = await gameService.getSessionAllRoundsAggregates(session.id);
-          const hasResponses = Object.values(aggregates).some(a => a.totalResponses > 0);
-          setAllAggregates(hasResponses ? aggregates : sampleAggregates);
-        } catch {
-          setAllAggregates(sampleAggregates);
+          setAllAggregates(aggregates);
+        } catch (err) {
+          console.error('Failed to load session aggregates:', err);
+          setAllAggregates({});
         }
       } else {
-        setAllAggregates(sampleAggregates);
+        setAllAggregates({});
       }
     } finally {
       setIsLoading(false);

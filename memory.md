@@ -141,24 +141,29 @@ Case 10 Complete: 6-step synchronized final results view, host presentation mode
 
 # 9. Current State & Latest Commit
 
-Current state:
-Case 11 UI/UX polish completed.
+Case 11 completed.
 
-Completed:
-- Design system polish
-- Player responsive UI
-- Host projector UI
-- Animations
-- Accessibility
-- Responsive layouts
-- Loading/error states
-- Presentation polish
+Pre-Case 12 bug fix:
+Fixed Host Actual Anonymized Results.
+
+Host now displays:
+- aggregate total votes per option
+- vote ratio/percentage per option
+- round-by-round results for all 5 candidate rounds
+
+Host does NOT display:
+- individual student decisions
+- player-to-response mappings
+- student rankings
+
+Data source:
+Actual recorded Supabase session responses.
 
 Next:
 Case 12 — Full Testing + Security + Deployment + Presentation Mode
 
 Commit:
-`style: polish ui animations accessibility and responsive design`
+`fix: correct host anonymized session result aggregation`
 
 Date:
-2026-09-17
+2026-09-18

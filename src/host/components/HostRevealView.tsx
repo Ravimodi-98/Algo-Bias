@@ -14,6 +14,7 @@ import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
 import { REVEAL_STEPS, ROUND_COMPARISON_FACTS } from '../../shared/data/revealSteps';
+import { ROUNDS_DATA } from '../../shared/data/rounds';
 import type { RoundAggregate } from '../../shared/types';
 
 interface HostRevealViewProps {
@@ -153,59 +154,163 @@ export const HostRevealView: React.FC<HostRevealViewProps> = ({
                 Classroom Decisions Across Rounds
               </h2>
               <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', margin: '0.4rem 0 0 0' }}>
-                Actual anonymized results recorded in this session. Notice how choices shifted between candidates.
+                {totalPlayers > 0
+                  ? `Actual anonymized aggregate results recorded from ${totalPlayers} connected students across all 5 candidate-selection rounds.`
+                  : 'Actual anonymized aggregate results recorded in this session across all 5 candidate-selection rounds.'}
               </p>
             </div>
 
-            {/* Grid of session round decisions */}
+            {/* Grid of session round decisions (All 5 candidate rounds) */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
               gap: '1rem',
               marginTop: '0.5rem'
             }}>
               {ROUND_COMPARISON_FACTS.map((fact) => {
+                const roundData = ROUNDS_DATA[fact.roundNumber];
                 const agg = allAggregates[fact.roundNumber];
-                const total = agg?.totalResponses || 0;
-                const pctA = agg?.candidateA.percentage || 0;
-                const pctB = agg?.candidateB.percentage || 0;
+                const votesA = agg?.candidateA?.count ?? 0;
+                const votesB = agg?.candidateB?.count ?? 0;
+                const total = agg?.totalResponses ?? (votesA + votesB);
+
+                // Robust percentage calculation (no NaN, sums to 100% when total > 0)
+                const pctA = total > 0 ? (agg?.candidateA?.percentage ?? Math.round((votesA / total) * 100)) : 0;
+                const pctB = total > 0 ? (agg?.candidateB?.percentage ?? (100 - pctA)) : 0;
+
+                const roundTitle = (roundData?.title || fact.title).toUpperCase();
+                const optionAName = roundData?.candidateA?.name ? `(${roundData.candidateA.name})` : '';
+                const optionBName = roundData?.candidateB?.name ? `(${roundData.candidateB.name})` : '';
 
                 return (
                   <div
                     key={fact.roundNumber}
                     style={{
-                      background: 'var(--bg-surface-secondary)',
-                      padding: '1rem',
+                      background: '#ffffff',
+                      padding: '1.15rem 1rem',
                       borderRadius: 'var(--radius-md)',
                       border: '1px solid var(--border-subtle)',
+                      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '0.4rem'
+                      gap: '0.75rem'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className="font-mono text-purple" style={{ fontSize: '0.8rem', fontWeight: 800 }}>
-                        ROUND {fact.roundNumber}
-                      </span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {total} {total === 1 ? 'vote' : 'votes'}
-                      </span>
+                    {/* Round Header & Total Votes */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      borderBottom: '1px solid var(--border-subtle)',
+                      paddingBottom: '0.5rem'
+                    }}>
+                      <div>
+                        <span className="font-mono text-purple" style={{ fontSize: '0.8rem', fontWeight: 900, letterSpacing: '0.04em' }}>
+                          ROUND {fact.roundNumber}
+                        </span>
+                        <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.1rem' }}>
+                          {roundTitle}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>
+                          Total Votes
+                        </span>
+                        <span className="font-mono" style={{ fontSize: '0.95rem', fontWeight: 900, color: total > 0 ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                          {total}
+                        </span>
+                      </div>
                     </div>
 
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {fact.title}
-                    </div>
+                    {/* Decision Options Results */}
+                    {total === 0 ? (
+                      <div style={{
+                        padding: '1.25rem 0.5rem',
+                        textAlign: 'center',
+                        background: 'var(--bg-surface-secondary)',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '0.82rem',
+                        fontWeight: 700,
+                        color: 'var(--text-muted)'
+                      }}>
+                        No votes recorded
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                        {/* Side-by-side Option A and Option B cards */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                          {/* OPTION A */}
+                          <div style={{
+                            background: 'rgba(2, 132, 199, 0.05)',
+                            border: '1px solid rgba(2, 132, 199, 0.2)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '0.55rem 0.5rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.15rem'
+                          }}>
+                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--accent-cyan)', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              OPTION A {optionAName}
+                            </div>
+                            <div className="font-mono" style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-cyan)', lineHeight: 1.1 }}>
+                              {pctA}%
+                            </div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                              {votesA} {votesA === 1 ? 'vote' : 'votes'}
+                            </div>
+                          </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginTop: '0.2rem' }}>
-                      <span style={{ color: 'var(--accent-cyan)', fontWeight: 800 }}>A: {pctA}%</span>
-                      <span style={{ color: 'var(--accent-purple)', fontWeight: 800 }}>B: {pctB}%</span>
-                    </div>
+                          {/* OPTION B */}
+                          <div style={{
+                            background: 'rgba(124, 58, 237, 0.05)',
+                            border: '1px solid rgba(124, 58, 237, 0.2)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '0.55rem 0.5rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.15rem'
+                          }}>
+                            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--accent-purple)', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              OPTION B {optionBName}
+                            </div>
+                            <div className="font-mono" style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-purple)', lineHeight: 1.1 }}>
+                              {pctB}%
+                            </div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                              {votesB} {votesB === 1 ? 'vote' : 'votes'}
+                            </div>
+                          </div>
+                        </div>
 
-                    {/* Mini bar */}
-                    <div style={{ height: '8px', width: '100%', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
-                      <div style={{ width: `${pctA}%`, background: 'var(--accent-cyan)' }} />
-                      <div style={{ width: `${pctB}%`, background: 'var(--accent-purple)' }} />
-                    </div>
+                        {/* Proportional Split Bar */}
+                        <div style={{
+                          height: '8px',
+                          width: '100%',
+                          background: '#e2e8f0',
+                          borderRadius: '4px',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.06)'
+                        }}>
+                          <div
+                            style={{
+                              width: `${pctA}%`,
+                              background: 'linear-gradient(90deg, #0284c7, #38bdf8)',
+                              transition: 'width 0.4s ease'
+                            }}
+                            title={`Option A: ${votesA} votes (${pctA}%)`}
+                          />
+                          <div
+                            style={{
+                              width: `${pctB}%`,
+                              background: 'linear-gradient(90deg, #8b5cf6, #7c3aed)',
+                              transition: 'width 0.4s ease'
+                            }}
+                            title={`Option B: ${votesB} votes (${pctB}%)`}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}

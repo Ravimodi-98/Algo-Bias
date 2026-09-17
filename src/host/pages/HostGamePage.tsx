@@ -440,6 +440,10 @@ export const HostGamePage: React.FC = () => {
       const result = await gameService.setRevealStep(session.id, hostId, step);
       if (result.success) {
         setSession((prev) => prev ? { ...prev, reveal_step: step } : null);
+        if (step === 2) {
+          const freshAggs = await gameService.getSessionAllRoundsAggregates(session.id);
+          setAllAggregates(freshAggs);
+        }
       } else {
         setActionNotice(result.error || 'Failed to update reveal step.');
         setTimeout(() => setActionNotice(null), 3000);
