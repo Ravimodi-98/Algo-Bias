@@ -300,13 +300,32 @@ The Make It Fair Challenge is an authoritative 10-step interactive workflow wher
 - response (JSONB: flexible payload with duplicate prevention via unique constraint `(session_id, player_id, stage)`)
 - submitted_at (TIMESTAMPTZ)
 
-Do not store unnecessary personal information.
+## reflections (Case 10)
+
+- id (UUID, PK)
+- session_id (UUID, FK -> game_sessions.id ON DELETE CASCADE)
+- player_id (UUID, FK -> players.id ON DELETE CASCADE)
+- selected_themes (TEXT[]: array of chosen theme identifiers from `data_used`, `info_matters`, `system_tested`, `decision_explained`, `who_accountable`)
+- optional_response (TEXT: max 140 characters student takeaway)
+- submitted_at (TIMESTAMPTZ DEFAULT now())
+- UNIQUE constraint: `UNIQUE(session_id, player_id)` for duplicate submission prevention and idempotent upsert
+
+## Final Results & Reflection System Architecture (Case 10)
+
+The Final Experience brings the entire classroom simulation to an authoritative conclusion across 6 synchronized steps (`final_step` 0 to 5):
+
+0. **Final Classroom Results**: Aggregates participation metrics (`totalPlayers`, `completedPlayers`, `totalVotesLogged`, `fairnessParticipants`).
+1. **What Did We Learn?**: Reviews the 5 foundational truths (`Information Matters`, `Relevance Matters`, `Data Matters`, `Testing Matters`, `Accountability Matters`).
+2. **The Complete Chain**: Maps out `DATA → ALGORITHM → DECISION → IMPACT` with `FAIRNESS` encircling all stages.
+3. **Automation ≠ Fairness**: The four architectural pillars: Data Quality, Auditing, Explainability, Human Oversight.
+4. **Classroom Reflection**: "ONE LAST QUESTION" prompt where students submit multi-select themes and a personal sentence; host screen projects live frequency charts.
+5. **Simulation Complete & Session Concluded**: Final classroom discussion prompt (*"IF AN ALGORITHM MAKES A DECISION FOR US... WHO IS RESPONSIBLE FOR MAKING SURE IT IS FAIR?"*) and Host `END THIS SESSION` confirmation modal updating `status = 'completed'`, `game_stage = 'completed'`, and `ended_at`.
 
 ### Security & RLS Policies:
-- Only authenticated Host with matching `host_id` can update `game_stage` and `fairness_step`.
-- Players can only insert or update their own response for `(session_id, player_id, stage)`.
-- RLS permits public SELECT on `fairness_responses` for calculating classroom aggregates.
-- Realtime publication on `game_sessions` broadcasts step advancements to player smartphones instantly.
+- Only authenticated Host with matching `host_id` can update `game_stage`, `fairness_step`, `final_step`, and complete the session.
+- Players can only insert or update their own response for `(session_id, player_id)`.
+- RLS permits public SELECT on `reflections` for real-time classroom aggregate charts.
+- Realtime publication on `reflections` and `game_sessions` broadcasts updates across devices instantly without polling.
 
 ---
 

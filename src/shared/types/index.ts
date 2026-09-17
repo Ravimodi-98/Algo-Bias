@@ -31,9 +31,36 @@ export interface DbGameSession {
   updated_at: string;
   round_started_at?: string;
   results_visible?: boolean;
-  game_stage?: 'lobby' | 'round' | 'results' | 'reveal' | 'fairness' | 'completed';
+  game_stage?: 'lobby' | 'round' | 'results' | 'reveal' | 'fairness' | 'final' | 'completed';
   reveal_step?: number;
   fairness_step?: number;
+  final_step?: number;
+}
+
+export type FinalStepNumber = 0 | 1 | 2 | 3 | 4 | 5;
+
+export interface DbReflection {
+  id: string;
+  session_id: string;
+  player_id: string;
+  selected_themes: string[];
+  optional_response?: string;
+  submitted_at: string;
+}
+
+export interface ReflectionAggregate {
+  totalReflections: number;
+  themeCounts: Record<string, number>;
+  anonymousTakeaways: string[];
+}
+
+export interface SessionFinalSummary {
+  totalPlayers: number;
+  completedPlayers: number;
+  totalDecisionRounds: number;
+  fairnessParticipants: number;
+  factorsCount: Record<string, number>;
+  totalVotesLogged: number;
 }
 
 export type RevealStepNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;

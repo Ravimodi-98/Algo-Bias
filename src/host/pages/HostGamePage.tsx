@@ -24,6 +24,7 @@ import { LoadingState } from '../../shared/components/LoadingState';
 import { AggregateResultsView } from '../components/AggregateResultsView';
 import { HostRevealView } from '../components/HostRevealView';
 import { HostFairnessView } from '../components/HostFairnessView';
+import { HostFinalView } from '../components/HostFinalView';
 import { gameService } from '../../services/game/gameService';
 import { storage } from '../../shared/utils/storage';
 import { supabase } from '../../services/supabase/client';
@@ -35,7 +36,10 @@ import type {
   DbResponse, 
   RoundAggregate,
   FairnessStepNumber,
-  FairnessClassroomAggregates
+  FairnessClassroomAggregates,
+  FinalStepNumber,
+  SessionFinalSummary,
+  ReflectionAggregate
 } from '../../shared/types';
 
 export const HostGamePage: React.FC = () => {
@@ -60,6 +64,9 @@ export const HostGamePage: React.FC = () => {
   const [fairnessReadyCount, setFairnessReadyCount] = useState<number>(0);
   const [fairnessStageResponseCount, setFairnessStageResponseCount] = useState<number>(0);
 
+  const [finalSummary, setFinalSummary] = useState<SessionFinalSummary | null>(null);
+  const [reflectionsAggregate, setReflectionsAggregate] = useState<ReflectionAggregate | null>(null);
+
   const actionLockRef = useRef<boolean>(false);
   const hostSession = storage.getHostSession();
   const hostId = hostSession?.hostId || 'HOST-DEMO';
@@ -78,6 +85,18 @@ export const HostGamePage: React.FC = () => {
       setFairnessStageResponseCount(stageCount);
     } catch (err) {
       console.error('Error loading fairness data in HostGamePage:', err);
+    }
+  }, []);
+
+  // Helper to load final results summary and reflection aggregates (Case 10)
+  const loadFinalData = useCallback(async (sessionId: string) => {
+    try {
+      const summary = await gameService.getSessionFinalSummary(sessionId);
+      setFinalSummary(summary);
+      const refAgg = await gameService.getSessionReflectionsAggregate(sessionId);
+      setReflectionsAggregate(refAgg);
+    } catch (err) {
+      console.error('Error loading final data in HostGamePage:', err);
     }
   }, []);
 
@@ -128,6 +147,11 @@ export const HostGamePage: React.FC = () => {
         await loadFairnessData(active.id, active.fairness_step || 0);
       }
 
+      // Load final results & reflection state if active
+      if (active.game_stage === 'final' || active.game_stage === 'completed' || active.status === 'completed') {
+        await loadFinalData(active.id);
+      }
+
       // Synchronize timer
       const startTimeStr = active.round_started_at || active.updated_at;
       if (startTimeStr) {
@@ -142,7 +166,7 @@ export const HostGamePage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [hostId, navigate, computeAggregate, loadFairnessData]);
+  }, [hostId, navigate, computeAggregate, loadFairnessData, loadFinalData]);
 
   useEffect(() => {
     loadActiveGame();
@@ -286,6 +310,31 @@ export const HostGamePage: React.FC = () => {
       supabase.removeChannel(channel);
     };
   }, [session?.id, session?.fairness_step, loadFairnessData]);
+
+  // 5. Realtime subscription for student reflection submissions (Case 10)
+  useEffect(() => {
+    if (!session?.id) return;
+
+    const channel = supabase
+      .channel(`host-game-reflections-${session.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reflections',
+          filter: `session_id=eq.${session.id}`
+        },
+        async () => {
+          await loadFinalData(session.id);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.id, loadFinalData]);
 
   // Handler: Reveal Aggregate Results
   const handleShowResults = async () => {
@@ -438,6 +487,73 @@ export const HostGamePage: React.FC = () => {
       } else {
         setActionNotice(result.error || 'Failed to update fairness step.');
         setTimeout(() => setActionNotice(null), 3000);
+      }
+    } finally {
+      setIsActionInProgress(false);
+      actionLockRef.current = false;
+    }
+  };
+
+  // Handler: Transition from Fairness to Final Stage (Case 10)
+  const handleTransitionToFinalStage = async () => {
+    if (!session || actionLockRef.current || isActionInProgress) return;
+    actionLockRef.current = true;
+    setIsActionInProgress(true);
+
+    try {
+      const result = await gameService.transitionToFinalStage(session.id, hostId);
+      if (result.success) {
+        setSession((prev) => prev ? { ...prev, game_stage: 'final', final_step: 0 } : null);
+        await loadFinalData(session.id);
+        setActionNotice('TRANSITIONED TO CASE 10: FINAL RESULTS & REFLECTION');
+        setTimeout(() => setActionNotice(null), 4000);
+      } else {
+        setActionNotice(result.error || 'Failed to transition to final stage.');
+        setTimeout(() => setActionNotice(null), 4000);
+      }
+    } finally {
+      setIsActionInProgress(false);
+      actionLockRef.current = false;
+    }
+  };
+
+  // Handler: Step Navigation in Final Stage
+  const handleSetFinalStep = async (step: FinalStepNumber) => {
+    if (!session || actionLockRef.current || isActionInProgress) return;
+    actionLockRef.current = true;
+    setIsActionInProgress(true);
+
+    try {
+      const result = await gameService.setFinalStep(session.id, hostId, step);
+      if (result.success) {
+        setSession((prev) => prev ? { ...prev, final_step: step } : null);
+        await loadFinalData(session.id);
+      } else {
+        setActionNotice(result.error || 'Failed to update final step.');
+        setTimeout(() => setActionNotice(null), 3000);
+      }
+    } finally {
+      setIsActionInProgress(false);
+      actionLockRef.current = false;
+    }
+  };
+
+  // Handler: Complete Game Session (Case 10 Final Step)
+  const handleCompleteGameSession = async () => {
+    if (!session || actionLockRef.current || isActionInProgress) return;
+    actionLockRef.current = true;
+    setIsActionInProgress(true);
+
+    try {
+      const result = await gameService.completeGameSession(session.id, hostId);
+      if (result.success) {
+        setSession((prev) => prev ? { ...prev, status: 'completed', game_stage: 'completed' } : null);
+        await loadFinalData(session.id);
+        setActionNotice('SIMULATION MARKED COMPLETED. Session preserved.');
+        setTimeout(() => setActionNotice(null), 4000);
+      } else {
+        setActionNotice(result.error || 'Failed to complete game session.');
+        setTimeout(() => setActionNotice(null), 4000);
       }
     } finally {
       setIsActionInProgress(false);
@@ -703,6 +819,7 @@ export const HostGamePage: React.FC = () => {
         <HostFairnessView
           currentStep={((session.fairness_step ?? 0) as FairnessStepNumber)}
           onSetStep={handleSetFairnessStep}
+          onTransitionToFinal={handleTransitionToFinalStage}
           classroomAggregates={fairnessAggregates || {
             totalParticipants: totalPlayersCount,
             factorsCount: { skills: 0, experience: 0, projects: 0, education: 0, location: 0, name: 0, presentation_style: 0 },
@@ -724,6 +841,17 @@ export const HostGamePage: React.FC = () => {
           totalPlayers={totalPlayersCount}
           readyPlayersCount={fairnessReadyCount}
           stageResponseCount={fairnessStageResponseCount}
+          isActionInProgress={isActionInProgress}
+        />
+      ) : (session.game_stage === 'final' || session.game_stage === 'completed' || session.status === 'completed') ? (
+        /* Case 10 Final Results + Reflection View */
+        <HostFinalView
+          currentStep={((session.final_step ?? 0) as FinalStepNumber)}
+          onSetStep={handleSetFinalStep}
+          summary={finalSummary}
+          reflectionsAggregate={reflectionsAggregate}
+          isCompleted={session.status === 'completed' || session.game_stage === 'completed'}
+          onCompleteGame={handleCompleteGameSession}
           isActionInProgress={isActionInProgress}
         />
       ) : (

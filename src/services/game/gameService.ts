@@ -8,7 +8,10 @@ import type {
   DbFairnessResponse,
   FairnessResponseData,
   FairnessClassroomAggregates,
-  PriorityLevel
+  PriorityLevel,
+  DbReflection,
+  ReflectionAggregate,
+  SessionFinalSummary
 } from '../../shared/types';
 
 export const gameService = {
@@ -907,9 +910,286 @@ export const gameService = {
   },
 
   /**
+   * Host transitions session from fairness to final reflection & results (Case 10).
+   */
+  async transitionToFinalStage(sessionId: string, hostId: string): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { data: session, error: fetchErr } = await supabase
+        .from('game_sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (fetchErr || !session) {
+        return { success: false, error: 'Game session not found.' };
+      }
+
+      if (session.host_id !== hostId) {
+        return { success: false, error: 'Unauthorized: You do not own this game session.' };
+      }
+
+      const { error } = await supabase
+        .from('game_sessions')
+        .update({
+          game_stage: 'final',
+          final_step: 0,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error transitioning to final stage:', error);
+        return { success: false, error: 'Failed to transition to final stage.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in transitionToFinalStage:', err);
+      return { success: false, error: 'Unexpected system error transitioning stage.' };
+    }
+  },
+
+  /**
+   * Host navigates final reflection steps authoritatively (0 to 5).
+   */
+  async setFinalStep(sessionId: string, hostId: string, step: number): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { data: session, error: fetchErr } = await supabase
+        .from('game_sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (fetchErr || !session) {
+        return { success: false, error: 'Game session not found.' };
+      }
+
+      if (session.host_id !== hostId) {
+        return { success: false, error: 'Unauthorized: You do not own this game session.' };
+      }
+
+      const clampedStep = Math.max(0, Math.min(step, 5));
+      const { error } = await supabase
+        .from('game_sessions')
+        .update({
+          game_stage: 'final',
+          final_step: clampedStep,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error updating final step:', error);
+        return { success: false, error: 'Failed to update final step.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in setFinalStep:', err);
+      return { success: false, error: 'Unexpected system error updating step.' };
+    }
+  },
+
+  /**
+   * Submits or updates a player's final reflection.
+   */
+  async submitPlayerReflection(
+    sessionId: string,
+    playerId: string,
+    selectedThemes: string[],
+    optionalResponse?: string
+  ): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { error } = await supabase
+        .from('reflections')
+        .upsert(
+          {
+            session_id: sessionId,
+            player_id: playerId,
+            selected_themes: selectedThemes,
+            optional_response: optionalResponse?.trim() || null,
+            submitted_at: new Date().toISOString()
+          },
+          { onConflict: 'session_id,player_id' }
+        );
+
+      if (error) {
+        console.error('Error submitting player reflection:', error);
+        return { success: false, error: 'Failed to submit reflection.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in submitPlayerReflection:', err);
+      return { success: false, error: 'Unexpected system error.' };
+    }
+  },
+
+  /**
+   * Fetches a player's prior reflection for reload/reconnect resilience.
+   */
+  async getPlayerReflection(
+    sessionId: string,
+    playerId: string
+  ): Promise<DbReflection | null> {
+    try {
+      const { data, error } = await supabase
+        .from('reflections')
+        .select('*')
+        .eq('session_id', sessionId)
+        .eq('player_id', playerId)
+        .maybeSingle();
+
+      if (error || !data) return null;
+      return data as DbReflection;
+    } catch (err) {
+      console.error('Error fetching player reflection:', err);
+      return null;
+    }
+  },
+
+  /**
+   * Computes anonymous aggregate reflection metrics for the classroom display.
+   */
+  async getSessionReflectionsAggregate(sessionId: string): Promise<ReflectionAggregate> {
+    const defaultAggregate: ReflectionAggregate = {
+      totalReflections: 0,
+      themeCounts: {
+        data_used: 0,
+        info_matters: 0,
+        system_tested: 0,
+        decision_explained: 0,
+        who_accountable: 0
+      },
+      anonymousTakeaways: []
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('reflections')
+        .select('selected_themes, optional_response')
+        .eq('session_id', sessionId);
+
+      if (error || !data) return defaultAggregate;
+
+      defaultAggregate.totalReflections = data.length;
+
+      data.forEach((row) => {
+        if (Array.isArray(row.selected_themes)) {
+          row.selected_themes.forEach((theme: string) => {
+            if (defaultAggregate.themeCounts[theme] !== undefined) {
+              defaultAggregate.themeCounts[theme]++;
+            } else {
+              defaultAggregate.themeCounts[theme] = 1;
+            }
+          });
+        }
+
+        if (row.optional_response && typeof row.optional_response === 'string' && row.optional_response.trim().length > 0) {
+          defaultAggregate.anonymousTakeaways.push(row.optional_response.trim());
+        }
+      });
+
+      return defaultAggregate;
+    } catch (err) {
+      console.error('Error fetching session reflections aggregate:', err);
+      return defaultAggregate;
+    }
+  },
+
+  /**
+   * Retrieves overall session summary metrics across all 10 cases.
+   */
+  async getSessionFinalSummary(sessionId: string): Promise<SessionFinalSummary> {
+    const summary: SessionFinalSummary = {
+      totalPlayers: 0,
+      completedPlayers: 0,
+      totalDecisionRounds: 7,
+      fairnessParticipants: 0,
+      factorsCount: {},
+      totalVotesLogged: 0
+    };
+
+    try {
+      // 1. Players count
+      const { count: playerCount } = await supabase
+        .from('players')
+        .select('*', { count: 'exact', head: true })
+        .eq('session_id', sessionId);
+      summary.totalPlayers = playerCount || 0;
+
+      // 2. Responses count
+      const { count: responseCount } = await supabase
+        .from('responses')
+        .select('*', { count: 'exact', head: true })
+        .eq('session_id', sessionId);
+      summary.totalVotesLogged = responseCount || 0;
+
+      // 3. Reflections / completed count
+      const { count: reflectionCount } = await supabase
+        .from('reflections')
+        .select('*', { count: 'exact', head: true })
+        .eq('session_id', sessionId);
+      summary.completedPlayers = reflectionCount || 0;
+
+      // 4. Fairness aggregates
+      const fairnessAggs = await this.getFairnessClassroomAggregates(sessionId);
+      summary.fairnessParticipants = fairnessAggs.totalParticipants;
+      summary.factorsCount = fairnessAggs.factorsCount;
+
+      return summary;
+    } catch (err) {
+      console.error('Error compiling session final summary:', err);
+      return summary;
+    }
+  },
+
+  /**
+   * Concludes the game session authoritatively, locking further submissions.
+   */
+  async completeGameSession(sessionId: string, hostId: string): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { data: session, error: fetchErr } = await supabase
+        .from('game_sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (fetchErr || !session) {
+        return { success: false, error: 'Game session not found.' };
+      }
+
+      if (session.host_id !== hostId) {
+        return { success: false, error: 'Unauthorized: You do not own this game session.' };
+      }
+
+      const { error } = await supabase
+        .from('game_sessions')
+        .update({
+          status: 'completed',
+          game_stage: 'completed',
+          final_step: 5,
+          ended_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error completing game session:', error);
+        return { success: false, error: 'Failed to complete game session.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in completeGameSession:', err);
+      return { success: false, error: 'Unexpected system error completing session.' };
+    }
+  },
+
+  /**
    * Closes a game session safely.
    */
   async closeGameSession(sessionId: string, hostId: string): Promise<{ success: boolean; error: string | null }> {
-    return this.updateGameState(sessionId, hostId, 'completed');
+    return this.completeGameSession(sessionId, hostId);
   }
 };

@@ -16,6 +16,7 @@ import { DecisionPanel } from '../components/DecisionPanel';
 import { PlayerResultsCard } from '../components/PlayerResultsCard';
 import { PlayerRevealView } from '../components/PlayerRevealView';
 import { PlayerFairnessView } from '../components/PlayerFairnessView';
+import { PlayerFinalView } from '../components/PlayerFinalView';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
@@ -29,7 +30,9 @@ import type {
   DbGameSession, 
   RoundAggregate,
   FairnessClassroomAggregates,
-  FairnessStepNumber
+  FairnessStepNumber,
+  FinalStepNumber,
+  SessionFinalSummary
 } from '../../shared/types';
 
 export const PlayPage: React.FC = () => {
@@ -45,6 +48,7 @@ export const PlayPage: React.FC = () => {
   const [roundAggregate, setRoundAggregate] = useState<RoundAggregate | null>(null);
   const [allAggregates, setAllAggregates] = useState<Record<number, RoundAggregate>>({});
   const [fairnessAggregates, setFairnessAggregates] = useState<FairnessClassroomAggregates | null>(null);
+  const [finalSummary, setFinalSummary] = useState<SessionFinalSummary | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'reconnecting'>('connected');
@@ -97,12 +101,6 @@ export const PlayPage: React.FC = () => {
       return;
     }
 
-    if (game.status === 'completed') {
-      setErrorNotice('GAME_ENDED');
-      setIsLoading(false);
-      return;
-    }
-
     // Authoritative current round (clamped 1 to 7)
     const roundNum = Math.max(1, Math.min(game.current_round || 1, 7));
     setCurrentRound(roundNum);
@@ -130,6 +128,15 @@ export const PlayPage: React.FC = () => {
         setFairnessAggregates(fAggs);
       } catch (err) {
         console.error('Error fetching fairness aggregates in loadAndVerifySession:', err);
+      }
+    }
+
+    if (game.game_stage === 'final' || game.game_stage === 'completed' || game.status === 'completed') {
+      try {
+        const fSummary = await gameService.getSessionFinalSummary(game.id);
+        setFinalSummary(fSummary);
+      } catch (err) {
+        console.error('Error fetching final summary in loadAndVerifySession:', err);
       }
     }
 
@@ -205,11 +212,6 @@ export const PlayPage: React.FC = () => {
           if (updated) {
             setGameSession(updated);
 
-            if (updated.status === 'completed') {
-              setErrorNotice('GAME_ENDED');
-              return;
-            }
-
             // Results visibility change
             if (typeof updated.results_visible === 'boolean') {
               if (updated.results_visible) {
@@ -233,6 +235,16 @@ export const PlayPage: React.FC = () => {
                 setFairnessAggregates(fAggs);
               } catch (err) {
                 console.error('Error fetching fairness aggregates in Realtime:', err);
+              }
+            }
+
+            // Final Stage & Completed Sync (Case 10)
+            if (updated.game_stage === 'final' || updated.game_stage === 'completed' || updated.status === 'completed') {
+              try {
+                const fSummary = await gameService.getSessionFinalSummary(session.sessionId);
+                setFinalSummary(fSummary);
+              } catch (err) {
+                console.error('Error fetching final summary in Realtime:', err);
               }
             }
 
@@ -443,7 +455,11 @@ export const PlayPage: React.FC = () => {
       )}
 
       {/* Accessible Game Progress Bar (Only during rounds) */}
-      {gameSession?.game_stage !== 'reveal' && gameSession?.game_stage !== 'fairness' && (
+      {gameSession?.game_stage !== 'reveal' && 
+       gameSession?.game_stage !== 'fairness' && 
+       gameSession?.game_stage !== 'final' && 
+       gameSession?.game_stage !== 'completed' && 
+       gameSession?.status !== 'completed' && (
         <GameProgressBar 
           currentRound={currentRound} 
           totalRounds={7} 
@@ -451,7 +467,7 @@ export const PlayPage: React.FC = () => {
         />
       )}
 
-      {/* CONDITIONAL DISPLAY: Reveal Stage vs Fairness Stage vs Results vs Gameplay Flow */}
+      {/* CONDITIONAL DISPLAY: Reveal Stage vs Fairness Stage vs Final Stage vs Results vs Gameplay Flow */}
       {gameSession?.game_stage === 'reveal' ? (
         <PlayerRevealView
           currentStep={((gameSession.reveal_step || 1) as any)}
@@ -462,6 +478,13 @@ export const PlayPage: React.FC = () => {
           currentStep={((gameSession.fairness_step ?? 0) as FairnessStepNumber)}
           session={session!}
           classroomAggregates={fairnessAggregates || undefined}
+        />
+      ) : (gameSession?.game_stage === 'final' || gameSession?.game_stage === 'completed' || gameSession?.status === 'completed') ? (
+        <PlayerFinalView
+          currentStep={((gameSession?.final_step ?? 0) as FinalStepNumber)}
+          session={session!}
+          summary={finalSummary}
+          isCompleted={gameSession?.status === 'completed' || gameSession?.game_stage === 'completed'}
         />
       ) : resultsVisible ? (
         roundAggregate ? (

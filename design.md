@@ -300,3 +300,40 @@ The **MAKE IT FAIR** interactive challenge empowers students to actively design,
 - **Responsive Layout**:
   - Mobile-first student UI with large touch targets, single-column scrolling, and instant feedback.
   - Projector-first presenter UI with large typography (2.5rem+), live submission counters, and authoritative navigation.
+
+---
+
+# 15. Final Results & Reflection Visual Design (Case 10)
+
+The **FINAL RESULTS & REFLECTION** brings the entire educational journey together into a cohesive, presentation-ready conclusion:
+
+- **Aesthetic Continuity**:
+  - Light Futuristic AI Experience maintained consistently: `#f6f8fc` crisp light background, pure white `#ffffff` elevated cards with soft borders (`#e2e8f0`), deep slate typography (`#0f172a`), electric cyan (`#0284c7`), and royal violet (`#7c3aed`).
+- **6 Synchronized Steps (Step 0 to 5)**:
+  - **Step 0: Final Classroom Results**:
+    - Projector displays total players, decision rounds, total votes logged, and Make It Fair participation.
+    - No winners, losers, or fairness rankings. All metrics represent classroom aggregate participation.
+  - **Step 1: What Did We Learn?**:
+    - 5 Core Educational Principles presented as high-contrast cards with distinct numbering and accent badges:
+      1. *Information Matters*: Adding or removing information changes decisions.
+      2. *Relevance Matters*: Information should have a legitimate connection to the decision.
+      3. *Data Matters*: Algorithms learn from past human choices and replicate their patterns.
+      4. *Testing Matters*: Systems must be audited for consistency across groups before deployment.
+      5. *Accountability Matters*: Humans design, deploy, and remain accountable for automated outcomes.
+  - **Step 2: The Complete Chain**:
+    - Interactive visual flowchart: `DATA → ALGORITHM → DECISION → IMPACT`.
+    - Golden rule callout: `FAIRNESS` must encircle every step of the pipeline, not just the algorithm.
+  - **Step 3: Automation ≠ Fairness (The Four Pillars)**:
+    - 4 architectural pillars: *1. Data Quality*, *2. Regular Audits*, *3. Explainability*, *4. Human Oversight*.
+    - Thesis banner: *"AUTOMATION ≠ FAIRNESS: Automating a biased decision simply produces biased outcomes faster and at scale."*
+  - **Step 4: Classroom Reflection ("ONE LAST QUESTION")**:
+    - Host view displays live frequency distribution of the 5 key reflection themes selected by students.
+    - Player view gives students multi-select theme chips and an optional 140-character single-sentence takeaway.
+    - Submitting shows celebratory acknowledgment and the core takeaway mantra:
+      *"YOU DIDN'T JUST MAKE A DECISION. You examined how decisions are made. DATA → ALGORITHM → DECISION → IMPACT. THINK BEFORE YOU AUTOMATE."*
+  - **Step 5: Simulation Complete & Final Discussion**:
+    - Large projector discussion prompt:
+      *"IF AN ALGORITHM MAKES A DECISION FOR US... WHO IS RESPONSIBLE FOR MAKING SURE IT IS FAIR?"*
+    - Host controls `END THIS SESSION` with a confirmation modal that cleanly locks submissions and updates session status to `completed`.
+- **Presentation Mode**:
+  - Projector toggle (`PRESENTATION MODE` vs `STANDARD VIEW`) removes side margins and maximizes font sizes for auditorium and lecture hall visibility.

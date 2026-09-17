@@ -25,6 +25,7 @@ interface HostFairnessViewProps {
   readyPlayersCount: number;
   stageResponseCount: number;
   isActionInProgress?: boolean;
+  onTransitionToFinal?: () => void;
 }
 
 export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
@@ -34,7 +35,8 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
   totalPlayers,
   readyPlayersCount,
   stageResponseCount,
-  isActionInProgress = false
+  isActionInProgress = false,
+  onTransitionToFinal
 }) => {
   const stepMeta = FAIRNESS_STEPS_META.find((s) => s.stepNumber === currentStep) || FAIRNESS_STEPS_META[0];
   const isFinalStep = currentStep === 9;
@@ -866,8 +868,24 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
                 </div>
               </div>
 
-              <div style={{ marginTop: '1rem' }}>
+              <div style={{ marginTop: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                 <Badge variant="cyan">NEXT: CASE 10 &bull; THE FINAL DECISION</Badge>
+                {onTransitionToFinal && (
+                  <Button
+                    variant="primary"
+                    size="normal"
+                    icon={<ArrowRight size={16} />}
+                    onClick={onTransitionToFinal}
+                    disabled={isActionInProgress}
+                    id="btn-fairness-to-final-card"
+                    style={{
+                      background: 'linear-gradient(135deg, #7c3aed, #0284c7)',
+                      boxShadow: '0 4px 14px rgba(124, 58, 237, 0.25)'
+                    }}
+                  >
+                    PROCEED TO FINAL RESULTS &bull; CASE 10
+                  </Button>
+                )}
               </div>
             </Card>
           </div>
@@ -903,20 +921,37 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
           Synchronizing with {totalPlayers} connected student devices
         </div>
 
-        <Button
-          variant="primary"
-          size="normal"
-          icon={<ArrowRight size={16} />}
-          onClick={handleNext}
-          disabled={isActionInProgress || isFinalStep}
-          id="btn-fairness-next"
-        >
-          {isActionInProgress 
-            ? 'SYNCHRONIZING...' 
-            : isFinalStep 
-              ? 'CASE 9 COMPLETE' 
-              : `NEXT STEP (${currentStep + 1} / 9)`}
-        </Button>
+        {isFinalStep && onTransitionToFinal ? (
+          <Button
+            variant="primary"
+            size="normal"
+            icon={<ArrowRight size={16} />}
+            onClick={onTransitionToFinal}
+            disabled={isActionInProgress}
+            id="btn-fairness-next"
+            style={{
+              background: 'linear-gradient(135deg, #7c3aed, #0284c7)',
+              boxShadow: '0 4px 14px rgba(124, 58, 237, 0.25)'
+            }}
+          >
+            {isActionInProgress ? 'TRANSITIONING...' : 'PROCEED TO FINAL RESULTS'}
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            size="normal"
+            icon={<ArrowRight size={16} />}
+            onClick={handleNext}
+            disabled={isActionInProgress || isFinalStep}
+            id="btn-fairness-next"
+          >
+            {isActionInProgress 
+              ? 'SYNCHRONIZING...' 
+              : isFinalStep 
+                ? 'CASE 9 COMPLETE' 
+                : `NEXT STEP (${currentStep + 1} / 9)`}
+          </Button>
+        )}
       </div>
 
     </div>
