@@ -337,3 +337,31 @@ The **FINAL RESULTS & REFLECTION** brings the entire educational journey togethe
     - Host controls `END THIS SESSION` with a confirmation modal that cleanly locks submissions and updates session status to `completed`.
 - **Presentation Mode**:
   - Projector toggle (`PRESENTATION MODE` vs `STANDARD VIEW`) removes side margins and maximizes font sizes for auditorium and lecture hall visibility.
+
+---
+
+# 16. UI Polish, Animations, Accessibility & Responsive Design (Case 11)
+
+### Visual Direction Summary
+- **Permanent Light Theme**: Crisp light canvas (`#f6f8fc`), pure white cards (`#ffffff`), dark readable text (`#0f172a`), electric cyan primary accent (`#0284c7`), and royal violet secondary accent (`#7c3aed`).
+- **Elimination of Legacy Dark Elements**: All headers (`PlayerHeader`, `HostHeader`), toast messages, error badges, and icons migrated to pure light theme tokens with zero low-contrast artifacts.
+- **Mobile-First Player UX**:
+  - Viewport-responsive (`320px`, `375px`, `390px`, `430px`) with iOS safe-area insets (`env(safe-area-inset-bottom)`).
+  - Touch targets guaranteed at `44px+` (buttons `48px-56px`).
+  - Tactile press micro-interactions (`:active { transform: scale(0.98); }`).
+  - Clear 4-point hierarchy on `/play`: (1) Round indicator (2) Timer (3) Candidate card (4) Decision buttons.
+- **Projector-First Host UX**:
+  - Tested across `1366×768`, `1440×900`, and `1920×1080`.
+  - High-contrast text legible from 5+ meters in lecture halls.
+  - Large stat callouts (`2.5rem+`), clear round controls, and modal-shielded destructive actions.
+- **Timer Visual Pacing**:
+  - 3-tier non-jarring feedback: Normal (>15s, Cyan), Time getting low (6-15s, Amber), Final seconds (<=5s, Red).
+  - Subtle bottom progress bar without distracting flashes.
+- **Accessibility Standards**:
+  - Global accessible `:focus-visible` rings with 2px cyan outline and 2px offset.
+  - Screen reader utility `.sr-only` for accessible input labels and status announcements.
+  - Full `@media (prefers-reduced-motion: reduce)` support instantly zeroing non-essential animations for vestibular comfort.
+  - High-contrast mode support via `@media (forced-colors: active)`.
+- **Loading & Error Polish**:
+  - Non-blocking spinners with `role="status"` and `aria-live="polite"`.
+  - Error cards with `role="alert"` and accessible high-contrast typography (`#b91c1c` on `#fef2f2`).

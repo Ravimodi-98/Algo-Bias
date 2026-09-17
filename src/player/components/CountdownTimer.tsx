@@ -49,10 +49,48 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
   const seconds = remainingSeconds % 60;
   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-  const isLowTime = remainingSeconds <= 10 && remainingSeconds > 0 && !isSubmitted;
+  // 3-Tier Visual Feedback Hierarchy
+  const isFinalSeconds = remainingSeconds <= 5 && remainingSeconds > 0 && !isSubmitted;
+  const isGettingLow = remainingSeconds <= 15 && remainingSeconds > 5 && !isSubmitted;
   const isExpired = remainingSeconds <= 0 && !isSubmitted;
 
   const progressPercent = Math.max(0, Math.min(100, (remainingSeconds / timeLimit) * 100));
+
+  const borderColor = isSubmitted
+    ? 'var(--border-subtle)'
+    : isExpired || isFinalSeconds
+    ? 'rgba(220, 38, 38, 0.35)'
+    : isGettingLow
+    ? 'rgba(180, 83, 9, 0.3)'
+    : 'var(--border-subtle)';
+
+  const bgColor = isSubmitted
+    ? '#ffffff'
+    : isExpired
+    ? '#fef2f2'
+    : isFinalSeconds
+    ? 'rgba(254, 242, 242, 0.75)'
+    : isGettingLow
+    ? 'rgba(255, 251, 235, 0.75)'
+    : '#ffffff';
+
+  const accentColor = isSubmitted
+    ? 'var(--color-success)'
+    : isExpired || isFinalSeconds
+    ? 'var(--color-danger)'
+    : isGettingLow
+    ? 'var(--color-warning)'
+    : 'var(--accent-cyan)';
+
+  const labelText = isSubmitted
+    ? 'DECISION LOCKED'
+    : isExpired
+    ? 'TIME EXPIRED'
+    : isFinalSeconds
+    ? 'FINAL SECONDS'
+    : isGettingLow
+    ? 'TIME GETTING LOW'
+    : 'TIME REMAINING';
 
   return (
     <div
@@ -61,19 +99,16 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0.65rem 1rem',
-        background: isExpired ? '#fef2f2' : '#ffffff',
+        background: bgColor,
         borderRadius: 'var(--radius-md)',
-        border: isExpired
-          ? '1px solid #fecaca'
-          : isLowTime
-          ? '1px solid #fed7aa'
-          : '1px solid var(--border-subtle)',
-        boxShadow: '0 1px 4px rgba(15, 23, 42, 0.04)',
+        border: `1px solid ${borderColor}`,
+        boxShadow: 'var(--shadow-xs)',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        transition: 'background-color 0.3s ease, border-color 0.3s ease'
       }}
       role="timer"
-      aria-label={`Time remaining: ${formattedTime}`}
+      aria-label={`${labelText}: ${formattedTime}`}
       aria-live="polite"
     >
       {/* Progress background bar */}
@@ -84,7 +119,9 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
             bottom: 0,
             left: 0,
             height: '3px',
-            background: isLowTime
+            background: isFinalSeconds
+              ? 'var(--color-danger)'
+              : isGettingLow
               ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
               : 'linear-gradient(90deg, var(--accent-cyan), var(--accent-purple))',
             width: `${progressPercent}%`,
@@ -94,13 +131,15 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
       )}
 
       {/* Left: Status & Label */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         {isSubmitted ? (
           <CheckCircle2 size={15} color="var(--color-success)" />
         ) : isExpired ? (
           <AlertTriangle size={15} color="var(--color-danger)" />
-        ) : isLowTime ? (
-          <Clock size={15} color="var(--color-warning)" style={{ animation: 'pulse 1s infinite' }} />
+        ) : isFinalSeconds ? (
+          <AlertTriangle size={15} color="var(--color-danger)" />
+        ) : isGettingLow ? (
+          <Clock size={15} color="var(--color-warning)" />
         ) : (
           <Clock size={15} color="var(--accent-cyan)" />
         )}
@@ -108,23 +147,11 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
         <span style={{
           fontSize: '0.72rem',
           fontWeight: 800,
-          letterSpacing: '0.1em',
+          letterSpacing: '0.08em',
           textTransform: 'uppercase',
-          color: isSubmitted
-            ? 'var(--color-success)'
-            : isExpired
-            ? 'var(--color-danger)'
-            : isLowTime
-            ? 'var(--color-warning)'
-            : 'var(--text-muted)'
+          color: accentColor
         }}>
-          {isSubmitted
-            ? 'DECISION LOCKED'
-            : isExpired
-            ? 'TIME EXPIRED'
-            : isLowTime
-            ? 'FINAL SECONDS'
-            : 'TIME REMAINING'}
+          {labelText}
         </span>
       </div>
 
@@ -135,13 +162,8 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
           style={{
             fontSize: '1.05rem',
             fontWeight: 900,
-            color: isSubmitted
-              ? 'var(--color-success)'
-              : isExpired
-              ? 'var(--color-danger)'
-              : isLowTime
-              ? 'var(--color-warning)'
-              : 'var(--accent-cyan)'
+            color: accentColor,
+            letterSpacing: '0.04em'
           }}
         >
           {isSubmitted ? 'SAVED' : formattedTime}

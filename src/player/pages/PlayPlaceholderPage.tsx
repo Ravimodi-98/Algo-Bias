@@ -57,13 +57,13 @@ export const PlayPlaceholderPage: React.FC = () => {
             width: '64px',
             height: '64px',
             borderRadius: '50%',
-            background: 'rgba(0, 240, 255, 0.1)',
+            background: 'rgba(2, 132, 199, 0.08)',
             border: '1px solid var(--accent-cyan)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: 'var(--accent-cyan)',
-            boxShadow: '0 0 25px rgba(0, 240, 255, 0.35)'
+            boxShadow: 'var(--shadow-cyan)'
           }}>
             <PlayCircle size={32} />
           </div>
@@ -105,10 +105,10 @@ export const PlayPlaceholderPage: React.FC = () => {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',
-            background: 'rgba(139, 92, 246, 0.1)',
+            background: 'rgba(124, 58, 237, 0.08)',
             padding: '0.6rem 1rem',
             borderRadius: 'var(--radius-md)',
-            border: '1px solid rgba(139, 92, 246, 0.3)',
+            border: '1px solid rgba(124, 58, 237, 0.25)',
             fontSize: '0.8rem',
             color: 'var(--accent-purple)'
           }}>

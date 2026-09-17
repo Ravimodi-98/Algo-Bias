@@ -151,8 +151,19 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
               letterSpacing: '-0.01em',
               margin: '0.5rem 0 0.2rem 0'
             }}>
-              {isFinalRound ? 'All Rounds Completed' : 'Decision Submitted'}
+              {isFinalRound ? 'All Rounds Completed' : 'Decision Recorded'}
             </h2>
+
+            <div style={{
+              fontSize: '0.82rem',
+              color: 'var(--accent-purple)',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              margin: '0.2rem 0 0.4rem 0'
+            }}>
+              Waiting for the class...
+            </div>
 
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0, fontWeight: 500 }}>
               Your selection for <strong className="text-cyan font-mono">CANDIDATE {selectedCandidate}</strong> is saved for Round {currentRound}.
@@ -222,14 +233,14 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '0.65rem'
+          gap: '0.75rem'
         }}>
           <button
             type="button"
             onClick={() => onSelectCandidate('A')}
             disabled={isSubmitting || isTimedOut}
             style={{
-              padding: '0.9rem 0.75rem',
+              padding: '1rem 0.75rem',
               borderRadius: 'var(--radius-md)',
               border: selectedCandidate === 'A' 
                 ? '2px solid var(--accent-cyan)' 
@@ -242,15 +253,15 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.25rem',
+              gap: '0.3rem',
               transition: 'all var(--transition-fast)',
-              boxShadow: selectedCandidate === 'A' ? '0 2px 8px rgba(2, 132, 199, 0.15)' : 'none',
-              minHeight: '48px'
+              boxShadow: selectedCandidate === 'A' ? '0 2px 10px rgba(2, 132, 199, 0.2)' : 'var(--shadow-xs)',
+              minHeight: '56px'
             }}
             aria-pressed={selectedCandidate === 'A'}
           >
-            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 1</span>
-            <span className="font-mono" style={{ fontSize: '1.05rem', fontWeight: 900 }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>OPTION 1</span>
+            <span className="font-mono" style={{ fontSize: '1.1rem', fontWeight: 900 }}>
               CANDIDATE A
             </span>
           </button>
@@ -260,7 +271,7 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             onClick={() => onSelectCandidate('B')}
             disabled={isSubmitting || isTimedOut}
             style={{
-              padding: '0.9rem 0.75rem',
+              padding: '1rem 0.75rem',
               borderRadius: 'var(--radius-md)',
               border: selectedCandidate === 'B' 
                 ? '2px solid var(--accent-purple)' 
@@ -273,15 +284,15 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.25rem',
+              gap: '0.3rem',
               transition: 'all var(--transition-fast)',
-              boxShadow: selectedCandidate === 'B' ? '0 2px 8px rgba(124, 58, 237, 0.15)' : 'none',
-              minHeight: '48px'
+              boxShadow: selectedCandidate === 'B' ? '0 2px 10px rgba(124, 58, 237, 0.2)' : 'var(--shadow-xs)',
+              minHeight: '56px'
             }}
             aria-pressed={selectedCandidate === 'B'}
           >
-            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>OPTION 2</span>
-            <span className="font-mono" style={{ fontSize: '1.05rem', fontWeight: 900 }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>OPTION 2</span>
+            <span className="font-mono" style={{ fontSize: '1.1rem', fontWeight: 900 }}>
               CANDIDATE B
             </span>
           </button>
@@ -297,11 +308,11 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
           disabled={!selectedCandidate || isSubmitting || isTimedOut}
           id="btn-submit-decision"
           style={{
-            padding: '0.85rem',
-            fontSize: '0.95rem',
+            padding: '0.9rem',
+            fontSize: '0.98rem',
             fontWeight: 800,
             letterSpacing: '0.04em',
-            minHeight: '48px'
+            minHeight: '52px'
           }}
         >
           {isSubmitting 

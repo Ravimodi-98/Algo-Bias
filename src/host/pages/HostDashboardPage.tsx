@@ -177,8 +177,8 @@ export const HostDashboardPage: React.FC = () => {
             width: '44px',
             height: '44px',
             borderRadius: 'var(--radius-md)',
-            background: 'rgba(139, 92, 246, 0.15)',
-            border: '1px solid var(--accent-purple)',
+            background: 'rgba(124, 58, 237, 0.08)',
+            border: '1px solid rgba(124, 58, 237, 0.25)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -248,15 +248,16 @@ export const HostDashboardPage: React.FC = () => {
       {/* Action Notification Toast */}
       {lastActionMessage && (
         <div style={{
-          background: 'rgba(0, 240, 255, 0.1)',
-          border: '1px solid var(--accent-cyan)',
+          background: 'rgba(2, 132, 199, 0.08)',
+          border: '1px solid rgba(2, 132, 199, 0.25)',
           borderRadius: 'var(--radius-md)',
           padding: '0.85rem 1.25rem',
           display: 'flex',
           alignItems: 'center',
           gap: '0.75rem',
           color: 'var(--accent-cyan)',
-          fontSize: '0.9rem'
+          fontSize: '0.9rem',
+          fontWeight: 600
         }}>
           <CheckCircle2 size={18} />
           <span>{lastActionMessage}</span>
@@ -265,12 +266,13 @@ export const HostDashboardPage: React.FC = () => {
 
       {errorMessage && (
         <div style={{
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid var(--color-danger)',
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
           borderRadius: 'var(--radius-md)',
           padding: '0.85rem 1.25rem',
-          color: '#fca5a5',
-          fontSize: '0.9rem'
+          color: '#b91c1c',
+          fontSize: '0.9rem',
+          fontWeight: 600
         }}>
           {errorMessage}
         </div>
@@ -279,8 +281,8 @@ export const HostDashboardPage: React.FC = () => {
       {/* Active Game Handling Banner (Step 17) */}
       {activeSession && (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(0, 240, 255, 0.08) 100%)',
-          border: '1px solid var(--accent-purple)',
+          background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(2, 132, 199, 0.06) 100%)',
+          border: '1px solid rgba(124, 58, 237, 0.25)',
           borderRadius: 'var(--radius-lg)',
           padding: '1.25rem 1.5rem',
           display: 'flex',
@@ -288,13 +290,13 @@ export const HostDashboardPage: React.FC = () => {
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: '1rem',
-          boxShadow: '0 0 20px rgba(139, 92, 246, 0.15)'
+          boxShadow: 'var(--shadow-sm)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{
               padding: '0.75rem',
               borderRadius: 'var(--radius-md)',
-              background: 'rgba(139, 92, 246, 0.2)',
+              background: 'rgba(124, 58, 237, 0.1)',
               color: 'var(--accent-purple)'
             }}>
               <Tv size={24} />
@@ -536,8 +538,8 @@ export const HostDashboardPage: React.FC = () => {
 
           {!activeSession ? (
             <div style={{
-              background: 'rgba(139, 92, 246, 0.08)',
-              border: '1px dashed var(--border-purple)',
+              background: 'rgba(124, 58, 237, 0.04)',
+              border: '1px dashed rgba(124, 58, 237, 0.3)',
               borderRadius: 'var(--radius-md)',
               padding: '2rem',
               textAlign: 'center',

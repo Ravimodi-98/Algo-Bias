@@ -40,12 +40,12 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
   return (
     <div
       onClick={() => !disabled && onSelect && onSelect(candidate.id)}
-      className="animate-fade-in"
+      className="animate-fade-in card-interactive"
       style={{
         display: 'flex',
         flexDirection: 'column',
         gap: '0.65rem',
-        padding: '0.9rem 1rem',
+        padding: '0.95rem 1.1rem',
         background: isSelected ? 'var(--bg-surface-secondary)' : '#ffffff',
         borderRadius: 'var(--radius-lg)',
         border: borderStyle,
@@ -53,7 +53,8 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
         cursor: disabled ? 'default' : 'pointer',
         transition: 'all var(--transition-fast)',
         position: 'relative',
-        outline: 'none'
+        outline: isSelected ? `2px solid ${accentColor}` : undefined,
+        outlineOffset: isSelected ? '2px' : undefined
       }}
       role="button"
       tabIndex={disabled ? -1 : 0}

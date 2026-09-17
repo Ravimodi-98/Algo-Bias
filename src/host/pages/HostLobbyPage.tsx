@@ -227,7 +227,8 @@ export const HostLobbyPage: React.FC = () => {
             background: '#FFFFFF',
             padding: '1.25rem',
             borderRadius: 'var(--radius-md)',
-            boxShadow: '0 0 35px rgba(0, 240, 255, 0.25)',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--shadow-lg)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -347,8 +348,8 @@ export const HostLobbyPage: React.FC = () => {
                 <div style={{
                   padding: '0.75rem',
                   borderRadius: '50%',
-                  background: 'rgba(139, 92, 246, 0.1)',
-                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  background: 'rgba(124, 58, 237, 0.08)',
+                  border: '1px solid rgba(124, 58, 237, 0.25)',
                   color: 'var(--accent-purple)'
                 }}>
                   <Users size={32} />

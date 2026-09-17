@@ -11,21 +11,23 @@ export const PlayerHeader: React.FC = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '1rem 1.25rem',
+      padding: '0.85rem 1.25rem',
       borderBottom: '1px solid var(--border-subtle)',
-      background: 'rgba(8, 10, 15, 0.8)',
-      backdropFilter: 'blur(10px)',
+      background: 'rgba(255, 255, 255, 0.94)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
       position: 'sticky',
       top: 0,
-      zIndex: 10
+      zIndex: 10,
+      boxShadow: '0 1px 3px rgba(15, 23, 42, 0.03)'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
         <div style={{
           width: '32px',
           height: '32px',
           borderRadius: 'var(--radius-sm)',
-          background: 'rgba(0, 240, 255, 0.1)',
-          border: '1px solid rgba(0, 240, 255, 0.3)',
+          background: 'rgba(2, 132, 199, 0.08)',
+          border: '1px solid rgba(2, 132, 199, 0.25)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -35,19 +37,20 @@ export const PlayerHeader: React.FC = () => {
         </div>
         <div>
           <div style={{
-            fontSize: '0.95rem',
+            fontSize: '0.92rem',
             fontWeight: 800,
-            letterSpacing: '0.08em',
+            letterSpacing: '0.06em',
             color: 'var(--text-primary)',
-            lineHeight: 1.1
+            lineHeight: 1.15
           }}>
             THE DECISION
           </div>
           <div style={{
             fontSize: '0.68rem',
-            letterSpacing: '0.06em',
+            letterSpacing: '0.08em',
             color: 'var(--accent-cyan)',
-            fontFamily: 'var(--font-mono)'
+            fontFamily: 'var(--font-mono)',
+            fontWeight: 700
           }}>
             AI SIMULATOR
           </div>
@@ -63,7 +66,8 @@ export const PlayerHeader: React.FC = () => {
         <span style={{
           fontSize: '0.75rem',
           color: 'var(--text-muted)',
-          fontFamily: 'var(--font-mono)'
+          fontFamily: 'var(--font-mono)',
+          fontWeight: 600
         }}>
           PLAYER MODE
         </span>

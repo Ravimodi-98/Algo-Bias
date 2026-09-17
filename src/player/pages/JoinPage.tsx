@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { LogIn, Key, User, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { LogIn, Key, User, ArrowLeft, CheckCircle2, Sparkles } from 'lucide-react';
 import { Button } from '../../shared/components/Button';
 import { Card } from '../../shared/components/Card';
+import { Badge } from '../../shared/components/Badge';
 import { ErrorMessage } from '../../shared/components/ErrorMessage';
 import { generateAnonymousPlayerId, normalizeGameCode } from '../../shared/utils/idGenerator';
 import { storage } from '../../shared/utils/storage';
@@ -46,7 +47,7 @@ export const JoinPage: React.FC = () => {
     const cleanCode = normalizeGameCode(gameCode);
 
     if (!cleanCode) {
-      setError('Please enter a valid Game Code from your host or projector.');
+      setError('Please enter the Game Code shown on the presenter screen.');
       return;
     }
 
@@ -63,13 +64,13 @@ export const JoinPage: React.FC = () => {
 
     if (gameError || !session) {
       setIsJoining(false);
-      setError(gameError || 'GAME NOT FOUND. Check the game code and try again.');
+      setError(gameError || 'GAME NOT FOUND. Please check the code and try again.');
       return;
     }
 
     const finalName = anonymousName.trim() || defaultId;
 
-    // 2. Check if player was already registered in this session to prevent duplicates
+    // 2. Check if player was already registered in this session
     const existingSession = storage.getPlayerSession();
     const existingPlayerId = (existingSession?.sessionId === session.id || existingSession?.gameCode === session.game_code)
       ? existingSession.playerId
@@ -102,7 +103,7 @@ export const JoinPage: React.FC = () => {
   };
 
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       <button
         onClick={() => navigate('/')}
         style={{
@@ -112,27 +113,37 @@ export const JoinPage: React.FC = () => {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.4rem',
-          fontSize: '0.88rem',
+          fontSize: '0.85rem',
+          fontWeight: 600,
           cursor: 'pointer',
-          padding: 0,
+          padding: '0.25rem 0',
           alignSelf: 'flex-start'
         }}
+        aria-label="Back to landing page"
       >
         <ArrowLeft size={16} /> Back
       </button>
 
-      <div style={{ textAlign: 'center' }}>
+      {/* Screen Header Communicating Objective */}
+      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
+        <Badge variant="cyan">
+          <Sparkles size={12} style={{ marginRight: '4px' }} />
+          THE DECISION
+        </Badge>
         <h1 style={{
-          fontSize: '1.75rem',
-          fontWeight: 800,
+          fontSize: '1.85rem',
+          fontWeight: 900,
           color: 'var(--text-primary)',
           letterSpacing: '-0.02em',
-          marginBottom: '0.35rem'
+          margin: 0
         }}>
           JOIN GAME
         </h1>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          Enter the room code shown on the presenter's screen
+        <p style={{ fontSize: '0.92rem', color: 'var(--accent-cyan)', fontWeight: 600, margin: 0 }}>
+          Would you make a fair algorithm?
+        </p>
+        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0 }}>
+          Enter the 6-character room code from the presenter screen
         </p>
       </div>
 
@@ -144,19 +155,22 @@ export const JoinPage: React.FC = () => {
         />
       )}
 
-      <Card>
+      <Card glow="cyan">
         <form onSubmit={handleJoin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
-            <label style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: 'var(--accent-cyan)',
-              marginBottom: '0.5rem',
-              letterSpacing: '0.05em'
-            }}>
+            <label 
+              htmlFor="input-game-code"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                color: 'var(--accent-cyan)',
+                marginBottom: '0.5rem',
+                letterSpacing: '0.05em'
+              }}
+            >
               <Key size={14} /> GAME CODE
             </label>
             <input
@@ -170,8 +184,19 @@ export const JoinPage: React.FC = () => {
                 if (error) setError(null);
               }}
               autoFocus
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck="false"
               maxLength={12}
               disabled={isJoining}
+              style={{
+                fontSize: '1.35rem',
+                fontWeight: 900,
+                textAlign: 'center',
+                letterSpacing: '0.18em',
+                padding: '0.75rem 1rem'
+              }}
+              required
             />
             {isQrJoined && (
               <div style={{
@@ -179,28 +204,31 @@ export const JoinPage: React.FC = () => {
                 alignItems: 'center',
                 gap: '0.35rem',
                 fontSize: '0.75rem',
-                color: 'var(--accent-cyan)',
-                marginTop: '0.4rem',
-                fontWeight: 600
+                color: 'var(--color-success)',
+                marginTop: '0.45rem',
+                fontWeight: 700
               }}>
-                <CheckCircle2 size={13} color="var(--accent-cyan)" />
-                <span>Game Code detected and pre-filled from QR code.</span>
+                <CheckCircle2 size={13} color="var(--color-success)" />
+                <span>Code automatically scanned from QR code</span>
               </div>
             )}
           </div>
 
           <div>
-            <label style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: 'var(--text-secondary)',
-              marginBottom: '0.5rem',
-              letterSpacing: '0.05em'
-            }}>
-              <User size={14} /> ANONYMOUS CALLSIGN (OPTIONAL)
+            <label 
+              htmlFor="input-anonymous-name"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                color: 'var(--text-secondary)',
+                marginBottom: '0.5rem',
+                letterSpacing: '0.05em'
+              }}
+            >
+              <User size={14} /> ANONYMOUS CALLSIGN
             </label>
             <input
               type="text"
@@ -209,16 +237,20 @@ export const JoinPage: React.FC = () => {
               placeholder={defaultId || 'PLAYER-4821'}
               value={anonymousName}
               onChange={(e) => setAnonymousName(e.target.value)}
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck="false"
               maxLength={16}
               disabled={isJoining}
             />
             <span style={{
-              fontSize: '0.75rem',
+              fontSize: '0.72rem',
               color: 'var(--text-muted)',
               marginTop: '0.35rem',
-              display: 'block'
+              display: 'block',
+              lineHeight: 1.4
             }}>
-              Leave as is or customize. Never use your real name or personal information.
+              Anonymous callsign generated for your session. Never use real names.
             </span>
           </div>
 
@@ -228,7 +260,7 @@ export const JoinPage: React.FC = () => {
             size="large"
             block
             icon={<LogIn size={18} />}
-            disabled={isJoining}
+            disabled={isJoining || !gameCode.trim()}
             id="btn-submit-join"
           >
             {isJoining ? 'VERIFYING CODE...' : 'ENTER SIMULATOR'}

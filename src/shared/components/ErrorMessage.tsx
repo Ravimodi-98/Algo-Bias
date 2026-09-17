@@ -14,38 +14,42 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   onRetry,
 }) => {
   return (
-    <div style={{
-      background: 'rgba(239, 68, 68, 0.08)',
-      border: '1px solid rgba(239, 68, 68, 0.25)',
-      borderRadius: 'var(--radius-md)',
-      padding: '1.5rem',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '0.75rem',
-      textAlign: 'center',
-      margin: '1rem 0'
-    }}>
+    <div 
+      role="alert"
+      aria-live="assertive"
+      style={{
+        background: 'rgba(220, 38, 38, 0.06)',
+        border: '1px solid rgba(220, 38, 38, 0.25)',
+        borderRadius: 'var(--radius-md)',
+        padding: '1.25rem 1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.65rem',
+        textAlign: 'center',
+        margin: '1rem 0'
+      }}
+    >
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: '40px',
-        height: '40px',
+        width: '38px',
+        height: '38px',
         borderRadius: '50%',
-        background: 'rgba(239, 68, 68, 0.15)',
+        background: 'rgba(220, 38, 38, 0.12)',
         color: 'var(--color-danger)'
       }}>
         <AlertTriangle size={20} />
       </div>
-      <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#fca5a5' }}>
+      <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#b91c1c' }}>
         {title}
       </h3>
-      <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', maxWidth: '400px' }}>
+      <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', maxWidth: '420px', lineHeight: 1.5 }}>
         {message}
       </p>
       {onRetry && (
-        <Button variant="secondary" size="normal" onClick={onRetry} style={{ marginTop: '0.5rem' }}>
+        <Button variant="secondary" size="small" onClick={onRetry} style={{ marginTop: '0.35rem' }}>
           Try Again
         </Button>
       )}

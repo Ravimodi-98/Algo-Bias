@@ -24,9 +24,10 @@ export const HostHeader: React.FC = () => {
 
   return (
     <header style={{
-      background: 'rgba(17, 21, 29, 0.95)',
+      background: 'rgba(255, 255, 255, 0.94)',
       backdropFilter: 'blur(16px)',
-      borderBottom: '1px solid var(--border-purple)',
+      WebkitBackdropFilter: 'blur(16px)',
+      borderBottom: '1px solid var(--border-subtle)',
       position: 'sticky',
       top: 0,
       zIndex: 100,
@@ -35,7 +36,8 @@ export const HostHeader: React.FC = () => {
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: '1.5rem',
-      flexWrap: 'wrap'
+      flexWrap: 'wrap',
+      boxShadow: '0 1px 3px rgba(15, 23, 42, 0.03)'
     }}>
       {/* Brand & Mode */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -43,19 +45,18 @@ export const HostHeader: React.FC = () => {
           width: '38px',
           height: '38px',
           borderRadius: 'var(--radius-sm)',
-          background: 'rgba(139, 92, 246, 0.15)',
-          border: '1px solid var(--accent-purple)',
+          background: 'rgba(124, 58, 237, 0.08)',
+          border: '1px solid rgba(124, 58, 237, 0.25)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'var(--accent-purple)',
-          boxShadow: '0 0 12px rgba(139, 92, 246, 0.3)'
+          color: 'var(--accent-purple)'
         }}>
           <Shield size={20} />
         </div>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
+            <span style={{ fontSize: '1.05rem', fontWeight: 800, letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
               THE DECISION
             </span>
             <Badge variant="purple" pulse>
@@ -63,14 +64,14 @@ export const HostHeader: React.FC = () => {
               HOST CONSOLE
             </Badge>
           </div>
-          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
             PRESENTER & CONTROL ROOM MODE
           </span>
         </div>
       </div>
 
       {/* Navigation tabs for Host */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+      <nav style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }} aria-label="Host Navigation">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
@@ -86,8 +87,8 @@ export const HostHeader: React.FC = () => {
               textDecoration: 'none',
               transition: 'all var(--transition-fast)',
               color: isActive ? 'var(--accent-purple)' : 'var(--text-secondary)',
-              background: isActive ? 'rgba(139, 92, 246, 0.12)' : 'transparent',
-              border: isActive ? '1px solid var(--border-purple)' : '1px solid transparent'
+              background: isActive ? 'rgba(124, 58, 237, 0.08)' : 'transparent',
+              border: isActive ? '1px solid rgba(124, 58, 237, 0.25)' : '1px solid transparent'
             })}
           >
             {item.icon}
@@ -104,24 +105,26 @@ export const HostHeader: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.4rem',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.25)',
-            color: '#fca5a5',
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#b91c1c',
             padding: '0.45rem 0.85rem',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.8rem',
             fontWeight: 600,
             cursor: 'pointer',
-            transition: 'all var(--transition-fast)'
+            transition: 'all var(--transition-fast)',
+            minHeight: '36px'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
-            e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.background = '#fee2e2';
+            e.currentTarget.style.borderColor = 'var(--color-danger)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-            e.currentTarget.style.color = '#fca5a5';
+            e.currentTarget.style.background = '#fef2f2';
+            e.currentTarget.style.borderColor = '#fecaca';
           }}
+          aria-label="Exit Host Console"
         >
           <LogOut size={14} /> Exit Console
         </button>

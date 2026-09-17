@@ -1,5 +1,6 @@
 .host-wrapper {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-primary);
@@ -8,29 +9,40 @@
 
 .host-main-container {
   flex: 1;
-  max-width: 1400px;
+  max-width: 1540px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 2.5rem;
   display: flex;
   flex-direction: column;
 }
 
 .host-footer {
-  padding: 1rem 2rem;
+  padding: 1rem 2.5rem;
   background: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--text-muted);
   flex-wrap: wrap;
   gap: 1rem;
 }
 
+@media (max-width: 1024px) {
+  .host-main-container {
+    padding: 1.5rem;
+  }
+
+  .host-footer {
+    padding: 1rem 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .host-main-container {
-    padding: 1.25rem;
+    padding: 1rem;
   }
 }

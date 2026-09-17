@@ -197,28 +197,26 @@ export const LobbyPage: React.FC = () => {
 
       {/* Main Waiting Header */}
       <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
-        <span style={{
-          fontSize: '0.8rem',
-          letterSpacing: '0.2em',
-          fontWeight: 700,
-          color: 'var(--accent-purple)',
-          textTransform: 'uppercase'
-        }}>
+        <Badge variant="purple">
           THE DECISION
-        </span>
+        </Badge>
 
         <h1 style={{
           fontSize: '2.2rem',
           fontWeight: 900,
-          color: 'var(--accent-cyan)',
+          color: 'var(--text-primary)',
           letterSpacing: '-0.02em',
-          margin: 0
+          margin: '0.25rem 0 0 0'
         }}>
-          YOU'RE IN.
+          YOU'RE IN
         </h1>
 
+        <div className="font-mono text-cyan" style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '0.05em' }}>
+          {session.anonymousName}
+        </div>
+
         <p style={{
-          fontSize: '0.95rem',
+          fontSize: '0.92rem',
           color: 'var(--text-secondary)',
           margin: 0
         }}>
@@ -228,38 +226,38 @@ export const LobbyPage: React.FC = () => {
 
       {/* Waiting Card */}
       <Card glow="purple">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center', textAlign: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem', alignItems: 'center', textAlign: 'center' }}>
           
           {/* Animated Radar Pulse */}
           <div style={{
             position: 'relative',
-            width: '88px',
-            height: '88px',
+            width: '84px',
+            height: '84px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginTop: '0.5rem'
+            marginTop: '0.25rem'
           }}>
             <div style={{
               position: 'absolute',
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              background: 'rgba(139, 92, 246, 0.15)',
-              border: '1px solid rgba(139, 92, 246, 0.4)',
+              background: 'rgba(124, 58, 237, 0.1)',
+              border: '1px solid rgba(124, 58, 237, 0.3)',
               animation: 'lobby-pulse 2.5s infinite ease-out'
             }} />
             <div style={{
-              width: '54px',
-              height: '54px',
+              width: '52px',
+              height: '52px',
               borderRadius: '50%',
-              background: 'var(--bg-surface-secondary)',
-              border: '1px solid var(--accent-purple)',
+              background: '#ffffff',
+              border: '2px solid var(--accent-purple)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'var(--accent-purple)',
-              boxShadow: '0 0 20px rgba(139, 92, 246, 0.5)',
+              boxShadow: '0 4px 16px rgba(124, 58, 237, 0.25)',
               zIndex: 2
             }}>
               <Clock size={24} />
@@ -267,10 +265,10 @@ export const LobbyPage: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-            <p style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+            <p style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 700 }}>
               Stand by at your console
             </p>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: '380px' }}>
               Keep this screen open. When the presenter initiates Round 1 on the main display, your device will advance automatically.
             </p>
           </div>
@@ -280,26 +278,26 @@ export const LobbyPage: React.FC = () => {
             width: '100%',
             background: 'var(--bg-surface-secondary)',
             borderRadius: 'var(--radius-md)',
-            padding: '1.1rem',
+            padding: '1rem',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '0.75rem',
             border: '1px solid var(--border-subtle)'
           }}>
             <div style={{ textAlign: 'left' }}>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 700 }}>
                 GAME CODE
               </span>
-              <span className="font-mono text-cyan" style={{ fontSize: '1.35rem', fontWeight: 800, letterSpacing: '0.08em' }}>
+              <span className="font-mono text-cyan" style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '0.08em' }}>
                 {session.gameCode}
               </span>
             </div>
 
             <div style={{ textAlign: 'left' }}>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 700 }}>
                 YOUR CALLSIGN
               </span>
-              <span className="font-mono" style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              <span className="font-mono" style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                 {session.anonymousName}
               </span>
             </div>
@@ -309,13 +307,13 @@ export const LobbyPage: React.FC = () => {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.6rem',
-            padding: '0.65rem 1.25rem',
-            borderRadius: 'var(--radius-pill)',
-            background: 'rgba(0, 240, 255, 0.08)',
-            border: '1px solid rgba(0, 240, 255, 0.25)',
+            gap: '0.5rem',
+            padding: '0.55rem 1.15rem',
+            borderRadius: 'var(--radius-full)',
+            background: 'rgba(2, 132, 199, 0.08)',
+            border: '1px solid rgba(2, 132, 199, 0.25)',
             color: 'var(--accent-cyan)',
-            fontSize: '0.92rem',
+            fontSize: '0.88rem',
             fontWeight: 700
           }}>
             <Users size={16} />
@@ -341,12 +339,14 @@ export const LobbyPage: React.FC = () => {
             alignItems: 'center',
             gap: '0.4rem',
             fontSize: '0.82rem',
+            fontWeight: 600,
             cursor: 'pointer',
             padding: '0.5rem',
             transition: 'color var(--transition-fast)'
           }}
           onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-danger)')}
           onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+          aria-label="Leave Game"
         >
           <LogOut size={14} /> Leave Game
         </button>
