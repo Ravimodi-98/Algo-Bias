@@ -109,24 +109,26 @@ Players experience how presented information can influence decisions across 7 st
 
 ---
 
-# PHASE 5 — Live Results
+# PHASE 5 — Live Results (CASE 7)
 
 ## Goal
 
-Show collective player decisions.
+Show collective player decisions without identifying individual students.
 
 ## Tasks
 
-- Response counting
-- Candidate percentages
-- Host live results
-- Player aggregate results
-- Animated result visualization
-- Anonymous statistics
+- [x] Response counting (Realtime response counter `X / Y`)
+- [x] Candidate percentages (Authoritative calculation in `getRoundAggregates`)
+- [x] Host live results (Projector-optimized control center at `/host/game`)
+- [x] Player aggregate results (Mobile-first `PlayerResultsCard` with neutral tone)
+- [x] Animated result visualization (Dual-color comparative split bar)
+- [x] Anonymous statistics (Zero student identification; protects participants)
+- [x] Authoritative results reveal (`results_visible` state controlled by Host)
+- [x] Button safety & double-click protection
 
 ## Result
 
-The presenter can show the classroom's collective decision pattern.
+The presenter can control the classroom presentation flow (Start Round → Collect Responses → Show Results → Next Round) with real-time synchronization, high contrast projector UI, and instant mobile updates.
 
 ---
 
@@ -358,6 +360,6 @@ After each phase:
 
 # Current Phase
  
-- CASE 6 COMPLETE — Timer, Decision Submission, Compact Cards & Round Progression (Preparing Case 7: Live Results)
+- CASE 7 COMPLETE — Live Host Dashboard + Classroom Collective Results (Preparing Case 8: Bias Reveal)
 
 Update this section whenever development progresses.

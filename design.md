@@ -190,10 +190,47 @@ Decision controls feature minimum 44px touch targets with instant visual feedbac
 
 ---
 
-# 9. Results & Host Dashboard
+# 9. Host Projector-First Dashboard (Case 7)
 
-Host console acts as an AI Experiment Control Room (Light Edition):
-- Projector-friendly contrast
-- High-visibility room code & participant count
-- Active round scenario and educational goal overview
-- Seamless Next Round progression controls
+The Host live control center (`/host/game`) is optimized for classroom projector and large monitor displays:
+- **Projector-Optimized Scale**:
+  - Room Code: 2.5rem monospace with cyan glow.
+  - Connected Players: 2.5rem bold count.
+  - Live Responses: 2.5rem count with total (`15 / 18`).
+  - Round Timer: 2.5rem countdown (`00:14`) with warning status when low.
+- **Dynamic State Indicators**:
+  - `ROUND ACTIVE`: Realtime badge with pulse indicating students are voting.
+  - `ALL RESPONSES RECEIVED`: Success badge with pulse indicating all active students have submitted.
+  - `DECISION WINDOW CLOSED`: Warning badge when countdown expires before full submission.
+  - `RESULTS REVEALED TO CLASSROOM`: Success indicator when collective data is broadcast.
+- **Live Response Progress Bar**:
+  - High-visibility 18px progress bar with smooth transition.
+  - Dual feedback: visual track plus explicit projector text label (`15 of 18 players responded (83%)`).
+- **Button Safety**:
+  - Protected against double-clicks and rapid re-triggers (`actionLockRef` + `isActionInProgress`).
+  - Clear visual hierarchy: `SHOW RESULTS` is prominent during response gathering; `NEXT ROUND` glows as primary action once results are revealed.
+
+---
+
+# 10. Aggregate Results Visualization & Classroom Display
+
+The collective result screen provides immediate, high-contrast classroom comprehension:
+- **Concealed State during Voting**:
+  - To preserve experimental integrity, candidate vote tallies are concealed on the projector until the presenter clicks `SHOW RESULTS`.
+  - Presenter has an optional private peek toggle for previewing on private monitors.
+- **Revealed Classroom Distribution**:
+  - **Option 1 & 2 Cards**: Candidate names, 4.25rem bold percentage values, and vote counts.
+  - **Majority Choice Badge**: Automatic highlight for the prevailing candidate without value judgments.
+  - **Split Stacked Distribution Bar**: 28px dual-color bar (Electric Blue `#0284c7` vs Royal Violet `#7c3aed`) with 0.8s cubic bezier animation.
+  - **Presenter Guidance Box**: Educational prompt inviting discussion on decision patterns before round advancement.
+
+---
+
+# 11. Mobile Player Result Screen
+
+When results are broadcast by the host, student mobile devices transition in real time:
+- **Minimal & Scannable**: Shows Round X result with percentage bars for Candidate A and Candidate B.
+- **Personal Touch**: Subtly indicates "Your pick" next to the candidate chosen by the student.
+- **Reflection Tone**: "Interesting... The classroom decision pattern has been recorded."
+- **Waiting Cue**: Animated status indicator showing "Standing by for host to begin Round X+1..."
+- **Zero Identity Leakage**: Completely anonymous; no individual scores, leaderboard, or student comparisons.

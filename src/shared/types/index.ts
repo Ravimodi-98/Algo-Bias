@@ -30,6 +30,7 @@ export interface DbGameSession {
   created_at: string;
   updated_at: string;
   round_started_at?: string;
+  results_visible?: boolean;
 }
 
 export interface DbPlayer {
@@ -49,6 +50,19 @@ export interface DbResponse {
   submitted_at: string;
 }
 
+export interface RoundAggregate {
+  roundNumber: number;
+  totalResponses: number;
+  candidateA: {
+    count: number;
+    percentage: number;
+  };
+  candidateB: {
+    count: number;
+    percentage: number;
+  };
+}
+
 export interface GameMetrics {
   status: GameStatus;
   playersJoined: number;
@@ -56,3 +70,4 @@ export interface GameMetrics {
   totalRounds: number;
   responsesReceived: number;
 }
+

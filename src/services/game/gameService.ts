@@ -1,6 +1,6 @@
 import { supabase } from '../supabase/client';
 import { generateGameCode } from '../../shared/utils/idGenerator';
-import type { DbGameSession, DbPlayer, DbResponse } from '../../shared/types';
+import type { DbGameSession, DbPlayer, DbResponse, RoundAggregate } from '../../shared/types';
 
 export const gameService = {
   /**
@@ -38,7 +38,8 @@ export const gameService = {
           host_id: hostId,
           status: 'waiting',
           current_round: 0,
-          round_started_at: new Date().toISOString()
+          round_started_at: new Date().toISOString(),
+          results_visible: false
         })
         .select()
         .single();
@@ -365,8 +366,10 @@ export const gameService = {
       if (typeof currentRound === 'number') {
         payload.current_round = currentRound;
         payload.round_started_at = new Date().toISOString();
+        payload.results_visible = false;
       } else if (status === 'active') {
         payload.round_started_at = new Date().toISOString();
+        payload.results_visible = false;
       }
 
       const { error } = await supabase
@@ -383,6 +386,101 @@ export const gameService = {
     } catch (err) {
       console.error('Unexpected error in updateGameState:', err);
       return { success: false, error: 'Unexpected system error updating game state.' };
+    }
+  },
+
+  /**
+   * Aggregates classroom responses for a specific round.
+   * Returns anonymized vote counts and percentages without individual identities.
+   */
+  async getRoundAggregates(sessionId: string, roundNumber: number): Promise<RoundAggregate> {
+    try {
+      const { data, error } = await supabase
+        .from('responses')
+        .select('selected_candidate')
+        .eq('session_id', sessionId)
+        .eq('round_number', roundNumber);
+
+      if (error || !data) {
+        return {
+          roundNumber,
+          totalResponses: 0,
+          candidateA: { count: 0, percentage: 0 },
+          candidateB: { count: 0, percentage: 0 }
+        };
+      }
+
+      let countA = 0;
+      let countB = 0;
+      data.forEach((r) => {
+        if (r.selected_candidate === 'A') countA++;
+        else if (r.selected_candidate === 'B') countB++;
+      });
+
+      const total = countA + countB;
+      const percentageA = total > 0 ? Math.round((countA / total) * 100) : 0;
+      const percentageB = total > 0 ? 100 - percentageA : 0;
+
+      return {
+        roundNumber,
+        totalResponses: total,
+        candidateA: {
+          count: countA,
+          percentage: percentageA
+        },
+        candidateB: {
+          count: countB,
+          percentage: percentageB
+        }
+      };
+    } catch (err) {
+      console.error('Error fetching round aggregates:', err);
+      return {
+        roundNumber,
+        totalResponses: 0,
+        candidateA: { count: 0, percentage: 0 },
+        candidateB: { count: 0, percentage: 0 }
+      };
+    }
+  },
+
+  /**
+   * Host reveals aggregate results for the current round.
+   * Authoritatively updates results_visible in Supabase, triggering Realtime updates to all connected players.
+   */
+  async showRoundResults(sessionId: string, hostId: string): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { data: session, error: fetchErr } = await supabase
+        .from('game_sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (fetchErr || !session) {
+        return { success: false, error: 'Game session not found.' };
+      }
+
+      if (session.host_id !== hostId) {
+        return { success: false, error: 'Unauthorized: You do not own this game session.' };
+      }
+
+      const { error } = await supabase
+        .from('game_sessions')
+        .update({
+          results_visible: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error revealing results:', error);
+        return { success: false, error: 'Failed to reveal results.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in showRoundResults:', err);
+      return { success: false, error: 'Unexpected system error revealing results.' };
     }
   },
 

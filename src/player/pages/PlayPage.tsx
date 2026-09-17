@@ -13,6 +13,7 @@ import { GameProgressBar } from '../components/GameProgressBar';
 import { CountdownTimer } from '../components/CountdownTimer';
 import { CandidateCard } from '../components/CandidateCard';
 import { DecisionPanel } from '../components/DecisionPanel';
+import { PlayerResultsCard } from '../components/PlayerResultsCard';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
@@ -21,7 +22,7 @@ import { storage } from '../../shared/utils/storage';
 import { gameService } from '../../services/game/gameService';
 import { supabase } from '../../services/supabase/client';
 import { getRoundData, ROUND_TIME_LIMIT } from '../../shared/data/rounds';
-import type { PlayerSession, DbGameSession } from '../../shared/types';
+import type { PlayerSession, DbGameSession, RoundAggregate } from '../../shared/types';
 
 export const PlayPage: React.FC = () => {
   const navigate = useNavigate();
@@ -32,10 +33,21 @@ export const PlayPage: React.FC = () => {
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
+  const [resultsVisible, setResultsVisible] = useState<boolean>(false);
+  const [roundAggregate, setRoundAggregate] = useState<RoundAggregate | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'reconnecting'>('connected');
   const [roundNotification, setRoundNotification] = useState<string | null>(null);
+
+  const fetchAggregate = useCallback(async (sessionId: string, roundNum: number) => {
+    try {
+      const agg = await gameService.getRoundAggregates(sessionId, roundNum);
+      setRoundAggregate(agg);
+    } catch (err) {
+      console.error('Error fetching round aggregates on player:', err);
+    }
+  }, []);
 
   // 1. Session Verification & State Initialization
   const loadAndVerifySession = useCallback(async () => {
@@ -85,6 +97,14 @@ export const PlayPage: React.FC = () => {
     const roundNum = Math.max(1, Math.min(game.current_round || 1, 7));
     setCurrentRound(roundNum);
 
+    // Check results visibility
+    if (game.results_visible) {
+      setResultsVisible(true);
+      await fetchAggregate(game.id, roundNum);
+    } else {
+      setResultsVisible(false);
+    }
+
     // Check if decision was already recorded in database
     const dbResponse = await gameService.getPlayerResponse(activePlayer.sessionId, activePlayer.playerId, roundNum);
     if (dbResponse) {
@@ -116,7 +136,7 @@ export const PlayPage: React.FC = () => {
     }
 
     setIsLoading(false);
-  }, []);
+  }, [fetchAggregate]);
 
   useEffect(() => {
     loadAndVerifySession();
@@ -162,10 +182,23 @@ export const PlayPage: React.FC = () => {
               return;
             }
 
+            // Results visibility change
+            if (typeof updated.results_visible === 'boolean') {
+              if (updated.results_visible) {
+                setResultsVisible(true);
+                await fetchAggregate(session.sessionId, updated.current_round || currentRound);
+              } else {
+                setResultsVisible(false);
+              }
+            }
+
+            // Round advancement initiated by host
             if (updated.status === 'active' && updated.current_round !== currentRound) {
               const nextRound = Math.max(1, Math.min(updated.current_round || 1, 7));
               setCurrentRound(nextRound);
               setIsTimedOut(false);
+              setResultsVisible(Boolean(updated.results_visible));
+              setRoundAggregate(null);
 
               // Check if player already submitted response for this round
               const existingResponse = await gameService.getPlayerResponse(session.sessionId, session.playerId, nextRound);
@@ -188,7 +221,7 @@ export const PlayPage: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [session?.sessionId, session?.playerId, currentRound]);
+  }, [session?.sessionId, session?.playerId, currentRound, fetchAggregate]);
 
   // 4. Decision Submission Handler (Database Persisted)
   const handleSubmitDecision = async () => {
@@ -372,101 +405,122 @@ export const PlayPage: React.FC = () => {
         gameCode={gameSession?.game_code || session?.gameCode} 
       />
 
-      {/* Synchronized Countdown Timer */}
-      <CountdownTimer
-        roundStartedAt={gameSession?.round_started_at || gameSession?.updated_at}
-        isSubmitted={hasSubmitted}
-        onTimeout={handleTimeout}
-        timeLimit={ROUND_TIME_LIMIT}
-      />
+      {/* CONDITIONAL DISPLAY: Results Screen vs Gameplay Decision Flow */}
+      {resultsVisible ? (
+        roundAggregate ? (
+          /* 1. Classroom Result Screen (Triggered by Host SHOW RESULTS) */
+          <PlayerResultsCard
+            aggregate={roundAggregate}
+            roundData={roundData}
+            userSelection={selectedCandidate}
+            currentRound={currentRound}
+          />
+        ) : (
+          <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
+            <LoadingState message="Aggregating classroom decisions in real time..." />
+          </div>
+        )
+      ) : (
+        /* 2. Active Decision & Waiting Experience */
+        <>
+          {/* Synchronized Countdown Timer */}
+          <CountdownTimer
+            roundStartedAt={gameSession?.round_started_at || gameSession?.updated_at}
+            isSubmitted={hasSubmitted}
+            onTimeout={handleTimeout}
+            timeLimit={ROUND_TIME_LIMIT}
+          />
 
-      {/* Compact Scenario Header Card */}
-      <div style={{
-        background: '#ffffff',
-        padding: '0.75rem 0.95rem',
-        borderRadius: 'var(--radius-md)',
-        border: '1px solid var(--border-subtle)',
-        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.25rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <Target size={13} color="var(--accent-cyan)" />
-          <span style={{
-            fontSize: '0.7rem',
-            fontWeight: 800,
-            letterSpacing: '0.08em',
-            color: 'var(--accent-cyan)',
-            textTransform: 'uppercase'
+          {/* Compact Scenario Header Card */}
+          <div style={{
+            background: '#ffffff',
+            padding: '0.75rem 0.95rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.25rem'
           }}>
-            ROUND {currentRound} &bull; {roundData.title}
-          </span>
-        </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Target size={13} color="var(--accent-cyan)" />
+              <span style={{
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                letterSpacing: '0.08em',
+                color: 'var(--accent-cyan)',
+                textTransform: 'uppercase'
+              }}>
+                ROUND {currentRound} &bull; {roundData.title}
+              </span>
+            </div>
 
-        <p style={{
-          fontSize: '0.82rem',
-          color: 'var(--text-secondary)',
-          lineHeight: 1.4,
-          margin: 0
-        }}>
-          {roundData.context}
-        </p>
-      </div>
+            <p style={{
+              fontSize: '0.82rem',
+              color: 'var(--text-secondary)',
+              lineHeight: 1.4,
+              margin: 0
+            }}>
+              {roundData.context}
+            </p>
+          </div>
 
-      {/* Candidate A Card (Compact) */}
-      <CandidateCard
-        candidate={roundData.candidateA}
-        isSelected={selectedCandidate === 'A'}
-        onSelect={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
-        disabled={hasSubmitted || isTimedOut}
-      />
+          {/* Candidate A Card (Compact) */}
+          <CandidateCard
+            candidate={roundData.candidateA}
+            isSelected={selectedCandidate === 'A'}
+            onSelect={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
+            disabled={hasSubmitted || isTimedOut}
+          />
 
-      {/* Mobile-Friendly VS Divider */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: '0.05rem 0'
-      }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '32px',
-          height: '32px',
-          borderRadius: '50%',
-          background: '#ffffff',
-          border: '1px solid #cbd5e1',
-          boxShadow: '0 1px 4px rgba(15, 23, 42, 0.06)',
-          color: 'var(--text-muted)',
-          fontFamily: 'var(--font-mono)',
-          fontSize: '0.75rem',
-          fontWeight: 900,
-          letterSpacing: '0.05em'
-        }}>
-          VS
-        </div>
-      </div>
+          {/* Mobile-Friendly VS Divider */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0.05rem 0'
+          }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              boxShadow: '0 1px 4px rgba(15, 23, 42, 0.06)',
+              color: 'var(--text-muted)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.75rem',
+              fontWeight: 900,
+              letterSpacing: '0.05em'
+            }}>
+              VS
+            </div>
+          </div>
 
-      {/* Candidate B Card (Compact) */}
-      <CandidateCard
-        candidate={roundData.candidateB}
-        isSelected={selectedCandidate === 'B'}
-        onSelect={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
-        disabled={hasSubmitted || isTimedOut}
-      />
+          {/* Candidate B Card (Compact) */}
+          <CandidateCard
+            candidate={roundData.candidateB}
+            isSelected={selectedCandidate === 'B'}
+            onSelect={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
+            disabled={hasSubmitted || isTimedOut}
+          />
 
-      {/* Decision Area & Submitted/Timeout Waiting State */}
-      <DecisionPanel
-        selectedCandidate={selectedCandidate}
-        onSelectCandidate={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
-        onSubmitDecision={handleSubmitDecision}
-        isSubmitting={isSubmitting}
-        hasSubmitted={hasSubmitted}
-        isTimedOut={isTimedOut}
-        currentRound={currentRound}
-      />
+          {/* Decision Area & Submitted/Timeout Waiting State */}
+          <DecisionPanel
+            selectedCandidate={selectedCandidate}
+            onSelectCandidate={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
+            onSubmitDecision={handleSubmitDecision}
+            isSubmitting={isSubmitting}
+            hasSubmitted={hasSubmitted}
+            isTimedOut={isTimedOut}
+            currentRound={currentRound}
+          />
+        </>
+      )}
+
     </div>
   );
 };
