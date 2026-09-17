@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
-import { Shield, Radio, LogOut, LayoutDashboard, PlusCircle, Users, Play, BarChart2, Settings } from 'lucide-react';
+import { Shield, Radio, LogOut, LayoutDashboard, PlusCircle, Users, Play, BarChart2, Settings, Sparkles } from 'lucide-react';
 import { Badge } from '../../shared/components/Badge';
 import { storage } from '../../shared/utils/storage';
 
@@ -17,6 +17,7 @@ export const HostHeader: React.FC = () => {
     { label: 'Create Room', path: '/host/create', icon: <PlusCircle size={15} /> },
     { label: 'Live Lobby', path: '/host/lobby', icon: <Users size={15} /> },
     { label: 'Game Control', path: '/host/game', icon: <Play size={15} /> },
+    { label: 'Bias Reveal', path: '/host/reveal', icon: <Sparkles size={15} /> },
     { label: 'Results', path: '/host/results', icon: <BarChart2 size={15} /> },
     { label: 'Settings', path: '/host/settings', icon: <Settings size={15} /> },
   ];

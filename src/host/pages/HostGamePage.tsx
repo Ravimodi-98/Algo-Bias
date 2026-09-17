@@ -755,19 +755,34 @@ export const HostGamePage: React.FC = () => {
                       {isActionInProgress ? 'STARTING REVEAL...' : 'START BIAS REVEAL'}
                     </Button>
                   ) : (
-                    <Button
-                      variant={resultsVisible ? 'primary' : 'secondary'}
-                      size="normal"
-                      icon={<SkipForward size={16} />}
-                      onClick={handleNextRound}
-                      disabled={isActionInProgress}
-                      id="btn-host-next-round"
-                      style={{ minHeight: '44px' }}
-                    >
-                      {isActionInProgress 
-                        ? 'ADVANCING...' 
-                        : `NEXT ROUND (${currentRound + 1} / 7)`}
-                    </Button>
+                    <>
+                      <Button
+                        variant={resultsVisible ? 'primary' : 'secondary'}
+                        size="normal"
+                        icon={<SkipForward size={16} />}
+                        onClick={handleNextRound}
+                        disabled={isActionInProgress}
+                        id="btn-host-next-round"
+                        style={{ minHeight: '44px' }}
+                      >
+                        {isActionInProgress 
+                          ? 'ADVANCING...' 
+                          : `NEXT ROUND (${currentRound + 1} / 7)`}
+                      </Button>
+
+                      <Button
+                        variant="purple"
+                        size="normal"
+                        icon={<Sparkles size={16} />}
+                        onClick={handleStartReveal}
+                        disabled={isActionInProgress}
+                        id="btn-host-jump-reveal"
+                        style={{ minHeight: '44px' }}
+                        title="Jump directly to Case 8 Bias Reveal without completing remaining rounds"
+                      >
+                        JUMP TO BIAS REVEAL
+                      </Button>
+                    </>
                   )}
 
                   {/* Button: End Game */}

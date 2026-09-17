@@ -82,6 +82,22 @@ export const LandingPage: React.FC = () => {
         >
           JOIN GAME
         </Button>
+
+        <Button
+          variant="secondary"
+          size="large"
+          block
+          icon={<Sparkles size={18} />}
+          onClick={() => navigate('/reveal')}
+          id="btn-explore-reveal-landing"
+          style={{
+            borderColor: 'var(--accent-purple)',
+            color: 'var(--accent-purple)',
+            background: 'rgba(124, 58, 237, 0.04)'
+          }}
+        >
+          EXPLORE BIAS REVEAL (CASE 8)
+        </Button>
       </div>
 
       <div style={{

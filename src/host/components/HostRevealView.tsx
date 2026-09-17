@@ -21,8 +21,8 @@ interface HostRevealViewProps {
   onSetStep: (step: number) => void;
   onTransitionToFairness: () => void;
   allAggregates: Record<number, RoundAggregate>;
-  totalPlayers: number;
-  isActionInProgress: boolean;
+  totalPlayers?: number;
+  isActionInProgress?: boolean;
 }
 
 export const HostRevealView: React.FC<HostRevealViewProps> = ({
@@ -30,8 +30,8 @@ export const HostRevealView: React.FC<HostRevealViewProps> = ({
   onSetStep,
   onTransitionToFairness,
   allAggregates,
-  totalPlayers,
-  isActionInProgress
+  totalPlayers = 0,
+  isActionInProgress = false
 }) => {
   const stepMeta = REVEAL_STEPS.find((s) => s.stepNumber === currentStep) || REVEAL_STEPS[0];
   const isFinalStep = currentStep === 9;

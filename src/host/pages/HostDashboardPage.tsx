@@ -459,6 +459,48 @@ export const HostDashboardPage: React.FC = () => {
 
       </div>
 
+      {/* CASE 8: EDUCATIONAL BIAS REVEAL SHORTCUT */}
+      <Card glow="purple" style={{ padding: '1.25rem 1.5rem', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.06) 0%, rgba(2, 132, 199, 0.06) 100%)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: 'var(--radius-md)',
+              background: 'rgba(124, 58, 237, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--accent-purple)'
+            }}>
+              <Sparkles size={22} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Badge variant="purple">CASE 8 ACTIVE</Badge>
+                <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  Presenter Educational Bias Reveal Console
+                </span>
+              </div>
+              <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                9-step structured classroom sequence: Data &rarr; Algorithm &rarr; Decision &rarr; Impact (Automation &ne; Fairness).
+              </p>
+            </div>
+          </div>
+
+          <Button
+            variant="primary"
+            size="normal"
+            icon={<Sparkles size={16} />}
+            onClick={() => navigate('/host/reveal')}
+            id="btn-open-host-reveal-dashboard"
+            style={{ background: 'linear-gradient(135deg, #7c3aed, #0284c7)' }}
+          >
+            OPEN REVEAL CONSOLE
+          </Button>
+        </div>
+      </Card>
+
       {/* SECTION 4: HOST-ONLY CONTROLS */}
       <Card glow="purple" style={{ padding: '2rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -563,12 +605,12 @@ export const HostDashboardPage: React.FC = () => {
               {/* Button 4: Reveal Bias */}
               <Button
                 id="host-btn-reveal-bias"
-                variant="outline-cyan"
+                variant="purple"
                 size="normal"
                 icon={<Eye size={16} />}
-                onClick={() => triggerAction('Reveal Bias')}
+                onClick={() => navigate('/host/reveal')}
               >
-                Reveal Bias
+                Reveal Bias (Case 8)
               </Button>
 
               {/* Button 5: End Game */}
