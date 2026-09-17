@@ -194,31 +194,33 @@ Students understand why algorithmic bias can occur.
 
 ---
 
-# PHASE 8 — Fairness Challenge
+# PHASE 8 / CASE 9 — Make It Fair Challenge
 
 ## Goal
 
-Let students attempt to improve the decision process.
+Let students attempt to design and evaluate an intentional decision process.
 
 ## Tasks
 
-- Present candidate information
-- Ask players to choose relevant factors
-- Run the decision again
-- Compare results
-- Show class aggregate results
-
-Possible factors:
-
-- Skills
-- Relevant experience
-- Projects
-- Technical assessment
-- Interview performance
+- [x] Host control over challenge start (Readiness room & player ready status)
+- [x] Choose Relevant Information (Junior Software Developer scenario, candidate attributes)
+- [x] Educational principle: "Relevance Matters" (contextual dependence)
+- [x] Decision Rule Builder (HIGH, MEDIUM, LOW, EXCLUDE priority tiers)
+- [x] Understandable rule summary generated dynamically
+- [x] Apply Decision Rule (Candidate A vs Candidate B with explicit trade-offs)
+- [x] Fairness Test A (Evaluating impact of unrelated information)
+- [x] Consistency Test B (Robustness against irrelevant variation)
+- [x] Transparency Test C (Explainability and auditable inputs)
+- [x] Human Oversight D (Automation vs institutional accountability)
+- [x] Classroom Aggregate Results (Real session data without individual shaming)
+- [x] Process Comparison (Original Approach vs Designed Approach)
+- [x] Key Reflection: "Fairness is not a button" & bridge to Case 10
+- [x] Database migration for `fairness_responses` with RLS & Realtime
+- [x] Production build and automated integration test verified
 
 ## Result
 
-Students experience the idea of designing a more responsible decision system.
+Students experience hands-on system design and understand that algorithmic fairness is not a magic button, but an ongoing process of choosing relevant inputs, building transparent rules, auditing consistency, and maintaining human oversight.
 
 ---
 

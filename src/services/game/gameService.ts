@@ -1,6 +1,15 @@
 import { supabase } from '../supabase/client';
 import { generateGameCode } from '../../shared/utils/idGenerator';
-import type { DbGameSession, DbPlayer, DbResponse, RoundAggregate } from '../../shared/types';
+import type { 
+  DbGameSession, 
+  DbPlayer, 
+  DbResponse, 
+  RoundAggregate,
+  DbFairnessResponse,
+  FairnessResponseData,
+  FairnessClassroomAggregates,
+  PriorityLevel
+} from '../../shared/types';
 
 export const gameService = {
   /**
@@ -568,7 +577,7 @@ export const gameService = {
   },
 
   /**
-   * Host transitions session from reveal to fairness challenge placeholder (Case 9).
+   * Host transitions session from reveal to fairness challenge (Case 9).
    */
   async transitionToFairnessStage(sessionId: string, hostId: string): Promise<{ success: boolean; error: string | null }> {
     try {
@@ -590,6 +599,7 @@ export const gameService = {
         .from('game_sessions')
         .update({
           game_stage: 'fairness',
+          fairness_step: 0,
           updated_at: new Date().toISOString()
         })
         .eq('id', sessionId);
@@ -603,6 +613,235 @@ export const gameService = {
     } catch (err) {
       console.error('Unexpected error in transitionToFairnessStage:', err);
       return { success: false, error: 'Unexpected system error transitioning stage.' };
+    }
+  },
+
+  /**
+   * Host sets the fairness challenge step authoritatively (0 to 9).
+   */
+  async setFairnessStep(sessionId: string, hostId: string, step: number): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { data: session, error: fetchErr } = await supabase
+        .from('game_sessions')
+        .select('host_id')
+        .eq('id', sessionId)
+        .maybeSingle();
+
+      if (fetchErr || !session) {
+        return { success: false, error: 'Game session not found.' };
+      }
+
+      if (session.host_id !== hostId) {
+        return { success: false, error: 'Unauthorized: You do not own this game session.' };
+      }
+
+      const clampedStep = Math.max(0, Math.min(step, 9));
+      const { error } = await supabase
+        .from('game_sessions')
+        .update({
+          game_stage: 'fairness',
+          fairness_step: clampedStep,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error updating fairness step:', error);
+        return { success: false, error: 'Failed to update fairness step.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in setFairnessStep:', err);
+      return { success: false, error: 'Unexpected system error updating fairness step.' };
+    }
+  },
+
+  /**
+   * Submits or updates a player's response for a fairness challenge stage.
+   */
+  async submitFairnessResponse(
+    sessionId: string,
+    playerId: string,
+    stage: string,
+    responseData: FairnessResponseData
+  ): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { error } = await supabase
+        .from('fairness_responses')
+        .upsert(
+          {
+            session_id: sessionId,
+            player_id: playerId,
+            stage,
+            response: responseData,
+            submitted_at: new Date().toISOString()
+          },
+          { onConflict: 'session_id,player_id,stage' }
+        );
+
+      if (error) {
+        console.error('Error submitting fairness response:', error);
+        return { success: false, error: 'Failed to submit response.' };
+      }
+
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Unexpected error in submitFairnessResponse:', err);
+      return { success: false, error: 'Unexpected system error.' };
+    }
+  },
+
+  /**
+   * Fetches a specific player's prior response for a fairness stage (for reloads/reconnection).
+   */
+  async getPlayerFairnessResponse(
+    sessionId: string,
+    playerId: string,
+    stage: string
+  ): Promise<DbFairnessResponse | null> {
+    try {
+      const { data, error } = await supabase
+        .from('fairness_responses')
+        .select('*')
+        .eq('session_id', sessionId)
+        .eq('player_id', playerId)
+        .eq('stage', stage)
+        .maybeSingle();
+
+      if (error || !data) return null;
+      return data as DbFairnessResponse;
+    } catch (err) {
+      console.error('Error fetching fairness response:', err);
+      return null;
+    }
+  },
+
+  /**
+   * Counts the number of players who submitted a response for a specific fairness stage.
+   */
+  async getFairnessStageResponseCount(
+    sessionId: string,
+    stage: string
+  ): Promise<number> {
+    try {
+      const { count, error } = await supabase
+        .from('fairness_responses')
+        .select('*', { count: 'exact', head: true })
+        .eq('session_id', sessionId)
+        .eq('stage', stage);
+
+      if (error) return 0;
+      return count || 0;
+    } catch (err) {
+      console.error('Error counting fairness responses:', err);
+      return 0;
+    }
+  },
+
+  /**
+   * Computes aggregate classroom design choices and test statistics anonymously.
+   */
+  async getFairnessClassroomAggregates(
+    sessionId: string
+  ): Promise<FairnessClassroomAggregates> {
+    const defaultAggregates: FairnessClassroomAggregates = {
+      totalParticipants: 0,
+      factorsCount: {
+        skills: 0,
+        experience: 0,
+        projects: 0,
+        education: 0,
+        location: 0,
+        name: 0,
+        presentation_style: 0
+      },
+      rulesCount: {
+        skills: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+        experience: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+        projects: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+        education: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+        location: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+        name: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+        presentation_style: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 }
+      },
+      applyDecisions: { candidateA: 0, candidateB: 0 },
+      fairnessTestAnswers: { YES: 0, NO: 0, DEPENDS: 0 },
+      consistencyTestAnswers: { YES: 0, NO: 0, DEPENDS: 0 },
+      transparencyTestAnswers: { YES: 0, NO: 0 },
+      humanOversightAnswers: { YES: 0, NO: 0 }
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('fairness_responses')
+        .select('*')
+        .eq('session_id', sessionId);
+
+      if (error || !data) return defaultAggregates;
+
+      const participantIds = new Set<string>();
+
+      data.forEach((row) => {
+        participantIds.add(row.player_id);
+        const resp = row.response as FairnessResponseData;
+        if (!resp) return;
+
+        if (row.stage === 'factors' && Array.isArray(resp.selectedFactors)) {
+          resp.selectedFactors.forEach((factorKey: string) => {
+            if (defaultAggregates.factorsCount[factorKey] !== undefined) {
+              defaultAggregates.factorsCount[factorKey]++;
+            } else {
+              defaultAggregates.factorsCount[factorKey] = 1;
+            }
+          });
+        }
+
+        if (row.stage === 'rule' && resp.priorities) {
+          Object.entries(resp.priorities).forEach(([factorKey, priority]) => {
+            if (
+              defaultAggregates.rulesCount[factorKey] && 
+              defaultAggregates.rulesCount[factorKey][priority as PriorityLevel] !== undefined
+            ) {
+              defaultAggregates.rulesCount[factorKey][priority as PriorityLevel]++;
+            }
+          });
+        }
+
+        if (row.stage === 'apply') {
+          if (resp.selectedCandidate === 'A') defaultAggregates.applyDecisions.candidateA++;
+          if (resp.selectedCandidate === 'B') defaultAggregates.applyDecisions.candidateB++;
+        }
+
+        if (row.stage === 'fairness_test' && resp.testAnswer) {
+          if (defaultAggregates.fairnessTestAnswers[resp.testAnswer] !== undefined) {
+            defaultAggregates.fairnessTestAnswers[resp.testAnswer]++;
+          }
+        }
+
+        if (row.stage === 'consistency_test' && resp.testAnswer) {
+          if (defaultAggregates.consistencyTestAnswers[resp.testAnswer] !== undefined) {
+            defaultAggregates.consistencyTestAnswers[resp.testAnswer]++;
+          }
+        }
+
+        if (row.stage === 'transparency_test' && resp.testAnswer) {
+          if (resp.testAnswer === 'YES') defaultAggregates.transparencyTestAnswers.YES++;
+          if (resp.testAnswer === 'NO') defaultAggregates.transparencyTestAnswers.NO++;
+        }
+
+        if (row.stage === 'human_oversight' && (resp.humanOversightAnswer || resp.testAnswer)) {
+          const ans = resp.humanOversightAnswer || (resp.testAnswer as any);
+          if (ans === 'YES') defaultAggregates.humanOversightAnswers.YES++;
+          if (ans === 'NO') defaultAggregates.humanOversightAnswers.NO++;
+        }
+      });
+
+      defaultAggregates.totalParticipants = participantIds.size;
+      return defaultAggregates;
+    } catch (err) {
+      console.error('Error computing fairness aggregates:', err);
+      return defaultAggregates;
     }
   },
 

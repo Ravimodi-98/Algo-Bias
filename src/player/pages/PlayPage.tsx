@@ -15,6 +15,7 @@ import { CandidateCard } from '../components/CandidateCard';
 import { DecisionPanel } from '../components/DecisionPanel';
 import { PlayerResultsCard } from '../components/PlayerResultsCard';
 import { PlayerRevealView } from '../components/PlayerRevealView';
+import { PlayerFairnessView } from '../components/PlayerFairnessView';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
@@ -23,7 +24,13 @@ import { storage } from '../../shared/utils/storage';
 import { gameService } from '../../services/game/gameService';
 import { supabase } from '../../services/supabase/client';
 import { getRoundData, ROUND_TIME_LIMIT } from '../../shared/data/rounds';
-import type { PlayerSession, DbGameSession, RoundAggregate } from '../../shared/types';
+import type { 
+  PlayerSession, 
+  DbGameSession, 
+  RoundAggregate,
+  FairnessClassroomAggregates,
+  FairnessStepNumber
+} from '../../shared/types';
 
 export const PlayPage: React.FC = () => {
   const navigate = useNavigate();
@@ -37,6 +44,7 @@ export const PlayPage: React.FC = () => {
   const [resultsVisible, setResultsVisible] = useState<boolean>(false);
   const [roundAggregate, setRoundAggregate] = useState<RoundAggregate | null>(null);
   const [allAggregates, setAllAggregates] = useState<Record<number, RoundAggregate>>({});
+  const [fairnessAggregates, setFairnessAggregates] = useState<FairnessClassroomAggregates | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'reconnecting'>('connected');
@@ -113,6 +121,15 @@ export const PlayPage: React.FC = () => {
         setAllAggregates(aggs);
       } catch (err) {
         console.error('Error fetching all aggregates in loadAndVerifySession:', err);
+      }
+    }
+
+    if (game.game_stage === 'fairness') {
+      try {
+        const fAggs = await gameService.getFairnessClassroomAggregates(game.id);
+        setFairnessAggregates(fAggs);
+      } catch (err) {
+        console.error('Error fetching fairness aggregates in loadAndVerifySession:', err);
       }
     }
 
@@ -207,6 +224,16 @@ export const PlayPage: React.FC = () => {
             if (updated.game_stage === 'reveal') {
               const aggs = await gameService.getSessionAllRoundsAggregates(session.sessionId);
               setAllAggregates(aggs);
+            }
+
+            // Fairness Stage Sync
+            if (updated.game_stage === 'fairness') {
+              try {
+                const fAggs = await gameService.getFairnessClassroomAggregates(session.sessionId);
+                setFairnessAggregates(fAggs);
+              } catch (err) {
+                console.error('Error fetching fairness aggregates in Realtime:', err);
+              }
             }
 
             // Round advancement initiated by host
@@ -431,31 +458,11 @@ export const PlayPage: React.FC = () => {
           allAggregates={allAggregates}
         />
       ) : gameSession?.game_stage === 'fairness' ? (
-        <div style={{
-          background: '#ffffff',
-          padding: '2.5rem 1.5rem',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid var(--border-subtle)',
-          boxShadow: '0 4px 16px rgba(15, 23, 42, 0.06)',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            display: 'inline-flex',
-            padding: '0.75rem',
-            borderRadius: '9999px',
-            background: 'rgba(124, 58, 237, 0.1)',
-            color: 'var(--accent-purple)',
-            marginBottom: '1rem'
-          }}>
-            <Target size={32} />
-          </div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-            Fairness Challenge Ahead
-          </h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-            Look at the main screen! The host will initiate the hands-on fairness algorithm challenge shortly.
-          </p>
-        </div>
+        <PlayerFairnessView
+          currentStep={((gameSession.fairness_step ?? 0) as FairnessStepNumber)}
+          session={session!}
+          classroomAggregates={fairnessAggregates || undefined}
+        />
       ) : resultsVisible ? (
         roundAggregate ? (
           /* 1. Classroom Result Screen (Triggered by Host SHOW RESULTS) */

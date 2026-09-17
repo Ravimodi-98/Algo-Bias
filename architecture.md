@@ -224,6 +224,7 @@ Suggested tables:
 - results_visible (BOOLEAN)
 - game_stage ('round' | 'reveal' | 'fairness' | 'completed')
 - reveal_step (INTEGER 0..9)
+- fairness_step (INTEGER 0..9)
 - created_at (TIMESTAMPTZ)
 - updated_at (TIMESTAMPTZ)
 - ended_at (TIMESTAMPTZ)
@@ -241,6 +242,21 @@ The Bias Reveal is an authoritative 9-step progression synchronized in real time
 7. **The Algorithm**: Concrete flow diagram: `DATA → ALGORITHM → DECISION`.
 8. **Impact & Automation ≠ Fairness**: Societal pipeline: `DATA → ALGORITHM → DECISION → IMPACT`.
 9. **Toward Solutions**: Bridge to responsible design and the Stage 2 Fairness Challenge.
+
+## Make It Fair System Architecture (Case 9)
+
+The Make It Fair Challenge is an authoritative 10-step interactive workflow where students design decision rules and evaluate systemic properties:
+
+0. **Challenge Launch & Readiness**: Host controls launch; students submit readiness (`{ ready: true }`).
+1. **Choose Relevant Information (Round 1)**: Students select criteria (`skills`, `experience`, `projects`, `education`, `location`, `name`, `presentation_style`). Principle: Relevance Matters.
+2. **Build the Decision Rule (Round 2)**: Students set priority tiers (`HIGH`, `MEDIUM`, `LOW`, `EXCLUDE`) yielding readable, transparent rules.
+3. **Apply the Rule (Round 3)**: Students evaluate Candidate A vs Candidate B based on their designed priorities.
+4. **Fairness Test A (Unrelated Info)**: Controlled scenario evaluating if irrelevant details should swing outcomes (`YES` / `NO` / `DEPENDS ON CONTEXT`).
+5. **Consistency Test B**: Verifying outcome robustness across non-job-relevant variations.
+6. **Transparency Test C**: Demonstrating why documented, auditable inputs are required for explainability.
+7. **Human Oversight D**: Accountability in automated pipelines (`NO (Need Review)` vs `YES (Accept)`).
+8. **Classroom Aggregate Results & Comparison**: Descriptive statistics showing classroom distribution of factors and comparing *Original Approach* vs *Designed Approach*.
+9. **The Key Reflection & Case 9 Message**: Synthesis of design choices and core thesis: *"Fairness is not a button."* Bridge to Case 10: The Final Decision.
 
 ## players
 
@@ -270,20 +286,27 @@ The Bias Reveal is an authoritative 9-step progression synchronized in real time
 - id
 - session_id
 - player_id
-- round_id
+- round_number
 - selected_candidate
 - response_time
 - created_at
 
 ## fairness_responses
 
-- id
-- session_id
-- player_id
-- selected_factors
-- created_at
+- id (UUID, PK)
+- session_id (UUID, FK -> game_sessions.id)
+- player_id (UUID, FK -> players.id)
+- stage (VARCHAR 64: 'ready' | 'factors' | 'rule' | 'apply' | 'fairness_test' | 'consistency_test' | 'transparency_test' | 'human_oversight')
+- response (JSONB: flexible payload with duplicate prevention via unique constraint `(session_id, player_id, stage)`)
+- submitted_at (TIMESTAMPTZ)
 
 Do not store unnecessary personal information.
+
+### Security & RLS Policies:
+- Only authenticated Host with matching `host_id` can update `game_stage` and `fairness_step`.
+- Players can only insert or update their own response for `(session_id, player_id, stage)`.
+- RLS permits public SELECT on `fairness_responses` for calculating classroom aggregates.
+- Realtime publication on `game_sessions` broadcasts step advancements to player smartphones instantly.
 
 ---
 

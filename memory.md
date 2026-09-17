@@ -18,7 +18,7 @@ Purpose:
 Interactive educational game for demonstrating algorithmic bias, data influence, and algorithmic fairness.
 
 Current Status:
-CASE 8 COMPLETE — Bias Reveal + Educational Bias Explanation (DATA → ALGORITHM → DECISION → IMPACT)
+CASE 9 COMPLETE — Make It Fair Interactive Challenge (System Design, Rules, Audits & Reflection)
 
 Overall Progress:
 [ ] Not Started
@@ -31,51 +31,50 @@ Overall Progress:
 # 2. Current Phase
 
 Current Phase:
-CASE 8 COMPLETE — Bias Reveal + Educational Bias Explanation (Ready for Case 9: Fairness Challenge)
+CASE 9 COMPLETE — Make It Fair Interactive Challenge (Ready for Case 10: Final Results + Reflection)
 
 Current Objective:
-Transition classroom from "Here are the decisions you made" to "Why did those decisions happen?" through a synchronized 9-step educational sequence connecting human choices to training data, algorithms, and real-world societal impact.
+Guide students through hands-on decision-system design: selecting relevant factors, configuring explicit priority rules, testing against irrelevant variation and lack of transparency, and recognizing that "Fairness is not a button."
 
 ---
 
 # 3. Current File Being Worked On
 
 Currently Working On:
-src/host/components/HostRevealView.tsx, src/player/components/PlayerRevealView.tsx, src/shared/data/revealSteps.ts, src/services/game/gameService.ts
+src/host/components/HostFairnessView.tsx, src/player/components/PlayerFairnessView.tsx, src/services/game/gameService.ts, src/shared/data/fairnessSteps.ts
 
 Current Task:
-Case 8 Complete: 9-step authoritative educational reveal, projector-first presenter mode, synchronized mobile experience, Realtime step broadcasting, neutral non-shaming tone, and zero student identification.
+Case 9 Complete: 10-step synchronized fairness challenge, host control console, mobile-first student priority builder, controlled system audits, classroom aggregate metrics, and production verification.
 
 ---
 
 # 4. Recently Completed
 
-- [x] **Database Migration for Reveal**: Added `game_stage VARCHAR(32) NOT NULL DEFAULT 'round'` and `reveal_step INTEGER NOT NULL DEFAULT 0` to `game_sessions`.
-- [x] **Shared Educational Sequence Data**: Authored structured 9-step reveal configuration in `revealSteps.ts` with `ROUND_COMPARISON_FACTS` directly tying into the 7 candidate scenarios.
-- [x] **Host Projector-First Reveal Center**: Built `HostRevealView.tsx` with high-contrast projector typography, stage progress indicator, side-by-side comparison tables, interactive pipeline diagrams, and presenter discussion prompts.
-- [x] **Realtime Synchronized Mobile Experience**: Built `PlayerRevealView.tsx` and integrated it in `PlayPage.tsx` and `RevealPlaceholderPage.tsx`, allowing player devices to mirror the presenter's active reveal step instantly.
-- [x] **Authoritative Stage Progression**: Implemented `startBiasReveal`, `setRevealStep`, `transitionToFairnessStage`, and `getSessionAllRoundsAggregates` in `gameService.ts`.
-- [x] **DATA → ALGORITHM → DECISION → IMPACT Pipeline**: Interactive flowcharts visually demonstrating how human decisions scale from 1 to 10,000 to train algorithms that automate outcomes, highlighting "Automation ≠ Fairness".
-- [x] **Non-Shaming Educational Ethics**: Strictly maintained objective framing ("The decisions changed when the information changed") with zero individual student shaming, labeling, or identity leakage.
-- [x] **Integration & Build Verification**: TypeScript type-checked and verified with automated integration test `test_case8_reveal.cjs`. Production build passed.
-- [x] **Reconnection Resilience**: Host and student reloads restore active game sessions, current round, response count, remaining timer, and results visibility from Supabase.
-- [x] **Documentation & Production Testing**: Updated `memory.md`, `design.md`, `phases.md`, verified build, and deployed to Vercel.
+- [x] **Database Migration for Fairness**: Added `fairness_step INTEGER NOT NULL DEFAULT 0` to `game_sessions` and created `fairness_responses` table with unique constraint `(session_id, player_id, stage)`, RLS policies, and Supabase Realtime publication.
+- [x] **Shared Educational Scenario Data**: Created `fairnessSteps.ts` with 10 sequential step definitions, candidate factor metadata (qualifications, contextual, unrelated), and fictional Junior Software Developer evaluation scenarios.
+- [x] **Host Projector-First Fairness Console**: Built `HostFairnessView.tsx` with high-contrast projector typography, stage progress tracker, live response counters, classroom aggregate displays, and authoritative navigation controls.
+- [x] **Realtime Synchronized Mobile Experience**: Built `PlayerFairnessView.tsx` with touch-friendly factor selectors, 4-tier priority rule builder (`HIGH`, `MEDIUM`, `LOW`, `EXCLUDE`), dynamic rule preview, candidate decision selection, and audit test questions.
+- [x] **Controlled System Audits**: Implemented controlled scenarios for Fairness Test (Unrelated Info), Consistency Test (Equal Quals), Transparency Test (Audit Legibility), and Human Oversight (Accountability).
+- [x] **Anonymous Classroom Aggregation**: Implemented `getFairnessClassroomAggregates` in `gameService.ts` deriving real statistics from student responses without revealing individual student identities.
+- [x] **Strict Non-Shaming & No Single Score Policy**: Maintained neutral design-focused tone; strictly omitted arbitrary 0-100% "Fairness Scores" and student rankings.
+- [x] **Integration & Build Verification**: TypeScript type-checked and verified with automated integration test `test_case9_fairness.cjs`. Production build passed in 405ms.
+- [x] **Reconnection Resilience**: Host and student reloads restore active game sessions, current fairness step, prior submitted answers, and live aggregate stats.
+- [x] **Documentation & Production Testing**: Updated `memory.md`, `design.md`, `phases.md`, and `architecture.md`.
 
 ---
 
 # 5. In Progress
 
-- [x] Case 7 completed and verified
-- [ ] Prepare Case 8 (Bias Reveal — DATA → ALGORITHM → DECISION → IMPACT)
+- [x] Case 8 completed and verified
+- [x] Case 9 completed and verified
+- [ ] Prepare Case 10 (Final Results + Reflection)
 
 ---
 
 # 6. Next Tasks
 
-1. Case 8: Digital ethics and algorithmic bias reveal sequence (DATA → ALGORITHM → DECISION → IMPACT)
-2. Case 8: Interactive information categorization (Relevant vs Irrelevant factors)
-3. Case 9: Fairness Challenge simulation
-4. Case 10: Final presentation rehearsal and polish
+1. Case 10: Final classroom results, cumulative game summary, and student reflection.
+2. Case 10: Final presentation rehearsal and presentation mode polish.
 
 ---
 
@@ -112,21 +111,37 @@ Case 8 Complete: 9-step authoritative educational reveal, projector-first presen
 - [x] Mobile-first Player result screen
 - [x] Multi-player synchronization and reconnection handling
 
+## Phase 6 & 7 — Bias Reveal & Educational Sequence (Case 8)
+- [x] 9-step synchronized educational reveal sequence
+- [x] Authoritative presenter progression
+- [x] DATA → ALGORITHM → DECISION → IMPACT pipeline
+- [x] Non-shaming framing and zero individual identification
+
+## Phase 8 — Make It Fair Challenge (Case 9)
+- [x] 10-step interactive decision system design challenge
+- [x] Host readiness room & authoritative challenge launch
+- [x] Relevant factor selection & explicit priority rule builder
+- [x] Candidate application evaluation with intentional criteria
+- [x] Controlled system audits (Fairness, Consistency, Transparency, Oversight)
+- [x] Real-time classroom aggregate choices & process comparison
+- [x] Key reflection: "Fairness is not a button"
+
 ---
 
 # 8. Important Technical Decisions
 
-- **Concealed Projector State**: Results remain hidden on projector while students vote to prevent groupthink/influence before reveal.
-- **Authoritative Aggregation**: Votes and percentages are calculated on server queries without exposing individual student identifiers.
-- **Double-Click Protection**: Controller buttons are guarded by `actionLockRef` to avoid accidental round skipping.
-- **Neutral Framing**: Strictly avoid accusing students ("You are biased"). Language is neutral and reflective.
+- **No Single Fairness Score**: To avoid moral shaming or superficial gamification, students are never assigned a "fairness percentage" or ranked.
+- **Authoritative Stage Progression**: The session Host controls global progression through challenge steps; player devices synchronize instantly via Supabase Realtime.
+- **Flexible JSONB Response Storage**: Responses for different challenge stages are stored in `fairness_responses` with unique constraint `(session_id, player_id, stage)` to prevent duplicates.
+- **Reconnection Resilience**: On reload, `getPlayerFairnessResponse` restores previous selections so students can resume seamlessly.
+- **Anonymous Classroom Aggregation**: Aggregate frequencies (e.g. factors selected, test answers) are computed on the server/service layer without exposing student identities.
 
 ---
 
 # 9. Latest Git Commit
 
 Commit:
-`feat: add live host dashboard and classroom results`
+`feat: add make it fair challenge`
 
 Date:
 2026-09-17

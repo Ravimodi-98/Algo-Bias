@@ -265,3 +265,38 @@ The Bias Reveal transitions the classroom from gameplay to theoretical comprehen
 - **Strict Non-Shaming Language**: Never accuse students of bias. Avoid phrases like "You failed," "Wrong choice," or "You are biased."
 - **Objective Structural Focus**: Frame shifts as "The decisions changed when the information changed."
 - **Data-Driven Grounding**: All reveal stats are derived directly from actual classroom submissions in Supabase, keeping the discussion authentic and participatory.
+
+---
+
+# 14. Make It Fair Visual Design (Case 9)
+
+The **MAKE IT FAIR** interactive challenge empowers students to actively design, configure, and audit an algorithmic decision process:
+
+- **Aesthetic Continuity**:
+  - Maintained light futuristic AI experience: clean white cards (`#ffffff`), light canvas (`#f6f8fc`), high-contrast slate typography (`#0f172a`), cyan accent (`#0284c7`), and violet secondary accent (`#7c3aed`).
+- **Challenge Progress System**:
+  - 10 structured steps (Step 0 to 9) with interactive step progress pills.
+  - Synchronized across the session Host and all connected student smartphones via Supabase Realtime.
+- **Factor Selection System (Round 1)**:
+  - Multi-select card list with instant visual feedback and selection checkmarks.
+  - Clear taxonomy badges: `QUALIFICATION` (green), `CONTEXTUAL` (amber), `UNRELATED` (red).
+  - Principle callout: *"RELEVANCE MATTERS: Information should have a clear connection to the decision being made. Relevance is contextual."*
+- **Decision Rule Builder (Round 2)**:
+  - Accessible 4-tier priority selector (`HIGH`, `MEDIUM`, `LOW`, `EXCLUDE`) with tap-friendly button groups.
+  - Real-time readable rule synthesis: *"1. Relevant Skills, 2. Relevant Experience... Other unrelated information is not used."*
+- **Candidate Application Evaluation (Round 3)**:
+  - Side-by-side comparative candidate profiles with explicit trade-offs (Technical Skills vs Industry Experience).
+- **Controlled System Audits (Steps 4 to 7)**:
+  - **Fairness Test A (Unrelated Info)**: 3-way choice (`NO` / `DEPENDS ON CONTEXT` / `YES`).
+  - **Consistency Test B**: Evaluating robustness against irrelevant variations.
+  - **Transparency Test C**: Explaining decisions through documented factors vs uninterpretable black boxes.
+  - **Human Oversight D**: Accountability in automated pipelines (`NO (Need Review)` vs `YES (Accept)`).
+- **Classroom Aggregate Results & Comparison (Step 8)**:
+  - Visual distribution bars displaying actual student selection frequencies without exposing individual names.
+  - Comparative card layout: *Original Approach* (unconstrained info) vs *Designed Approach* (relevance prioritized).
+- **Key Reflection & Synthesis (Step 9)**:
+  - Multi-column prompt cards: What to include? What to leave out? How to test it?
+  - Highlighted thesis banner: *"FAIRNESS IS NOT A BUTTON. It is an ongoing process of designing, testing, monitoring, and improving decisions."*
+- **Responsive Layout**:
+  - Mobile-first student UI with large touch targets, single-column scrolling, and instant feedback.
+  - Projector-first presenter UI with large typography (2.5rem+), live submission counters, and authoritative navigation.

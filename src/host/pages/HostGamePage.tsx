@@ -23,11 +23,20 @@ import { Button } from '../../shared/components/Button';
 import { LoadingState } from '../../shared/components/LoadingState';
 import { AggregateResultsView } from '../components/AggregateResultsView';
 import { HostRevealView } from '../components/HostRevealView';
+import { HostFairnessView } from '../components/HostFairnessView';
 import { gameService } from '../../services/game/gameService';
 import { storage } from '../../shared/utils/storage';
 import { supabase } from '../../services/supabase/client';
 import { getRoundData, ROUND_TIME_LIMIT } from '../../shared/data/rounds';
-import type { DbGameSession, DbPlayer, DbResponse, RoundAggregate } from '../../shared/types';
+import { FAIRNESS_STEPS_META } from '../../shared/data/fairnessSteps';
+import type { 
+  DbGameSession, 
+  DbPlayer, 
+  DbResponse, 
+  RoundAggregate,
+  FairnessStepNumber,
+  FairnessClassroomAggregates
+} from '../../shared/types';
 
 export const HostGamePage: React.FC = () => {
   const navigate = useNavigate();
@@ -47,9 +56,30 @@ export const HostGamePage: React.FC = () => {
   const [isActionInProgress, setIsActionInProgress] = useState<boolean>(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
+  const [fairnessAggregates, setFairnessAggregates] = useState<FairnessClassroomAggregates | null>(null);
+  const [fairnessReadyCount, setFairnessReadyCount] = useState<number>(0);
+  const [fairnessStageResponseCount, setFairnessStageResponseCount] = useState<number>(0);
+
   const actionLockRef = useRef<boolean>(false);
   const hostSession = storage.getHostSession();
   const hostId = hostSession?.hostId || 'HOST-DEMO';
+
+  // Helper to load fairness responses and aggregate classroom statistics
+  const loadFairnessData = useCallback(async (sessionId: string, stepNum: number) => {
+    try {
+      const aggs = await gameService.getFairnessClassroomAggregates(sessionId);
+      setFairnessAggregates(aggs);
+
+      const readyCount = await gameService.getFairnessStageResponseCount(sessionId, 'ready');
+      setFairnessReadyCount(readyCount);
+
+      const stepMeta = FAIRNESS_STEPS_META.find((s) => s.stepNumber === stepNum) || FAIRNESS_STEPS_META[0];
+      const stageCount = await gameService.getFairnessStageResponseCount(sessionId, stepMeta.stageKey);
+      setFairnessStageResponseCount(stageCount);
+    } catch (err) {
+      console.error('Error loading fairness data in HostGamePage:', err);
+    }
+  }, []);
 
   // Helper to recompute aggregate in-memory or from database
   const computeAggregate = useCallback((roundNum: number, respList: DbResponse[]): RoundAggregate => {
@@ -93,6 +123,11 @@ export const HostGamePage: React.FC = () => {
       const allAggs = await gameService.getSessionAllRoundsAggregates(active.id);
       setAllAggregates(allAggs);
 
+      // Load fairness challenge state if active
+      if (active.game_stage === 'fairness') {
+        await loadFairnessData(active.id, active.fairness_step || 0);
+      }
+
       // Synchronize timer
       const startTimeStr = active.round_started_at || active.updated_at;
       if (startTimeStr) {
@@ -107,7 +142,7 @@ export const HostGamePage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [hostId, navigate, computeAggregate]);
+  }, [hostId, navigate, computeAggregate, loadFairnessData]);
 
   useEffect(() => {
     loadActiveGame();
@@ -225,6 +260,32 @@ export const HostGamePage: React.FC = () => {
       supabase.removeChannel(channel);
     };
   }, [session?.id]);
+
+  // 4. Realtime subscription for fairness challenge responses
+  useEffect(() => {
+    if (!session?.id) return;
+
+    const channel = supabase
+      .channel(`host-game-fairness-${session.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'fairness_responses',
+          filter: `session_id=eq.${session.id}`
+        },
+        async () => {
+          const currentFStep = session.fairness_step || 0;
+          await loadFairnessData(session.id, currentFStep);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.id, session?.fairness_step, loadFairnessData]);
 
   // Handler: Reveal Aggregate Results
   const handleShowResults = async () => {
@@ -349,12 +410,34 @@ export const HostGamePage: React.FC = () => {
     try {
       const result = await gameService.transitionToFairnessStage(session.id, hostId);
       if (result.success) {
-        setSession((prev) => prev ? { ...prev, game_stage: 'fairness' } : null);
+        setSession((prev) => prev ? { ...prev, game_stage: 'fairness', fairness_step: 0 } : null);
+        await loadFairnessData(session.id, 0);
         setActionNotice('TRANSITIONING TO FAIRNESS CHALLENGE (CASE 9)');
         setTimeout(() => setActionNotice(null), 4000);
       } else {
         setActionNotice(result.error || 'Failed to transition stage.');
         setTimeout(() => setActionNotice(null), 4000);
+      }
+    } finally {
+      setIsActionInProgress(false);
+      actionLockRef.current = false;
+    }
+  };
+
+  // Handler: Step Navigation in Fairness Challenge
+  const handleSetFairnessStep = async (step: FairnessStepNumber) => {
+    if (!session || actionLockRef.current || isActionInProgress) return;
+    actionLockRef.current = true;
+    setIsActionInProgress(true);
+
+    try {
+      const result = await gameService.setFairnessStep(session.id, hostId, step);
+      if (result.success) {
+        setSession((prev) => prev ? { ...prev, fairness_step: step } : null);
+        await loadFairnessData(session.id, step);
+      } else {
+        setActionNotice(result.error || 'Failed to update fairness step.');
+        setTimeout(() => setActionNotice(null), 3000);
       }
     } finally {
       setIsActionInProgress(false);
@@ -616,24 +699,33 @@ export const HostGamePage: React.FC = () => {
           isActionInProgress={isActionInProgress}
         />
       ) : session.game_stage === 'fairness' ? (
-        /* Fairness Stage Queued Banner */
-        <Card glow="cyan" style={{ padding: '2.5rem', textAlign: 'center' }}>
-          <Badge variant="cyan" pulse>NEXT STAGE QUEUED</Badge>
-          <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '1rem 0 0.5rem 0' }}>
-            MAKE IT FAIR &bull; Fairness Challenge
-          </h2>
-          <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', maxWidth: '560px', margin: '0 auto 1.5rem auto', lineHeight: 1.6 }}>
-            The Bias Reveal sequence has concluded. In Case 9, students will actively evaluate and select candidate attributes to redesign the decision process.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <Button variant="secondary" onClick={() => handleSetRevealStep(1)}>
-              REVIEW BIAS REVEAL AGAIN
-            </Button>
-            <Button variant="primary" onClick={() => navigate('/host/dashboard')}>
-              RETURN TO HOST DASHBOARD
-            </Button>
-          </div>
-        </Card>
+        /* Case 9 Make It Fair Challenge View */
+        <HostFairnessView
+          currentStep={((session.fairness_step ?? 0) as FairnessStepNumber)}
+          onSetStep={handleSetFairnessStep}
+          classroomAggregates={fairnessAggregates || {
+            totalParticipants: totalPlayersCount,
+            factorsCount: { skills: 0, experience: 0, projects: 0, education: 0, location: 0, name: 0, presentation_style: 0 },
+            rulesCount: {
+              skills: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+              experience: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+              projects: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+              education: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+              location: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+              name: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 },
+              presentation_style: { HIGH: 0, MEDIUM: 0, LOW: 0, EXCLUDE: 0 }
+            },
+            applyDecisions: { candidateA: 0, candidateB: 0 },
+            fairnessTestAnswers: { YES: 0, NO: 0, DEPENDS: 0 },
+            consistencyTestAnswers: { YES: 0, NO: 0, DEPENDS: 0 },
+            transparencyTestAnswers: { YES: 0, NO: 0 },
+            humanOversightAnswers: { YES: 0, NO: 0 }
+          }}
+          totalPlayers={totalPlayersCount}
+          readyPlayersCount={fairnessReadyCount}
+          stageResponseCount={fairnessStageResponseCount}
+          isActionInProgress={isActionInProgress}
+        />
       ) : (
         /* Active Simulation Rounds View (Rounds 1 to 7) */
         <>
