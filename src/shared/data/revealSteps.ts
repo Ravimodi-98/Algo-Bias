@@ -15,79 +15,57 @@ export interface RoundComparisonFact {
 export const ROUND_COMPARISON_FACTS: RoundComparisonFact[] = [
   {
     roundNumber: 1,
-    title: 'Core Technical Qualifications',
-    role: 'Frontend Engineer',
+    title: 'Core Technical Skills',
+    role: 'Junior Developer',
     candidateAName: 'Aarav Sharma',
     candidateBName: 'Rohan Verma',
     skillsComparison: 'Clearly Different',
     experienceComparison: 'Similar',
-    differentiatingFactor: 'Direct framework skill alignment (React & TypeScript vs unrelated stack)',
+    differentiatingFactor: 'Direct framework skill alignment (Python & React vs Java & Linux)',
     factorRelevance: 'Directly Relevant'
   },
   {
     roundNumber: 2,
     title: 'Institutional Background',
-    role: 'Data Analyst',
+    role: 'Cloud Engineer',
     candidateAName: 'Maya Patel',
     candidateBName: 'Ishita Rao',
     skillsComparison: 'Similar',
     experienceComparison: 'Similar',
-    differentiatingFactor: 'College pedigree (IIT Bombay vs State University)',
+    differentiatingFactor: 'College pedigree (Apex Technical University vs Metro Polytechnic College)',
     factorRelevance: 'Contextually Less Relevant'
   },
   {
     roundNumber: 3,
     title: 'Geographic Location',
-    role: 'Cloud Architect',
+    role: 'Reliability Specialist',
     candidateAName: 'Kabir Mehta',
     candidateBName: 'Dev Malhotra',
     skillsComparison: 'Similar',
     experienceComparison: 'Similar',
-    differentiatingFactor: 'Current city (Ahmedabad vs Pune for a remote-first position)',
+    differentiatingFactor: 'Current city (Ahmedabad vs Pune for remote-friendly position)',
     factorRelevance: 'Contextually Less Relevant'
   },
   {
     roundNumber: 4,
-    title: 'Identity & Perceived Background',
-    role: 'Machine Learning Engineer',
-    candidateAName: 'Aarav Sharma',
-    candidateBName: 'Maya Patel',
-    skillsComparison: 'Similar',
-    experienceComparison: 'Similar',
-    differentiatingFactor: 'Applicant identity / candidate name on identical qualifications',
-    factorRelevance: 'Contextually Less Relevant'
-  },
-  {
-    roundNumber: 5,
-    title: 'Resume Presentation Style',
-    role: 'Product Manager',
+    title: 'Identity & Presentation Style',
+    role: 'API Developer',
     candidateAName: 'Nisha Gupta',
     candidateBName: 'Anaya Sen',
     skillsComparison: 'Similar',
     experienceComparison: 'Similar',
-    differentiatingFactor: 'Visual resume layout (Structured metrics vs Narrative style)',
+    differentiatingFactor: 'Resume format (Structured bullet metrics vs Conversational narrative)',
     factorRelevance: 'Format / Presentation'
   },
   {
-    roundNumber: 6,
-    title: 'Relevant vs Irrelevant Attribute Mix',
+    roundNumber: 5,
+    title: 'Final Decision Comparison',
     role: 'Full Stack Developer',
-    candidateAName: 'Rohan Verma',
-    candidateBName: 'Kabir Mehta',
-    skillsComparison: 'Mixed',
-    experienceComparison: 'Similar',
-    differentiatingFactor: 'Mix of extracurricular hobbies alongside technical competencies',
-    factorRelevance: 'Contextually Less Relevant'
-  },
-  {
-    roundNumber: 7,
-    title: 'Final Synthetic Profile',
-    role: 'DevOps Specialist',
     candidateAName: 'Dev Malhotra',
     candidateBName: 'Ishita Rao',
     skillsComparison: 'Similar',
     experienceComparison: 'Similar',
-    differentiatingFactor: 'Subtle contextual clues embedded in background summary',
+    differentiatingFactor: 'Multi-factor combination of framework proficiency, review rating, and assessment score',
     factorRelevance: 'Contextually Less Relevant'
   }
 ];

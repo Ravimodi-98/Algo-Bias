@@ -7,6 +7,7 @@ import { Button } from '../../shared/components/Button';
 import { storage } from '../../shared/utils/storage';
 import { gameService } from '../../services/game/gameService';
 import type { DbGameSession } from '../../shared/types';
+import { TOTAL_ROUNDS } from '../../shared/data/rounds';
 
 export const HostResultsPlaceholderPage: React.FC = () => {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ export const HostResultsPlaceholderPage: React.FC = () => {
                 {loading 
                   ? 'Checking active sessions...' 
                   : activeSession 
-                    ? `Session ${activeSession.game_code} &bull; Round ${activeSession.current_round || 1} of 7`
+                    ? `Session ${activeSession.game_code} &bull; Round ${activeSession.current_round || 1} of ${TOTAL_ROUNDS}`
                     : 'No active session currently running'}
               </span>
             </div>

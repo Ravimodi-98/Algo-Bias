@@ -1,4 +1,6 @@
 export const ROUND_TIME_LIMIT = 30; // 30 seconds classroom-friendly countdown
+export const TOTAL_ROUNDS = 5; // Exactly 5 candidate selection decision rounds
+export const TOTAL_CANDIDATE_ROUNDS = 5; // Semantic alias for candidate selection phase
 
 export interface Candidate {
   id: 'A' | 'B';
@@ -27,15 +29,15 @@ export interface RoundData {
 }
 
 export const ROUNDS_DATA: Record<number, RoundData> = {
-  // Round 1 — Relevant Skills: Focus on skills, experience, projects
+  // Round 1 — Skills: Relevant technical skills, experience, projects
   1: {
     id: 'round-1',
     roundNumber: 1,
-    title: 'Relevant Skills',
+    title: 'Skills',
     role: 'Junior Developer',
     context: 'Evaluate candidates on technical capabilities directly related to this role.',
     decisionQuestion: 'Which candidate do your algorithmic criteria select?',
-    educationalPurpose: 'Establish that clear, role-relevant skills provide direct evidence for technical decisions.',
+    educationalPurpose: 'Show that clearly relevant information can help a decision.',
     candidateA: {
       id: 'A',
       name: 'Aarav',
@@ -54,15 +56,15 @@ export const ROUNDS_DATA: Record<number, RoundData> = {
     }
   },
 
-  // Round 2 — Educational Background: Show Skills, Experience, Education (Institution)
+  // Round 2 — Education: Show Skills, Experience, Education (Institution)
   2: {
     id: 'round-2',
     roundNumber: 2,
-    title: 'Educational Background',
+    title: 'Education',
     role: 'Cloud Engineer',
     context: 'Both candidates demonstrate comparable cloud experience with different colleges.',
     decisionQuestion: 'Which candidate do your algorithmic criteria select?',
-    educationalPurpose: 'Explore how educational institution background can influence decision-makers.',
+    educationalPurpose: 'Show how educational information can influence a decision and introduce the idea of deciding which information is actually relevant.',
     candidateA: {
       id: 'A',
       name: 'Maya',
@@ -89,7 +91,7 @@ export const ROUNDS_DATA: Record<number, RoundData> = {
     role: 'Reliability Specialist',
     context: 'Both candidates possess strong reliability skills, differing in geographic city.',
     decisionQuestion: 'Which candidate do your algorithmic criteria select?',
-    educationalPurpose: 'Demonstrate how extraneous geographic location can subtly influence decisions.',
+    educationalPurpose: 'Demonstrate that information can influence decisions even when its relevance to the decision is questionable.',
     candidateA: {
       id: 'A',
       name: 'Kabir',
@@ -108,42 +110,15 @@ export const ROUNDS_DATA: Record<number, RoundData> = {
     }
   },
 
-  // Round 4 — Name: Show Skills, Experience, Candidate Name
+  // Round 4 — Name / Presentation: Candidate identity & presentation layout details
   4: {
     id: 'round-4',
     roundNumber: 4,
-    title: 'Candidate Name',
-    role: 'Data Engineer',
-    context: 'Both candidates present identical technical credentials, differing only by name.',
-    decisionQuestion: 'Which candidate do your algorithmic criteria select?',
-    educationalPurpose: 'Illustrate how personal identifiers can subconsciously trigger human judgment.',
-    candidateA: {
-      id: 'A',
-      name: 'Aarav',
-      role: 'Data Engineer',
-      skills: ['SQL', 'Python', 'Spark', 'PostgreSQL'],
-      experience: '1.5 years building data intake pipelines',
-      projects: 'Pipeline Sync Engine'
-    },
-    candidateB: {
-      id: 'B',
-      name: 'Maya',
-      role: 'Data Engineer',
-      skills: ['SQL', 'Python', 'Spark', 'PostgreSQL'],
-      experience: '1.5 years building data intake pipelines',
-      projects: 'Pipeline Sync Engine'
-    }
-  },
-
-  // Round 5 — Presentation Style: Show Skills, Experience, Presentation Style
-  5: {
-    id: 'round-5',
-    roundNumber: 5,
-    title: 'Presentation Style',
+    title: 'Name & Presentation',
     role: 'API Developer',
-    context: 'Both candidates have similar qualifications, but choose different resume formats.',
+    context: 'Both candidates have similar qualifications, but choose different resume formats and presentation styles.',
     decisionQuestion: 'Which candidate do your algorithmic criteria select?',
-    educationalPurpose: 'Explore whether bulleted technical facts vs conversational narrative influences perception.',
+    educationalPurpose: 'Explore how candidate identity and presentation details subtly influence perception.',
     candidateA: {
       id: 'A',
       name: 'Nisha',
@@ -160,50 +135,21 @@ export const ROUNDS_DATA: Record<number, RoundData> = {
       role: 'API Developer',
       skills: ['Node.js', 'REST APIs', 'PostgreSQL', 'Git'],
       experience: '1.5 years backend integration',
-      projects: 'Passionate about connecting partner APIs and building reliable user endpoints.',
+      projects: 'Connecting partner APIs and building reliable user endpoints.',
       presentationStyle: 'narrative',
       details: 'Format: Conversational story narrative'
     }
   },
 
-  // Round 6 — Relevant vs Irrelevant: Show Skills, Assessment, and 1 Extraneous Fact
-  6: {
-    id: 'round-6',
-    roundNumber: 6,
-    title: 'Relevant vs Irrelevant Info',
-    role: 'Backend Developer',
-    context: 'Technical evaluations are presented alongside extraneous personal hobbies.',
-    decisionQuestion: 'Which candidate do your algorithmic criteria select?',
-    educationalPurpose: 'Challenge the decision-maker to isolate role-relevant metrics from irrelevant trivia.',
-    candidateA: {
-      id: 'A',
-      name: 'Rohan',
-      role: 'Backend Developer',
-      skills: ['Go', 'PostgreSQL', 'Redis', 'Docker'],
-      experience: '2 years building microservices',
-      highlightMetric: 'Assessment: 91%',
-      details: 'Extraneous: Competitive chess player'
-    },
-    candidateB: {
-      id: 'B',
-      name: 'Kabir',
-      role: 'Backend Developer',
-      skills: ['Java', 'Spring Boot', 'MySQL', 'Docker'],
-      experience: '2 years building microservices',
-      highlightMetric: 'Assessment: 92%',
-      details: 'Extraneous: Marathon runner'
-    }
-  },
-
-  // Round 7 — Final Decision: Comprehensive multi-factor candidate comparison
-  7: {
-    id: 'round-7',
-    roundNumber: 7,
+  // Round 5 — Final Decision: Comprehensive multi-factor candidate comparison
+  5: {
+    id: 'round-5',
+    roundNumber: 5,
     title: 'Final Decision',
     role: 'Full Stack Developer',
     context: 'Final multi-factor candidate comparison combining skills, projects, and assessment scores.',
     decisionQuestion: 'Which candidate do your algorithmic criteria select?',
-    educationalPurpose: 'Synthesizes multiple candidate dimensions to prepare players for the Bias Reveal.',
+    educationalPurpose: 'Synthesizes multiple candidate dimensions for the final decision, leading directly into the Bias Reveal.',
     candidateA: {
       id: 'A',
       name: 'Dev',
@@ -226,6 +172,6 @@ export const ROUNDS_DATA: Record<number, RoundData> = {
 };
 
 export const getRoundData = (roundNumber: number): RoundData => {
-  const normalized = Math.max(1, Math.min(roundNumber, 7));
+  const normalized = Math.max(1, Math.min(roundNumber, TOTAL_ROUNDS));
   return ROUNDS_DATA[normalized] || ROUNDS_DATA[1];
 };

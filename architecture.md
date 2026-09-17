@@ -219,7 +219,7 @@ Suggested tables:
 - host_id (VARCHAR)
 - game_code (VARCHAR 6)
 - status ('waiting' | 'active' | 'completed')
-- current_round (INTEGER 1..7)
+- current_round (INTEGER 1..5)
 - round_started_at (TIMESTAMPTZ)
 - results_visible (BOOLEAN)
 - game_stage ('round' | 'reveal' | 'fairness' | 'completed')
@@ -532,7 +532,7 @@ Host Game View <----------------------+-----(Realtime UPDATE)---> Transition to 
    │
    ▼
 [Round Screen]
-   ├── GameProgressBar (Round X / 7, non-color accessible dots & track)
+   ├── GameProgressBar (Round X / 5, non-color accessible dots & track)
    ├── Candidate Comparison (CandidateCard A vs B)
    └── DecisionPanel (Selection A/B + Confirmation)
    │

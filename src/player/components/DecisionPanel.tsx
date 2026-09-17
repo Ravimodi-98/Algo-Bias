@@ -3,6 +3,7 @@ import { CheckCircle2, Clock, Send, ShieldCheck, AlertTriangle, Sparkles } from 
 import { Button } from '../../shared/components/Button';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
+import { TOTAL_ROUNDS } from '../../shared/data/rounds';
 
 export interface DecisionPanelProps {
   selectedCandidate: 'A' | 'B' | null;
@@ -23,7 +24,7 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
   isTimedOut = false,
   currentRound
 }) => {
-  const isFinalRound = currentRound >= 7;
+  const isFinalRound = currentRound >= TOTAL_ROUNDS;
 
   // 1. Timeout State (No selection before timer expired)
   if (isTimedOut && !hasSubmitted) {
@@ -82,7 +83,7 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             maxWidth: '380px'
           }}>
             {isFinalRound
-              ? 'All 7 rounds completed. Standing by for presenter to launch the final results and analysis.'
+              ? `All ${TOTAL_ROUNDS} rounds completed. Standing by for presenter to launch the final results and analysis.`
               : `Standing by for presenter progression. Your device will automatically load Round ${currentRound + 1} when initiated.`}
           </div>
         </div>
@@ -169,7 +170,7 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
             maxWidth: '380px'
           }}>
             {isFinalRound
-              ? 'All 7 rounds completed. Standing by for presenter to initiate the collective results and algorithmic analysis.'
+              ? `All ${TOTAL_ROUNDS} rounds completed. Standing by for presenter to initiate the collective results and algorithmic analysis.`
               : `Standing by for presenter progression. Your device will automatically load Round ${currentRound + 1} when initiated.`}
           </div>
 

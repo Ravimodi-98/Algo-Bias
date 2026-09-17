@@ -1,5 +1,6 @@
 import { supabase } from '../supabase/client';
 import { generateGameCode } from '../../shared/utils/idGenerator';
+import { TOTAL_ROUNDS } from '../../shared/data/rounds';
 import type { 
   DbGameSession, 
   DbPlayer, 
@@ -859,7 +860,7 @@ export const gameService = {
         .eq('session_id', sessionId);
 
       const result: Record<number, RoundAggregate> = {};
-      for (let r = 1; r <= 7; r++) {
+      for (let r = 1; r <= TOTAL_ROUNDS; r++) {
         result[r] = {
           roundNumber: r,
           totalResponses: 0,
@@ -1104,7 +1105,7 @@ export const gameService = {
     const summary: SessionFinalSummary = {
       totalPlayers: 0,
       completedPlayers: 0,
-      totalDecisionRounds: 7,
+      totalDecisionRounds: TOTAL_ROUNDS,
       fairnessParticipants: 0,
       factorsCount: {},
       totalVotesLogged: 0

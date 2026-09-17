@@ -8,6 +8,7 @@ import { LoadingState } from '../../shared/components/LoadingState';
 import { gameService } from '../../services/game/gameService';
 import { storage } from '../../shared/utils/storage';
 import type { DbGameSession, DbPlayer } from '../../shared/types';
+import { TOTAL_ROUNDS } from '../../shared/data/rounds';
 
 export const HostGamePlaceholderPage: React.FC = () => {
   const navigate = useNavigate();
@@ -130,7 +131,7 @@ export const HostGamePlaceholderPage: React.FC = () => {
             <Layers size={16} color="var(--color-warning)" />
           </div>
           <span className="font-mono" style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-warning)' }}>
-            {session.current_round || 1} / 7
+            {session.current_round || 1} / {TOTAL_ROUNDS}
           </span>
         </Card>
       </div>

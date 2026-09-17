@@ -4,7 +4,7 @@ import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
 import type { RoundAggregate } from '../../shared/types';
-import type { RoundData } from '../../shared/data/rounds';
+import { type RoundData, TOTAL_ROUNDS } from '../../shared/data/rounds';
 
 interface AggregateResultsViewProps {
   aggregate: RoundAggregate;
@@ -52,7 +52,7 @@ export const AggregateResultsView: React.FC<AggregateResultsViewProps> = ({
                 RESULTS CONCEALED ON PROJECTOR
               </Badge>
               <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                ROUND {roundData.roundNumber} OF 7 &bull; {roundData.role}
+                ROUND {roundData.roundNumber} OF {TOTAL_ROUNDS} &bull; {roundData.role}
               </span>
             </div>
 
@@ -183,7 +183,7 @@ export const AggregateResultsView: React.FC<AggregateResultsViewProps> = ({
                 )}
               </Badge>
               <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                ROUND {roundData.roundNumber} OF 7
+                ROUND {roundData.roundNumber} OF {TOTAL_ROUNDS}
               </span>
             </div>
 

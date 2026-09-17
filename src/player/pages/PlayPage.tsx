@@ -24,7 +24,7 @@ import { LoadingState } from '../../shared/components/LoadingState';
 import { storage } from '../../shared/utils/storage';
 import { gameService } from '../../services/game/gameService';
 import { supabase } from '../../services/supabase/client';
-import { getRoundData, ROUND_TIME_LIMIT } from '../../shared/data/rounds';
+import { getRoundData, ROUND_TIME_LIMIT, TOTAL_ROUNDS } from '../../shared/data/rounds';
 import type { 
   PlayerSession, 
   DbGameSession, 
@@ -101,8 +101,8 @@ export const PlayPage: React.FC = () => {
       return;
     }
 
-    // Authoritative current round (clamped 1 to 7)
-    const roundNum = Math.max(1, Math.min(game.current_round || 1, 7));
+    // Authoritative current round (clamped 1 to TOTAL_ROUNDS)
+    const roundNum = Math.max(1, Math.min(game.current_round || 1, TOTAL_ROUNDS));
     setCurrentRound(roundNum);
 
     // Check results visibility
@@ -113,7 +113,7 @@ export const PlayPage: React.FC = () => {
       setResultsVisible(false);
     }
 
-    if (game.game_stage === 'reveal' || (game.current_round && game.current_round >= 7)) {
+    if (game.game_stage === 'reveal' || (game.current_round && game.current_round >= TOTAL_ROUNDS)) {
       try {
         const aggs = await gameService.getSessionAllRoundsAggregates(game.id);
         setAllAggregates(aggs);
@@ -250,7 +250,7 @@ export const PlayPage: React.FC = () => {
 
             // Round advancement initiated by host
             if (updated.status === 'active' && updated.current_round !== currentRound) {
-              const nextRound = Math.max(1, Math.min(updated.current_round || 1, 7));
+              const nextRound = Math.max(1, Math.min(updated.current_round || 1, TOTAL_ROUNDS));
               setCurrentRound(nextRound);
               setIsTimedOut(false);
               setResultsVisible(Boolean(updated.results_visible));
@@ -462,7 +462,7 @@ export const PlayPage: React.FC = () => {
        gameSession?.status !== 'completed' && (
         <GameProgressBar 
           currentRound={currentRound} 
-          totalRounds={7} 
+          totalRounds={TOTAL_ROUNDS} 
           gameCode={gameSession?.game_code || session?.gameCode} 
         />
       )}

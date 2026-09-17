@@ -98,7 +98,7 @@ Every screen should have:
 2. Context explanation
 3. Main interaction (Candidate cards comparison & decision buttons)
 4. Supporting information / details
-5. Progress indicator (Round X / 7)
+5. Progress indicator (Round X / 5)
 
 The primary action must be visually dominant.
 
@@ -154,7 +154,7 @@ Mobile is the primary player experience.
 Recommended layout:
 
 ```text
-ROUND 3 / 7
+ROUND 3 / 5
 ━━━━━━━━━━━━━━━━━━━
 
 Scenario & Question
@@ -246,7 +246,7 @@ The Bias Reveal transitions the classroom from gameplay to theoretical comprehen
   - Distinct purple/violet accent gradient (`#7C3AED` to `#6D28D9`) to denote the educational phase transition.
 - **Hero Presentation Elements (Projector)**:
   - Step 1: Dramatic high-contrast "WAIT." hero text (5rem) with subtle scale entrance animation.
-  - Step 2: Grid of all 7 completed rounds with classroom percentage split bars and delta callouts.
+  - Step 2: Grid of all 5 completed rounds with classroom percentage split bars and delta callouts.
   - Step 3: Clear side-by-side comparison tables highlighting "Identical Qualifications" vs "Contextual Variation".
   - Step 4: Two-column classification cards (Relevant in Emerald `#059669` vs Less Relevant in Slate `#64748B`).
   - Step 5: Large projector prompt card ("DID THE INFORMATION INFLUENCE THE DECISION?") with presenter discussion cues.

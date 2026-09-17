@@ -18,6 +18,7 @@ import {
   FINAL_DISCUSSION_PROMPT 
 } from '../../shared/data/finalSteps';
 import { CANDIDATE_FACTORS } from '../../shared/data/fairnessSteps';
+import { TOTAL_ROUNDS } from '../../shared/data/rounds';
 import type { 
   FinalStepNumber, 
   SessionFinalSummary, 
@@ -49,7 +50,7 @@ export const HostFinalView: React.FC<HostFinalViewProps> = ({
   const sessionSummary: SessionFinalSummary = propSummary || propSessionSummary || {
     totalPlayers: 0,
     completedPlayers: 0,
-    totalDecisionRounds: 7,
+    totalDecisionRounds: TOTAL_ROUNDS,
     fairnessParticipants: 0,
     factorsCount: {},
     totalVotesLogged: 0
@@ -170,7 +171,7 @@ export const HostFinalView: React.FC<HostFinalViewProps> = ({
                     Final Classroom Results
                   </h1>
                   <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', margin: '0.35rem 0 0 0' }}>
-                    Descriptive metrics derived directly from actual student decisions across all 7 rounds and the Make It Fair challenge.
+                    Descriptive metrics derived directly from actual student decisions across all {TOTAL_ROUNDS} rounds and the Make It Fair challenge.
                   </p>
                 </div>
               </div>
@@ -211,7 +212,7 @@ export const HostFinalView: React.FC<HostFinalViewProps> = ({
                     DECISION ROUNDS
                   </span>
                   <div className="font-mono text-purple" style={{ fontSize: '2.75rem', fontWeight: 900, margin: '0.2rem 0' }}>
-                    7
+                    {sessionSummary.totalDecisionRounds || TOTAL_ROUNDS}
                   </div>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                     {sessionSummary.totalVotesLogged} total votes logged

@@ -233,7 +233,7 @@ or
 
 # 6.5 Multiple Rounds
 
-The game should contain approximately 5–7 rounds.
+The game contains exactly 5 decision rounds.
 
 Different rounds demonstrate different decision influences.
 

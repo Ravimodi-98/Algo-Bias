@@ -28,7 +28,7 @@ import { HostFinalView } from '../components/HostFinalView';
 import { gameService } from '../../services/game/gameService';
 import { storage } from '../../shared/utils/storage';
 import { supabase } from '../../services/supabase/client';
-import { getRoundData, ROUND_TIME_LIMIT } from '../../shared/data/rounds';
+import { getRoundData, ROUND_TIME_LIMIT, TOTAL_ROUNDS } from '../../shared/data/rounds';
 import { FAIRNESS_STEPS_META } from '../../shared/data/fairnessSteps';
 import type { 
   DbGameSession, 
@@ -134,7 +134,7 @@ export const HostGamePage: React.FC = () => {
       const playerList = await gameService.getSessionPlayers(active.id);
       setPlayers(playerList);
 
-      const roundNum = Math.max(1, Math.min(active.current_round || 1, 7));
+      const roundNum = Math.max(1, Math.min(active.current_round || 1, TOTAL_ROUNDS));
       const roundResponses = await gameService.getSessionRoundResponses(active.id, roundNum);
       setResponses(roundResponses);
       setAggregate(computeAggregate(roundNum, roundResponses));
@@ -172,7 +172,7 @@ export const HostGamePage: React.FC = () => {
     loadActiveGame();
   }, [loadActiveGame]);
 
-  const currentRound = Math.max(1, Math.min(session?.current_round || 1, 7));
+  const currentRound = Math.max(1, Math.min(session?.current_round || 1, TOTAL_ROUNDS));
   const resultsVisible = Boolean(session?.results_visible);
 
   // Authoritative Countdown Timer Ticker
@@ -365,7 +365,7 @@ export const HostGamePage: React.FC = () => {
     setIsActionInProgress(true);
 
     try {
-      const nextRoundNumber = Math.min((session.current_round || 1) + 1, 7);
+      const nextRoundNumber = Math.min((session.current_round || 1) + 1, TOTAL_ROUNDS);
       const result = await gameService.updateGameState(
         session.id, 
         hostId, 
@@ -614,7 +614,7 @@ export const HostGamePage: React.FC = () => {
             LIVE EXPERIMENT IN PROGRESS
           </Badge>
           <span style={{ fontSize: '1rem', color: 'var(--text-primary)', fontWeight: 800 }}>
-            ROUND {currentRound} OF 7 &bull; PRESENTER CONTROL CENTER
+            ROUND {currentRound} OF {TOTAL_ROUNDS} &bull; PRESENTER CONTROL CENTER
           </span>
         </div>
 
@@ -911,8 +911,8 @@ export const HostGamePage: React.FC = () => {
                   Classroom Presentation Actions
                 </h2>
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
-                  {currentRound >= 7
-                    ? 'All 7 rounds completed! Click START BIAS REVEAL to transition the classroom into the educational explanation.'
+                  {currentRound >= TOTAL_ROUNDS
+                    ? `All ${TOTAL_ROUNDS} rounds completed! Click START BIAS REVEAL to transition the classroom into the educational explanation.`
                     : 'Control the classroom presentation flow. Click SHOW RESULTS to broadcast collective results to students, then click NEXT ROUND when ready.'}
                 </p>
               </div>
@@ -933,7 +933,7 @@ export const HostGamePage: React.FC = () => {
                     CURRENT ROUND STATE
                   </span>
                   <span className="font-mono text-cyan" style={{ fontSize: '1.15rem', fontWeight: 800 }}>
-                    Round {currentRound} of 7 &bull; {resultsVisible ? 'Results Revealed to Classroom' : 'Results Concealed'}
+                    Round {currentRound} of {TOTAL_ROUNDS} &bull; {resultsVisible ? 'Results Revealed to Classroom' : 'Results Concealed'}
                   </span>
                 </div>
 
@@ -958,7 +958,7 @@ export const HostGamePage: React.FC = () => {
                   </Button>
 
                   {/* Button: Next Round OR Start Bias Reveal */}
-                  {currentRound >= 7 ? (
+                  {currentRound >= TOTAL_ROUNDS ? (
                     <Button
                       variant="primary"
                       size="normal"
@@ -987,7 +987,7 @@ export const HostGamePage: React.FC = () => {
                       >
                         {isActionInProgress 
                           ? 'ADVANCING...' 
-                          : `NEXT ROUND (${currentRound + 1} / 7)`}
+                          : `NEXT ROUND (${currentRound + 1} / ${TOTAL_ROUNDS})`}
                       </Button>
 
                       <Button

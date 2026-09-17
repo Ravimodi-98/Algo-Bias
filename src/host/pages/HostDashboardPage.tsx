@@ -23,6 +23,7 @@ import { gameService } from '../../services/game/gameService';
 import { storage } from '../../shared/utils/storage';
 import { supabase } from '../../services/supabase/client';
 import type { DbGameSession, DbPlayer } from '../../shared/types';
+import { TOTAL_ROUNDS } from '../../shared/data/rounds';
 
 export const HostDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -440,7 +441,7 @@ export const HostDashboardPage: React.FC = () => {
                 <span className="font-mono" style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                   {currentRound === 0 ? 'Not Started' : `Round ${currentRound}`}
                 </span>
-                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>/ 7 total</span>
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>/ {TOTAL_ROUNDS} total</span>
               </div>
             </div>
 

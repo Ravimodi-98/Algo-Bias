@@ -163,7 +163,7 @@ export const PlayerFinalView: React.FC<PlayerFinalViewProps> = ({
                 The Decision: Reflection
               </h2>
               <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
-                You have completed all 7 simulation rounds and built a custom decision model in Make It Fair.
+                You have completed all 5 simulation rounds and built a custom decision model in Make It Fair.
               </p>
             </div>
 

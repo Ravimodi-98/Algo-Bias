@@ -92,19 +92,17 @@ Implement the educational decision scenarios.
 
 - [x] Create Candidate data model & types
 - [x] Create Central Round configuration (`rounds.ts`)
-- [x] Round 1: Clearly relevant skill differences (Aarav vs Rohan)
-- [x] Round 2: Same qualifications + different college background (Maya vs Ishita)
-- [x] Round 3: Same qualifications + different location (Kabir [Ahmedabad] vs Dev [Pune])
-- [x] Round 4: Same qualifications + different names (Aarav vs Maya)
-- [x] Round 5: Different resume presentation (Nisha [Structured] vs Anaya [Narrative])
-- [x] Round 6: Relevant vs irrelevant information mixed together (Rohan vs Kabir)
-- [x] Round 7: Final decision scenario (Dev vs Ishita)
+- [x] Round 1: Core Technical Skills (Aarav [Python/React] vs Rohan [Java/Linux])
+- [x] Round 2: Institutional Background / College Pedigree (Maya [Apex Tech] vs Ishita [Metro Poly])
+- [x] Round 3: Geographic Location (Kabir [Ahmedabad] vs Dev [Pune])
+- [x] Round 4: Name / Presentation Style (Nisha [Structured] vs Anaya [Narrative])
+- [x] Round 5: Final Multi-factor Decision Comparison (Dev vs Ishita)
 - [x] Transition entire application to permanent Light Theme
 - [x] Mobile-friendly VS layout & neutral non-shaming decision feedback
 
 ## Result
 
-Players experience how presented information can influence decisions across 7 structured educational scenarios in a light futuristic AI control room interface.
+Players experience how presented information can influence decisions across 5 structured educational scenarios in a light futuristic AI control room interface.
 
 
 ---

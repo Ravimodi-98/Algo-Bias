@@ -96,7 +96,7 @@ Case 10 Complete: 6-step synchronized final results view, host presentation mode
 - [x] Player `/play` gameplay route built
 - [x] Permanent Light Theme (Futuristic AI Control Room — Light Edition)
 - [x] Candidate data architecture (`src/shared/data/rounds.ts`)
-- [x] Exactly 7 educational decision rounds
+- [x] Exactly 5 educational decision rounds (Skills, Education, Location, Presentation, Final Decision)
 - [x] Compact, scannable `CandidateCard` component
 - [x] Synchronized `CountdownTimer` with authoritative timestamp
 - [x] Supabase `responses` table with duplicate protection
@@ -140,7 +140,7 @@ Case 10 Complete: 6-step synchronized final results view, host presentation mode
 # 9. Latest Git Commit
 
 Commit:
-`feat: add make it fair challenge`
+`refactor: reduce candidate decision rounds from seven to five`
 
 Date:
 2026-09-17

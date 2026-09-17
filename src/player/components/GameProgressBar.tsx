@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { TOTAL_ROUNDS } from '../../shared/data/rounds';
 
 export interface GameProgressBarProps {
   currentRound: number;
@@ -9,7 +10,7 @@ export interface GameProgressBarProps {
 
 export const GameProgressBar: React.FC<GameProgressBarProps> = ({
   currentRound,
-  totalRounds = 7,
+  totalRounds = TOTAL_ROUNDS,
   gameCode
 }) => {
   const rounds = Array.from({ length: totalRounds }, (_, i) => i + 1);
