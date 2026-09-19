@@ -59,6 +59,7 @@ export const HostGamePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isActionInProgress, setIsActionInProgress] = useState<boolean>(false);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const [showEndGameModal, setShowEndGameModal] = useState<boolean>(false);
 
   const [fairnessAggregates, setFairnessAggregates] = useState<FairnessClassroomAggregates | null>(null);
   const [fairnessReadyCount, setFairnessReadyCount] = useState<number>(0);
@@ -1009,12 +1010,12 @@ export const HostGamePage: React.FC = () => {
                     </>
                   )}
 
-                  {/* Button: End Game */}
+                  {/* Button: End Game with Confirmation Modal */}
                   <Button
                     variant="danger"
                     size="normal"
                     icon={<StopCircle size={16} />}
-                    onClick={handleEndGame}
+                    onClick={() => setShowEndGameModal(true)}
                     disabled={isActionInProgress}
                     id="btn-host-end-game"
                     style={{ minHeight: '44px' }}
@@ -1033,6 +1034,81 @@ export const HostGamePage: React.FC = () => {
             </div>
           </Card>
         </>
+      )}
+
+      {/* Confirmation Modal for Accidental End Game Prevention */}
+      {showEndGameModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(15, 23, 42, 0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: 'var(--radius-xl)',
+            padding: '2rem',
+            maxWidth: '460px',
+            width: '100%',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.25rem',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              width: '54px',
+              height: '54px',
+              borderRadius: '50%',
+              background: 'rgba(239, 68, 68, 0.1)',
+              color: 'var(--color-danger)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto'
+            }}>
+              <AlertTriangle size={28} />
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
+                END SIMULATION EARLY?
+              </h3>
+              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', margin: '0.5rem 0 0 0', lineHeight: 1.5 }}>
+                Are you sure you want to end this active session early? All active candidate rounds will be closed and student screens will lock.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <Button
+                variant="secondary"
+                size="normal"
+                onClick={() => setShowEndGameModal(false)}
+                disabled={isActionInProgress}
+              >
+                CANCEL
+              </Button>
+              <Button
+                variant="danger"
+                size="normal"
+                icon={<StopCircle size={16} />}
+                onClick={() => {
+                  setShowEndGameModal(false);
+                  handleEndGame();
+                }}
+                disabled={isActionInProgress}
+                id="btn-confirm-end-simulation"
+              >
+                {isActionInProgress ? 'ENDING...' : 'CONFIRM END GAME'}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

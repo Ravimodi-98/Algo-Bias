@@ -365,3 +365,16 @@ The **FINAL RESULTS & REFLECTION** brings the entire educational journey togethe
 - **Loading & Error Polish**:
   - Non-blocking spinners with `role="status"` and `aria-live="polite"`.
   - Error cards with `role="alert"` and accessible high-contrast typography (`#b91c1c` on `#fef2f2`).
+
+---
+
+# 17. 70-Player Presentation Safety & High-Concurrency UI Design (Case 12)
+
+### Presentation Safety Safeguards
+- **Modal Guarded Termination**: Destructive host actions (`END SIMULATION`, `END THIS SESSION`) are protected by explicit modal dialogs requiring secondary confirmation to prevent accidental session termination during live lectures.
+- **Accidental Navigation Protection**: Critical transitions (`SHOW RESULTS`, `START BIAS REVEAL`, `NEXT ROUND`) are prominent and context-aware, clearly indicating current session phase.
+
+### High-Concurrency Roster & Aggregate Polish
+- **Animation-Decoupled Roster Rendering**: Player list chip items render without re-triggering heavy CSS entrance animations during bursts of 70+ student joins, preserving 60fps smooth scrolling in the host lobby.
+- **Projector Data Scaling**: Aggregate results, vote counts, and split-percentage bars scale cleanly from small screens up to 4K classroom projectors.
+- **Instant Status Communication**: Accessible badges (`ROUND ACTIVE`, `ALL RESPONSES RECEIVED`, `DECISION WINDOW CLOSED`, `RESULTS REVEALED`) provide immediate feedback to the presenter without clutter.

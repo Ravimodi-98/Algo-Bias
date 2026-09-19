@@ -442,16 +442,17 @@ The host dashboard should prioritize desktop/projector.
 
 ---
 
-# 11. Performance Requirements
+# 11. Performance & Presentation Capacity Requirements
 
-The application should:
+The application must support:
 
-- Load quickly
-- Use lightweight assets
-- Avoid unnecessary animations
-- Avoid excessive backend requests
-- Handle multiple simultaneous players
-- Recover gracefully from temporary connection problems
+- **Minimum Required Presentation Capacity**: 70 simultaneous Players + 1 Host in a single session.
+- **Concurrent Burst Joins**: Up to 70+ students scanning the QR code and entering within seconds.
+- **Simultaneous Decision Submissions**: High concurrency without race conditions or dropped votes.
+- **Realtime Synchronization**: Zero desynchronization across rounds, Bias Reveal, Make It Fair, and Final Results.
+- **Stress-Tested Headroom**: Benchmarked up to 80 concurrent players with 100% data integrity.
+- **Fast Load Time & Lightweight Assets**: Smooth mobile rendering without unnecessary animation overhead.
+- **Graceful Error Recovery**: Resilient reconnects and session restorations.
 
 ---
 

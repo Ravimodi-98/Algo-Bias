@@ -348,7 +348,20 @@ A feature is not considered complete until:
 
 ---
 
-# 21. Golden Rule
+# 21. Presentation Capacity & Safety Rule
+
+The application must support a minimum classroom presentation capacity of:
+**70 simultaneous Players + 1 Host**
+
+Rules:
+1. High-concurrency joins and submissions must never drop data, duplicate records, or corrupt sessions.
+2. Destructive host actions (such as ending a game or closing a session) must always require confirmation.
+3. Live presentation flow must not be blocked if individual students disconnect or fail to vote.
+4. Roster and aggregate views must remain responsive without heavy per-player animation overhead.
+
+---
+
+# 22. Golden Rule
 
 Do not build technology for the sake of technology.
 

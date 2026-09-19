@@ -426,7 +426,6 @@ export const HostLobbyPage: React.FC = () => {
                 {players.map((p, index) => (
                   <div
                     key={p.id}
-                    className="animate-fade-in"
                     style={{
                       background: 'var(--bg-surface-secondary)',
                       padding: '0.6rem 0.75rem',
