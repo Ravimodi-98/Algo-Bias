@@ -199,8 +199,22 @@ NONE. Application is fully verified and presentation-ready for the live classroo
 Case 12 completed.
 All 12 Cases of THE DECISION are fully implemented, verified, and presentation-ready.
 
+Bug fix completed:
+
+Make It Fair Step 1 now starts with all information cards unselected.
+
+Students independently select the information they consider relevant.
+
+No predefined selections are applied.
+
+Selections are stored from the student's actual interaction.
+
+Player selections remain independent.
+
+Existing Make It Fair functionality remains intact.
+
 Commit:
-`feat: finalize production readiness and 70 player capacity`
+`fix: make make-it-fair criteria student-selected`
 
 Date:
 2026-09-20

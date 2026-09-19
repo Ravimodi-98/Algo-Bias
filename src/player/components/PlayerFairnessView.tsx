@@ -33,7 +33,7 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
 }) => {
   // Local state for interactive choices
   const [isReady, setIsReady] = useState<boolean>(false);
-  const [selectedFactors, setSelectedFactors] = useState<string[]>(['skills', 'experience', 'projects']);
+  const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
   const [priorities, setPriorities] = useState<Record<string, PriorityLevel>>(DEFAULT_PRIORITIES);
   const [selectedCandidate, setSelectedCandidate] = useState<'A' | 'B' | null>(null);
   const [fairnessTestAnswer, setFairnessTestAnswer] = useState<'YES' | 'NO' | 'DEPENDS' | null>(null);
@@ -238,6 +238,9 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
                   <button
                     key={f.id}
                     type="button"
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    aria-label={`${f.label}: ${isSelected ? 'Selected' : 'Not selected'}`}
                     onClick={() => toggleFactor(f.id)}
                     disabled={hasSubmittedCurrentStep}
                     style={{
