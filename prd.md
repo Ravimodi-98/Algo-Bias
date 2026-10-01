@@ -221,13 +221,11 @@ Some information may be relevant.
 
 Some information may be irrelevant.
 
-Player selects:
+Candidate selection happens directly on the candidate cards using the single-choice control (tapping the candidate card or radio control).
 
-"SELECT CANDIDATE A"
+A single confirmation action ("CONFIRM & SELECT CANDIDATE A/B" or "CONFIRM SELECTION") confirms the student's choice before submission.
 
-or
-
-"SELECT CANDIDATE B"
+There is no separate or redundant bottom candidate-selection panel.
 
 ---
 

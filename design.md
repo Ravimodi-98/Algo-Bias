@@ -151,6 +151,12 @@ The timer provides synchronized decision pacing for classroom gameplay:
 
 Mobile is the primary player experience.
 
+Candidate cards contain the primary selection control. Students select Candidate A or Candidate B directly from the cards (tapping the card or the radio check indicator).
+
+A single confirmation action is displayed after selection.
+
+No secondary "YOUR SELECTION / OPTION 1 / OPTION 2" panel is displayed.
+
 Recommended layout:
 
 ```text
@@ -159,23 +165,18 @@ ROUND 3 / 5
 
 Scenario & Question
 
-Candidate A
-[card]
+Candidate A                     ◉
+[card with inline radio/check]
 
 VS
 
-Candidate B
-[card]
+Candidate B                     ○
+[card with inline radio/check]
 
-WHO WOULD YOU SELECT?
-
-[ SELECT CANDIDATE A ]
-[ SELECT CANDIDATE B ]
-
-[ CONFIRM & SELECT CANDIDATE ... ]
+[ CONFIRM & SELECT CANDIDATE A ]
 ```
 
-Decision controls feature minimum 44px touch targets with instant visual feedback upon selection.
+Decision controls feature minimum 44px touch targets with instant visual feedback upon selection, preserving the light theme and mobile-first design.
 
 ---
 

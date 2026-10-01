@@ -180,6 +180,11 @@ Use visual hierarchy.
 
 Important actions should be obvious.
 
+Candidate selection must use one clear single-choice interaction.
+Do not duplicate the same selection mechanism in multiple UI components.
+
+The candidate selection game consists of exactly 5 decision rounds.
+
 ---
 
 # 12. Accessibility Rules

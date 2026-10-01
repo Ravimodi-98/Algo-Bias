@@ -591,7 +591,6 @@ export const PlayPage: React.FC = () => {
           {/* Decision Area & Submitted/Timeout Waiting State */}
           <DecisionPanel
             selectedCandidate={selectedCandidate}
-            onSelectCandidate={(id) => !hasSubmitted && !isTimedOut && setSelectedCandidate(id)}
             onSubmitDecision={handleSubmitDecision}
             isSubmitting={isSubmitting}
             hasSubmitted={hasSubmitted}

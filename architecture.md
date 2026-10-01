@@ -533,8 +533,8 @@ Host Game View <----------------------+-----(Realtime UPDATE)---> Transition to 
    ▼
 [Round Screen]
    ├── GameProgressBar (Round X / 5, non-color accessible dots & track)
-   ├── Candidate Comparison (CandidateCard A vs B)
-   └── DecisionPanel (Selection A/B + Confirmation)
+   ├── Candidate Comparison (CandidateCard A vs B with direct single-choice selection)
+   └── DecisionPanel (Single Confirmation & Submission action)
    │
    ▼ (Player confirms selection)
 [Decision Submitted Waiting State] 
@@ -546,9 +546,14 @@ Host Game View <----------------------+-----(Realtime UPDATE)---> Transition to 
 
 ## 16.2 Candidate Evaluation Framework
 - **Structured Representation**: Candidate data conforms to a typed contract (`CandidateProfile`): `id`, `name`, `role`, `experience`, `education`, `skills[]`, `projects`, and `highlightMetric`.
-- **Modular Shell**: Designed so Case 5 can plug in the 5–7 educational bias scenarios without modifying UI or state management contracts.
+- **Modular Shell**: Designed so candidate evaluation scenarios plug in across the 5 educational rounds without modifying UI or state management contracts.
 
-## 16.3 Authoritative Round Controller
+## 16.3 Candidate Selection & Confirmation Flow
+- **Direct Candidate Card Selection**: Selection occurs directly on the `CandidateCard` components via click/tap or keyboard interaction. State is tracked via `selectedCandidate: 'A' | 'B' | null`.
+- **Single Confirmation Action**: `DecisionPanel` provides the single clear confirmation/submission action (`CONFIRM & SELECT CANDIDATE X`). No duplicate candidate-selection component or redundant bottom panel is used.
+- **Unchanged Response Architecture**: Submissions record to the existing Supabase `responses` table with unique constraint `(session_id, player_id, round_number)`.
+
+## 16.4 Authoritative Round Controller
 - **Single Source of Truth**: Round progression is controlled globally by the host on `/host/game` via `updateGameState(sessionId, hostId, 'active', nextRound)`.
 - **Zero-Refresh Realtime Sync**: Connected student devices receive postgres changes on `game_sessions` and transition rounds automatically.
 - **Session Restoration**: Refreshing `/play` checks `storage.getPlayerSession()` and verifies the player in Supabase, restoring them directly to their active round state without duplicate records.

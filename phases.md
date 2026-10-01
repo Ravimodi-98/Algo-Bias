@@ -62,14 +62,15 @@ Host creates a game and students join using their phones via QR or code. Realtim
 
 ## Goal
 
-Build the core round system.
+Build the core 5-round candidate-selection system with direct card selection and single confirmation action.
 
 ## Tasks
 
-- [x] Round system shell
+- [x] 5 candidate-selection rounds shell
 - [x] Candidate data structure
-- [x] Compact candidate cards
-- [x] Decision buttons
+- [x] Compact candidate cards with direct single-choice selection (radio/card-tap)
+- [x] Single-choice interaction without redundant bottom selection panel
+- [x] Clear confirmation action before submission (`CONFIRM & SELECT CANDIDATE X`)
 - [x] Synchronized Countdown Timer (Case 6)
 - [x] Submit response to database
 - [x] Prevent duplicate responses
@@ -78,7 +79,7 @@ Build the core round system.
 
 ## Result
 
-Students can enter gameplay, view candidate profiles, make decisions, see progress indicators, and transition between rounds in real time.
+Students can enter gameplay, view candidate profiles, make decisions directly on candidate cards, confirm their choice with a single confirmation button, and transition between rounds in real time without redundant selection UI.
 
 ---
 
@@ -86,12 +87,14 @@ Students can enter gameplay, view candidate profiles, make decisions, see progre
 
 ## Goal
 
-Implement the educational decision scenarios.
+Implement the 5 educational candidate-selection rounds with direct card selection.
 
 ## Tasks
 
 - [x] Create Candidate data model & types
-- [x] Create Central Round configuration (`rounds.ts`)
+- [x] Create Central Round configuration (`rounds.ts`) — Exactly 5 rounds
+- [x] Direct candidate-card selection (single-choice interaction)
+- [x] Confirmation before submission (no redundant bottom selection panel)
 - [x] Round 1: Core Technical Skills (Aarav [Python/React] vs Rohan [Java/Linux])
 - [x] Round 2: Institutional Background / College Pedigree (Maya [Apex Tech] vs Ishita [Metro Poly])
 - [x] Round 3: Geographic Location (Kabir [Ahmedabad] vs Dev [Pune])
@@ -102,7 +105,7 @@ Implement the educational decision scenarios.
 
 ## Result
 
-Players experience how presented information can influence decisions across 5 structured educational scenarios in a light futuristic AI control room interface.
+Players experience how presented information can influence decisions across 5 structured educational scenarios in a light futuristic AI control room interface, selecting candidates directly on cards with a single confirmation step.
 
 
 ---

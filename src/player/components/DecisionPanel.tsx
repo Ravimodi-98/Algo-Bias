@@ -7,7 +7,7 @@ import { TOTAL_ROUNDS } from '../../shared/data/rounds';
 
 export interface DecisionPanelProps {
   selectedCandidate: 'A' | 'B' | null;
-  onSelectCandidate: (id: 'A' | 'B') => void;
+  onSelectCandidate?: (id: 'A' | 'B') => void;
   onSubmitDecision: () => void;
   isSubmitting?: boolean;
   hasSubmitted?: boolean;
@@ -17,7 +17,6 @@ export interface DecisionPanelProps {
 
 export const DecisionPanel: React.FC<DecisionPanelProps> = ({
   selectedCandidate,
-  onSelectCandidate,
   onSubmitDecision,
   isSubmitting = false,
   hasSubmitted = false,
@@ -201,127 +200,32 @@ export const DecisionPanel: React.FC<DecisionPanelProps> = ({
     );
   }
 
-  // 3. Active Decision Selection & Submission
+  // 3. Active Decision Confirmation & Submission
   return (
-    <Card glow="cyan" className="animate-fade-in">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div>
-          <span style={{
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            letterSpacing: '0.15em',
-            color: 'var(--accent-cyan)',
-            textTransform: 'uppercase',
-            display: 'block',
-            marginBottom: '0.2rem'
-          }}>
-            YOUR SELECTION
-          </span>
-
-          <h2 style={{
-            fontSize: '1.25rem',
-            fontWeight: 900,
-            color: 'var(--text-primary)',
-            letterSpacing: '-0.01em',
-            margin: 0
-          }}>
-            Choose Candidate
-          </h2>
-        </div>
-
-        {/* Selection Buttons Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '0.75rem'
-        }}>
-          <button
-            type="button"
-            onClick={() => onSelectCandidate('A')}
-            disabled={isSubmitting || isTimedOut}
-            style={{
-              padding: '1rem 0.75rem',
-              borderRadius: 'var(--radius-md)',
-              border: selectedCandidate === 'A' 
-                ? '2px solid var(--accent-cyan)' 
-                : '1px solid #cbd5e1',
-              background: selectedCandidate === 'A' 
-                ? 'rgba(2, 132, 199, 0.08)' 
-                : '#ffffff',
-              color: selectedCandidate === 'A' ? 'var(--accent-cyan)' : 'var(--text-primary)',
-              cursor: (isSubmitting || isTimedOut) ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.3rem',
-              transition: 'all var(--transition-fast)',
-              boxShadow: selectedCandidate === 'A' ? '0 2px 10px rgba(2, 132, 199, 0.2)' : 'var(--shadow-xs)',
-              minHeight: '56px'
-            }}
-            aria-pressed={selectedCandidate === 'A'}
-          >
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>OPTION 1</span>
-            <span className="font-mono" style={{ fontSize: '1.1rem', fontWeight: 900 }}>
-              CANDIDATE A
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectCandidate('B')}
-            disabled={isSubmitting || isTimedOut}
-            style={{
-              padding: '1rem 0.75rem',
-              borderRadius: 'var(--radius-md)',
-              border: selectedCandidate === 'B' 
-                ? '2px solid var(--accent-purple)' 
-                : '1px solid #cbd5e1',
-              background: selectedCandidate === 'B' 
-                ? 'rgba(124, 58, 237, 0.08)' 
-                : '#ffffff',
-              color: selectedCandidate === 'B' ? 'var(--accent-purple)' : 'var(--text-primary)',
-              cursor: (isSubmitting || isTimedOut) ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.3rem',
-              transition: 'all var(--transition-fast)',
-              boxShadow: selectedCandidate === 'B' ? '0 2px 10px rgba(124, 58, 237, 0.2)' : 'var(--shadow-xs)',
-              minHeight: '56px'
-            }}
-            aria-pressed={selectedCandidate === 'B'}
-          >
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.05em' }}>OPTION 2</span>
-            <span className="font-mono" style={{ fontSize: '1.1rem', fontWeight: 900 }}>
-              CANDIDATE B
-            </span>
-          </button>
-        </div>
-
-        {/* Final Confirmation Button */}
-        <Button
-          variant="primary"
-          size="large"
-          block
-          icon={<Send size={16} />}
-          onClick={onSubmitDecision}
-          disabled={!selectedCandidate || isSubmitting || isTimedOut}
-          id="btn-submit-decision"
-          style={{
-            padding: '0.9rem',
-            fontSize: '0.98rem',
-            fontWeight: 800,
-            letterSpacing: '0.04em',
-            minHeight: '52px'
-          }}
-        >
-          {isSubmitting 
-            ? 'SAVING DECISION...' 
-            : selectedCandidate 
-              ? `CONFIRM & SELECT CANDIDATE ${selectedCandidate}` 
-              : 'SELECT CANDIDATE A OR B'}
-        </Button>
-      </div>
-    </Card>
+    <div className="animate-fade-in" style={{ marginTop: '0.25rem' }}>
+      <Button
+        variant="primary"
+        size="large"
+        block
+        icon={<Send size={16} />}
+        onClick={onSubmitDecision}
+        disabled={!selectedCandidate || isSubmitting || isTimedOut}
+        id="btn-submit-decision"
+        style={{
+          padding: '0.9rem',
+          fontSize: '0.98rem',
+          fontWeight: 800,
+          letterSpacing: '0.04em',
+          minHeight: '52px',
+          boxShadow: selectedCandidate ? '0 4px 14px rgba(2, 132, 199, 0.25)' : undefined
+        }}
+      >
+        {isSubmitting 
+          ? 'SAVING DECISION...' 
+          : selectedCandidate 
+            ? `CONFIRM & SELECT CANDIDATE ${selectedCandidate}` 
+            : 'CONFIRM SELECTION'}
+      </Button>
+    </div>
   );
 };

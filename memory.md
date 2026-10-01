@@ -41,15 +41,16 @@ Verify minimum presentation capacity of 70 simultaneous players + 1 Host with he
 # 3. Current File Being Worked On
 
 Currently Working On:
-scripts/test_70_player_capacity.cjs, scripts/test_security_audit.cjs, src/host/pages/HostGamePage.tsx, src/host/pages/HostLobbyPage.tsx
+src/player/components/DecisionPanel.tsx, src/player/pages/PlayPage.tsx
 
 Current Task:
-Case 12 Final Production-Readiness Audit and Benchmark Complete. Tested 70, 75, and 80 concurrent players with 100% success. Verified security, presentation safety safeguards, and production build.
+UI/UX Fix: Removed redundant bottom candidate-selection panel across all 5 rounds. Students now select candidates directly via candidate cards with a single confirmation button.
 
 ---
 
 # 4. Recently Completed
 
+- [x] **Candidate Selection UI Simplified Across All 5 Rounds**: Candidate-selection UI simplified across all 5 rounds. Removed the redundant bottom "YOUR SELECTION / OPTION 1 / OPTION 2" panel. Students now select Candidate A or Candidate B directly using the existing candidate-card radio/selection control. Existing confirmation, submission, Realtime, Supabase, Host results, and multiplayer functionality remain unchanged. The game remains a 5-round candidate-selection experience.
 - [x] **Bias Reveal Classroom Reflection Synchronized**: Bias Reveal classroom reflection content synchronized between Host and Player. Both views now use: `"Notice how surrounding factors can subtly shift evaluations even when we intend to be purely objective."`
 - [x] **Database Migration for Final Stage & Reflection**: Added `final_step INTEGER NOT NULL DEFAULT 0` and `ended_at TIMESTAMPTZ` to `game_sessions`, created `reflections` table with unique constraint `(session_id, player_id)`, RLS policies, and added to `supabase_realtime` publication.
 - [x] **Shared Educational Data**: Created `finalSteps.ts` with 6 sequential step definitions (`FINAL_STEPS_META`), 5 foundational lessons (`EDUCATIONAL_LESSONS`), 5 reflection themes (`REFLECTION_THEMES`), and authoritative discussion prompts.
@@ -200,22 +201,20 @@ NONE. Application is fully verified and presentation-ready for the live classroo
 Case 12 completed.
 All 12 Cases of THE DECISION are fully implemented, verified, and presentation-ready.
 
-Bug fix completed:
+Latest UI/UX Fix Completed:
 
-Make It Fair Step 1 now starts with all information cards unselected.
+Candidate-selection UI simplified across all 5 rounds.
 
-Students independently select the information they consider relevant.
+Removed the redundant bottom "YOUR SELECTION / OPTION 1 / OPTION 2" panel.
 
-No predefined selections are applied.
+Students now select Candidate A or Candidate B directly using the existing candidate-card radio/selection control.
 
-Selections are stored from the student's actual interaction.
+Existing confirmation, submission, Realtime, Supabase, Host results, and multiplayer functionality remain unchanged.
 
-Player selections remain independent.
-
-Existing Make It Fair functionality remains intact.
+The game remains a 5-round candidate-selection experience.
 
 Commit:
-`fix: make make-it-fair criteria student-selected`
+`fix: simplify candidate selection UI across five rounds`
 
 Date:
-2026-09-20
+2026-10-01
