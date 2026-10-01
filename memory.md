@@ -50,6 +50,7 @@ Case 12 Final Production-Readiness Audit and Benchmark Complete. Tested 70, 75, 
 
 # 4. Recently Completed
 
+- [x] **Bias Reveal Classroom Reflection Synchronized**: Bias Reveal classroom reflection content synchronized between Host and Player. Both views now use: `"Notice how surrounding factors can subtly shift evaluations even when we intend to be purely objective."`
 - [x] **Database Migration for Final Stage & Reflection**: Added `final_step INTEGER NOT NULL DEFAULT 0` and `ended_at TIMESTAMPTZ` to `game_sessions`, created `reflections` table with unique constraint `(session_id, player_id)`, RLS policies, and added to `supabase_realtime` publication.
 - [x] **Shared Educational Data**: Created `finalSteps.ts` with 6 sequential step definitions (`FINAL_STEPS_META`), 5 foundational lessons (`EDUCATIONAL_LESSONS`), 5 reflection themes (`REFLECTION_THEMES`), and authoritative discussion prompts.
 - [x] **Host Projector-First Final Presentation**: Built `HostFinalView.tsx` with Presentation Mode toggle, step progress tracker, descriptive classroom metrics, 5 core lessons deck, visual decision pipeline diagram, reflection theme frequency charts, and session conclusion modal.

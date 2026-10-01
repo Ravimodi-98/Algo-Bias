@@ -13,7 +13,7 @@ import {
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
 import { Button } from '../../shared/components/Button';
-import { REVEAL_STEPS, ROUND_COMPARISON_FACTS } from '../../shared/data/revealSteps';
+import { REVEAL_STEPS, ROUND_COMPARISON_FACTS, CLASSROOM_REFLECTION_MESSAGE } from '../../shared/data/revealSteps';
 import { ROUNDS_DATA } from '../../shared/data/rounds';
 import type { RoundAggregate } from '../../shared/types';
 
@@ -514,7 +514,7 @@ export const HostRevealView: React.FC<HostRevealViewProps> = ({
               margin: 0,
               lineHeight: 1.6
             }}>
-              Take a pause. Notice how presentation formatting, geographic assumptions, or name associations can subtly guide human evaluations — even when reviewers strive to remain objective.
+              {CLASSROOM_REFLECTION_MESSAGE}
             </p>
           </div>
         )}

@@ -1,5 +1,8 @@
 import type { RevealStepData } from '../types';
 
+export const CLASSROOM_REFLECTION_MESSAGE =
+  'Notice how surrounding factors can subtly shift evaluations even when we intend to be purely objective.';
+
 export interface RoundComparisonFact {
   roundNumber: number;
   title: string;

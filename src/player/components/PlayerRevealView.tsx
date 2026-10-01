@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { Card } from '../../shared/components/Card';
 import { Badge } from '../../shared/components/Badge';
-import { ROUND_COMPARISON_FACTS } from '../../shared/data/revealSteps';
+import { ROUND_COMPARISON_FACTS, CLASSROOM_REFLECTION_MESSAGE } from '../../shared/data/revealSteps';
 import type { RoundAggregate } from '../../shared/types';
 
 interface PlayerRevealViewProps {
@@ -217,7 +217,7 @@ export const PlayerRevealView: React.FC<PlayerRevealViewProps> = ({
               DID THE INFORMATION INFLUENCE THE DECISION?
             </div>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
-              Notice how surrounding factors can subtly shift evaluations even when we intend to be purely objective.
+              {CLASSROOM_REFLECTION_MESSAGE}
             </p>
           </div>
         )}
