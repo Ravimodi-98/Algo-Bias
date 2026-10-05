@@ -1,6 +1,7 @@
 import { supabase } from '../supabase/client';
 import { generateGameCode } from '../../shared/utils/idGenerator';
 import { TOTAL_ROUNDS } from '../../shared/data/rounds';
+import { TOTAL_FAIRNESS_STEPS } from '../../shared/data/fairnessSteps';
 import type { 
   DbGameSession, 
   DbPlayer, 
@@ -639,7 +640,7 @@ export const gameService = {
         return { success: false, error: 'Unauthorized: You do not own this game session.' };
       }
 
-      const clampedStep = Math.max(0, Math.min(step, 9));
+      const clampedStep = Math.max(0, Math.min(step, TOTAL_FAIRNESS_STEPS));
       const { error } = await supabase
         .from('game_sessions')
         .update({

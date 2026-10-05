@@ -245,18 +245,17 @@ The Bias Reveal is an authoritative 9-step progression synchronized in real time
 
 ## Make It Fair System Architecture (Case 9)
 
-The Make It Fair Challenge is an authoritative 10-step interactive workflow where students design decision rules and evaluate systemic properties:
+The Make It Fair Challenge is an authoritative 9-step interactive workflow (Steps 0 to 8) where students design decision rules and evaluate systemic properties (the previous Consistency Test question has been removed from student interaction while maintaining historical data compatibility):
 
 0. **Challenge Launch & Readiness**: Host controls launch; students submit readiness (`{ ready: true }`).
 1. **Choose Relevant Information (Round 1)**: Students select criteria (`skills`, `experience`, `projects`, `education`, `location`, `name`, `presentation_style`). Principle: Relevance Matters.
 2. **Build the Decision Rule (Round 2)**: Students set priority tiers (`HIGH`, `MEDIUM`, `LOW`, `EXCLUDE`) yielding readable, transparent rules.
 3. **Apply the Rule (Round 3)**: Students evaluate Candidate A vs Candidate B based on their designed priorities.
 4. **Fairness Test A (Unrelated Info)**: Controlled scenario evaluating if irrelevant details should swing outcomes (`YES` / `NO` / `DEPENDS ON CONTEXT`).
-5. **Consistency Test B**: Verifying outcome robustness across non-job-relevant variations.
-6. **Transparency Test C**: Demonstrating why documented, auditable inputs are required for explainability.
-7. **Human Oversight D**: Accountability in automated pipelines (`NO (Need Review)` vs `YES (Accept)`).
-8. **Classroom Aggregate Results & Comparison**: Descriptive statistics showing classroom distribution of factors and comparing *Original Approach* vs *Designed Approach*.
-9. **The Key Reflection & Case 9 Message**: Synthesis of design choices and core thesis: *"Fairness is not a button."* Bridge to Case 10: The Final Decision.
+5. **Transparency Test B**: Demonstrating why documented, auditable inputs are required for explainability (`YES` / `NO`). *(Consistency Test interaction removed; flow proceeds directly to Transparency Test)*.
+6. **Human Oversight C**: Accountability in automated pipelines (`NO (Need Review)` vs `YES (Accept)`).
+7. **Classroom Aggregate Results & Comparison**: Descriptive statistics showing classroom distribution of factors and comparing *Original Approach* vs *Designed Approach*.
+8. **The Key Reflection & Case 9 Message**: Synthesis of design choices and core thesis: *"Fairness is not a button."* Bridge to Case 10: The Final Decision.
 
 ## players
 

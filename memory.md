@@ -118,11 +118,11 @@ Current Task:
 - [x] Non-shaming framing and zero individual identification
 
 ## Phase 8 — Make It Fair Challenge (Case 9)
-- [x] 10-step interactive decision system design challenge
+- [x] 9-step interactive decision system design challenge (Steps 0 to 8)
 - [x] Host readiness room & authoritative challenge launch
 - [x] Relevant factor selection & explicit priority rule builder
 - [x] Candidate application evaluation with intentional criteria
-- [x] Controlled system audits (Fairness, Consistency, Transparency, Oversight)
+- [x] Controlled system audits (Fairness, Transparency, Oversight; Consistency Test question removed from student interaction)
 - [x] Real-time classroom aggregate choices & process comparison
 - [x] Key reflection: "Fairness is not a button"
 

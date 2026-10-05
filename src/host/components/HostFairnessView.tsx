@@ -13,7 +13,8 @@ import { Button } from '../../shared/components/Button';
 import { 
   FAIRNESS_STEPS_META, 
   CANDIDATE_FACTORS, 
-  CANDIDATE_APPLICATION_DATA 
+  CANDIDATE_APPLICATION_DATA,
+  TOTAL_FAIRNESS_STEPS
 } from '../../shared/data/fairnessSteps';
 import type { FairnessStepNumber, FairnessClassroomAggregates } from '../../shared/types';
 
@@ -38,11 +39,12 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
   isActionInProgress = false,
   onTransitionToFinal
 }) => {
-  const stepMeta = FAIRNESS_STEPS_META.find((s) => s.stepNumber === currentStep) || FAIRNESS_STEPS_META[0];
-  const isFinalStep = currentStep === 9;
+  const totalSteps = TOTAL_FAIRNESS_STEPS;
+  const stepMeta = FAIRNESS_STEPS_META.find((s) => s.stepNumber === currentStep) || FAIRNESS_STEPS_META[totalSteps];
+  const isFinalStep = currentStep >= totalSteps;
 
   const handleNext = () => {
-    if (isActionInProgress || currentStep >= 9) return;
+    if (isActionInProgress || currentStep >= totalSteps) return;
     onSetStep((currentStep + 1) as FairnessStepNumber);
   };
 
@@ -73,7 +75,7 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
             CASE 9: MAKE IT FAIR
           </Badge>
           <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text-primary)' }}>
-            STEP {currentStep} OF 9 &bull; {stepMeta.title}
+            STEP {currentStep} OF {totalSteps} &bull; {stepMeta.title}
           </span>
         </div>
 
@@ -539,60 +541,12 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
         )}
 
         {/* =================================================================== */}
-        {/* STEP 5: Consistency Test                                           */}
+        {/* STEP 5: Transparency Test                                          */}
         {/* =================================================================== */}
         {currentStep === 5 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <Card glow="purple" style={{ padding: '1.75rem 2rem' }}>
-              <Badge variant="purple" style={{ marginBottom: '0.5rem' }}>FAIRNESS TEST B</Badge>
-              <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 0.5rem 0' }}>
-                Consistency Test: Testing Robustness
-              </h2>
-
-              <div style={{
-                background: 'var(--bg-surface-secondary)',
-                padding: '1.5rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-subtle)',
-                margin: '1.25rem 0'
-              }}>
-                <p style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1.5 }}>
-                  "The relevant qualifications are the same.
-                  <br />
-                  Only unrelated information changes.
-                  <br />
-                  <span style={{ color: 'var(--accent-purple)' }}>Should the outcome change?"</span>
-                </p>
-              </div>
-
-              <div style={{
-                background: '#ffffff',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-md)',
-                padding: '1rem 1.25rem',
-                fontSize: '0.95rem',
-                color: 'var(--text-secondary)',
-                lineHeight: 1.5
-              }}>
-                <strong style={{ color: 'var(--text-primary)' }}>EDUCATIONAL PRINCIPLE:</strong> Testing whether irrelevant information changes outcomes teaches algorithmic consistency. When automated systems output different predictions solely due to variations in names, zip codes, or phrasing, it reveals hidden bias in training data or model weights.
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                  Student submissions: <strong className="font-mono text-purple">{stageResponseCount}</strong> of {totalPlayers}
-                </span>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* =================================================================== */}
-        {/* STEP 6: Transparency Test                                          */}
-        {/* =================================================================== */}
-        {currentStep === 6 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Card glow="cyan" style={{ padding: '1.75rem 2rem' }}>
-              <Badge variant="cyan" style={{ marginBottom: '0.5rem' }}>FAIRNESS TEST C</Badge>
+              <Badge variant="cyan" style={{ marginBottom: '0.5rem' }}>FAIRNESS TEST B</Badge>
               <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 0.5rem 0' }}>
                 Transparency Test: Can you explain the decision?
               </h2>
@@ -649,12 +603,12 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
         )}
 
         {/* =================================================================== */}
-        {/* STEP 7: Human Oversight                                             */}
+        {/* STEP 6: Human Oversight                                             */}
         {/* =================================================================== */}
-        {currentStep === 7 && (
+        {currentStep === 6 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Card glow="purple" style={{ padding: '1.75rem 2rem' }}>
-              <Badge variant="purple" style={{ marginBottom: '0.5rem' }}>FAIRNESS TEST D</Badge>
+              <Badge variant="purple" style={{ marginBottom: '0.5rem' }}>FAIRNESS TEST C</Badge>
               <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 0.5rem 0' }}>
                 Human Oversight: Automated Systems &amp; Accountability
               </h2>
@@ -701,9 +655,9 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
         )}
 
         {/* =================================================================== */}
-        {/* STEP 8: Classroom Aggregate Results & Process Comparison            */}
+        {/* STEP 7: Classroom Aggregate Results & Process Comparison            */}
         {/* =================================================================== */}
-        {currentStep === 8 && (
+        {currentStep === 7 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Card glow="cyan" style={{ padding: '1.75rem 2rem' }}>
               <Badge variant="cyan" style={{ marginBottom: '0.5rem' }}>CLASSROOM AGGREGATE RESULTS</Badge>
@@ -802,9 +756,9 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
         )}
 
         {/* =================================================================== */}
-        {/* STEP 9: The Key Reflection & Case 9 Message                         */}
+        {/* STEP 8: The Key Reflection & Case 9 Message                         */}
         {/* =================================================================== */}
-        {currentStep === 9 && (
+        {currentStep >= 8 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Card glow="purple" style={{ padding: '2.5rem 2rem', textAlign: 'center' }}>
               <Badge variant="purple" style={{ marginBottom: '1rem' }}>
@@ -949,7 +903,7 @@ export const HostFairnessView: React.FC<HostFairnessViewProps> = ({
               ? 'SYNCHRONIZING...' 
               : isFinalStep 
                 ? 'CASE 9 COMPLETE' 
-                : `NEXT STEP (${currentStep + 1} / 9)`}
+                : `NEXT STEP (${currentStep + 1} / ${totalSteps})`}
           </Button>
         )}
       </div>

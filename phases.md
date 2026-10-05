@@ -210,9 +210,9 @@ Let students attempt to design and evaluate an intentional decision process.
 - [x] Understandable rule summary generated dynamically
 - [x] Apply Decision Rule (Candidate A vs Candidate B with explicit trade-offs)
 - [x] Fairness Test A (Evaluating impact of unrelated information)
-- [x] Consistency Test B (Robustness against irrelevant variation)
-- [x] Transparency Test C (Explainability and auditable inputs)
-- [x] Human Oversight D (Automation vs institutional accountability)
+- [x] Consistency Test question removed from student interaction (streamlined directly into Transparency Test)
+- [x] Transparency Test B (Explainability and auditable inputs)
+- [x] Human Oversight C (Automation vs institutional accountability)
 - [x] Classroom Aggregate Results (Real session data without individual shaming)
 - [x] Process Comparison (Original Approach vs Designed Approach)
 - [x] Key Reflection: "Fairness is not a button" & bridge to Case 10
@@ -221,7 +221,7 @@ Let students attempt to design and evaluate an intentional decision process.
 
 ## Result
 
-Students experience hands-on system design and understand that algorithmic fairness is not a magic button, but an ongoing process of choosing relevant inputs, building transparent rules, auditing consistency, and maintaining human oversight.
+Students experience hands-on system design and understand that algorithmic fairness is not a magic button, but an ongoing process of choosing relevant inputs, building transparent rules, verifying decisions, and maintaining human oversight.
 
 ---
 

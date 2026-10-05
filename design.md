@@ -287,15 +287,14 @@ The **MAKE IT FAIR** interactive challenge empowers students to actively design,
   - Real-time readable rule synthesis: *"1. Relevant Skills, 2. Relevant Experience... Other unrelated information is not used."*
 - **Candidate Application Evaluation (Round 3)**:
   - Side-by-side comparative candidate profiles with explicit trade-offs (Technical Skills vs Industry Experience).
-- **Controlled System Audits (Steps 4 to 7)**:
+- **Controlled System Audits (Steps 4 to 6)**:
   - **Fairness Test A (Unrelated Info)**: 3-way choice (`NO` / `DEPENDS ON CONTEXT` / `YES`).
-  - **Consistency Test B**: Evaluating robustness against irrelevant variations.
-  - **Transparency Test C**: Explaining decisions through documented factors vs uninterpretable black boxes.
-  - **Human Oversight D**: Accountability in automated pipelines (`NO (Need Review)` vs `YES (Accept)`).
-- **Classroom Aggregate Results & Comparison (Step 8)**:
+  - **Transparency Test B**: Explaining decisions through documented factors vs uninterpretable black boxes (`YES` / `NO`). *(Consistency Test interaction removed; flow proceeds directly to Transparency Test)*.
+  - **Human Oversight C**: Accountability in automated pipelines (`NO (Need Review)` vs `YES (Accept)`).
+- **Classroom Aggregate Results & Comparison (Step 7)**:
   - Visual distribution bars displaying actual student selection frequencies without exposing individual names.
   - Comparative card layout: *Original Approach* (unconstrained info) vs *Designed Approach* (relevance prioritized).
-- **Key Reflection & Synthesis (Step 9)**:
+- **Key Reflection & Synthesis (Step 8)**:
   - Multi-column prompt cards: What to include? What to leave out? How to test it?
   - Highlighted thesis banner: *"FAIRNESS IS NOT A BUTTON. It is an ongoing process of designing, testing, monitoring, and improving decisions."*
 - **Responsive Layout**:

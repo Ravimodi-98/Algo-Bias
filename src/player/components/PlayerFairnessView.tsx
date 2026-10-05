@@ -10,7 +10,8 @@ import { Button } from '../../shared/components/Button';
 import { 
   FAIRNESS_STEPS_META, 
   CANDIDATE_FACTORS, 
-  DEFAULT_PRIORITIES 
+  DEFAULT_PRIORITIES,
+  TOTAL_FAIRNESS_STEPS
 } from '../../shared/data/fairnessSteps';
 import { gameService } from '../../services/game/gameService';
 import type { 
@@ -37,7 +38,6 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
   const [priorities, setPriorities] = useState<Record<string, PriorityLevel>>(DEFAULT_PRIORITIES);
   const [selectedCandidate, setSelectedCandidate] = useState<'A' | 'B' | null>(null);
   const [fairnessTestAnswer, setFairnessTestAnswer] = useState<'YES' | 'NO' | 'DEPENDS' | null>(null);
-  const [consistencyTestAnswer, setConsistencyTestAnswer] = useState<'YES' | 'NO' | 'DEPENDS' | null>(null);
   const [transparencyTestAnswer, setTransparencyTestAnswer] = useState<'YES' | 'NO' | null>(null);
   const [oversightAnswer, setOversightAnswer] = useState<'YES' | 'NO' | null>(null);
 
@@ -45,7 +45,7 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [hasSubmittedCurrentStep, setHasSubmittedCurrentStep] = useState<boolean>(false);
 
-  const stepMeta = FAIRNESS_STEPS_META.find((s) => s.stepNumber === currentStep) || FAIRNESS_STEPS_META[0];
+  const stepMeta = FAIRNESS_STEPS_META.find((s) => s.stepNumber === currentStep) || FAIRNESS_STEPS_META[TOTAL_FAIRNESS_STEPS];
 
   // Restore prior response on stage change or page reload
   useEffect(() => {
@@ -71,7 +71,6 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
         if (resp.priorities) setPriorities(resp.priorities);
         if (resp.selectedCandidate) setSelectedCandidate(resp.selectedCandidate);
         if (stageKey === 'fairness_test' && resp.testAnswer) setFairnessTestAnswer(resp.testAnswer);
-        if (stageKey === 'consistency_test' && resp.testAnswer) setConsistencyTestAnswer(resp.testAnswer);
         if (stageKey === 'transparency_test' && resp.testAnswer) setTransparencyTestAnswer(resp.testAnswer as any);
         if (stageKey === 'human_oversight' && (resp.humanOversightAnswer || resp.testAnswer)) {
           setOversightAnswer(resp.humanOversightAnswer || (resp.testAnswer as any));
@@ -124,7 +123,7 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Badge variant="cyan">
           <Scale size={12} style={{ marginRight: '4px' }} />
-          MAKE IT FAIR &bull; STEP {currentStep} OF 9
+          MAKE IT FAIR &bull; STEP {currentStep} OF {TOTAL_FAIRNESS_STEPS}
         </Badge>
         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 700 }}>
           {stepMeta.badge}
@@ -622,82 +621,12 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
       )}
 
       {/* ===================================================================== */}
-      {/* STEP 5: Consistency Test                                              */}
+      {/* STEP 5: Transparency Test                                             */}
       {/* ===================================================================== */}
       {currentStep === 5 && (
-        <Card glow="purple">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <Badge variant="purple">FAIRNESS TEST B</Badge>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-              Consistency Test
-            </h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
-              The relevant qualifications are the same. Only unrelated information changes.
-              <br />
-              <strong>Should the outcome change?</strong>
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {(['NO', 'DEPENDS', 'YES'] as const).map((opt) => {
-                const isChosen = consistencyTestAnswer === opt;
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => !hasSubmittedCurrentStep && setConsistencyTestAnswer(opt)}
-                    disabled={hasSubmittedCurrentStep}
-                    style={{
-                      padding: '0.85rem',
-                      borderRadius: 'var(--radius-md)',
-                      background: isChosen ? 'rgba(124, 58, 237, 0.1)' : 'var(--bg-surface-secondary)',
-                      border: isChosen ? '2px solid var(--accent-purple)' : '1px solid var(--border-subtle)',
-                      fontWeight: 800,
-                      fontSize: '0.95rem',
-                      color: isChosen ? 'var(--accent-purple)' : 'var(--text-primary)',
-                      cursor: hasSubmittedCurrentStep ? 'default' : 'pointer',
-                      textAlign: 'center'
-                    }}
-                  >
-                    {opt === 'DEPENDS' ? 'DEPENDS ON CONTEXT' : opt}
-                  </button>
-                );
-              })}
-            </div>
-
-            {hasSubmittedCurrentStep ? (
-              <div style={{
-                padding: '0.75rem',
-                borderRadius: 'var(--radius-md)',
-                background: 'rgba(16, 185, 129, 0.1)',
-                color: 'var(--color-success)',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                textAlign: 'center'
-              }}>
-                ✓ Consistency evaluation submitted!
-              </div>
-            ) : (
-              <Button
-                variant="purple"
-                size="normal"
-                onClick={() => handleGenericSubmit('consistency_test', { testAnswer: consistencyTestAnswer })}
-                disabled={isSubmitting || !consistencyTestAnswer}
-                style={{ width: '100%', minHeight: '44px', fontWeight: 800 }}
-              >
-                {isSubmitting ? 'SUBMITTING...' : 'SUBMIT ANSWER'}
-              </Button>
-            )}
-          </div>
-        </Card>
-      )}
-
-      {/* ===================================================================== */}
-      {/* STEP 6: Transparency Test                                             */}
-      {/* ===================================================================== */}
-      {currentStep === 6 && (
         <Card glow="cyan">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <Badge variant="cyan">FAIRNESS TEST C</Badge>
+            <Badge variant="cyan">FAIRNESS TEST B</Badge>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
               Can you explain why the system made this decision?
             </h2>
@@ -769,12 +698,12 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
       )}
 
       {/* ===================================================================== */}
-      {/* STEP 7: Human Oversight                                               */}
+      {/* STEP 6: Human Oversight                                               */}
       {/* ===================================================================== */}
-      {currentStep === 7 && (
+      {currentStep === 6 && (
         <Card glow="purple">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <Badge variant="purple">FAIRNESS TEST D</Badge>
+            <Badge variant="purple">FAIRNESS TEST C</Badge>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
               Should an automated decision always be accepted without review?
             </h2>
@@ -837,9 +766,9 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
       )}
 
       {/* ===================================================================== */}
-      {/* STEP 8: Classroom Aggregate Results & Comparison                      */}
+      {/* STEP 7: Classroom Aggregate Results & Comparison                      */}
       {/* ===================================================================== */}
-      {currentStep === 8 && (
+      {currentStep === 7 && (
         <Card glow="cyan">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Badge variant="cyan">CLASSROOM AGGREGATE</Badge>
@@ -880,9 +809,9 @@ export const PlayerFairnessView: React.FC<PlayerFairnessViewProps> = ({
       )}
 
       {/* ===================================================================== */}
-      {/* STEP 9: Reflection & Case 9 Message                                   */}
+      {/* STEP 8: Reflection & Case 9 Message                                   */}
       {/* ===================================================================== */}
-      {currentStep === 9 && (
+      {currentStep >= 8 && (
         <Card glow="purple">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', textAlign: 'center', padding: '0.5rem 0' }}>
             <Badge variant="purple" style={{ margin: '0 auto' }}>CASE 9 COMPLETE</Badge>

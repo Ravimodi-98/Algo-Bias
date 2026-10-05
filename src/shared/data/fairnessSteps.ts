@@ -54,40 +54,35 @@ export const FAIRNESS_STEPS_META: FairnessStepMeta[] = [
   },
   {
     stepNumber: 5,
-    stageKey: 'consistency_test',
-    title: 'CONSISTENCY TEST',
-    subtitle: 'Testing Robustness Across Irrelevant Variation',
+    stageKey: 'transparency_test',
+    title: 'TRANSPARENCY TEST',
+    subtitle: 'Can You Explain Why the System Made This Decision?',
     badge: 'SYSTEM AUDIT B'
   },
   {
     stepNumber: 6,
-    stageKey: 'transparency_test',
-    title: 'TRANSPARENCY TEST',
-    subtitle: 'Can You Explain Why the System Made This Decision?',
+    stageKey: 'human_oversight',
+    title: 'HUMAN OVERSIGHT',
+    subtitle: 'Should Automated Decisions Be Accepted Without Review?',
     badge: 'SYSTEM AUDIT C'
   },
   {
     stepNumber: 7,
-    stageKey: 'human_oversight',
-    title: 'HUMAN OVERSIGHT',
-    subtitle: 'Should Automated Decisions Be Accepted Without Review?',
-    badge: 'SYSTEM AUDIT D'
-  },
-  {
-    stepNumber: 8,
     stageKey: 'results',
     title: 'CLASSROOM CHOICES & PROCESS COMPARISON',
     subtitle: 'Original Approach vs. Designed Approach',
     badge: 'CLASSROOM AGGREGATE'
   },
   {
-    stepNumber: 9,
+    stepNumber: 8,
     stageKey: 'reflection',
     title: 'THE KEY REFLECTION',
     subtitle: 'Fairness Is Not a Button',
     badge: 'CASE 9 CONCLUSION'
   }
 ];
+
+export const TOTAL_FAIRNESS_STEPS = FAIRNESS_STEPS_META.length - 1;
 
 export const CANDIDATE_FACTORS: FactorDefinition[] = [
   {

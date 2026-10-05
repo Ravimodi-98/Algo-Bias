@@ -155,7 +155,7 @@ async function runTest() {
   ]);
   console.log('✅ Step 3 Candidate decisions recorded');
 
-  // 8. Steps 4-7: Tests
+  // 8. Steps 4-6: System Audits (Fairness Test, Transparency Test, Human Oversight)
   await supabase.from('fairness_responses').upsert([
     {
       session_id: session.id,
@@ -172,12 +172,6 @@ async function runTest() {
     {
       session_id: session.id,
       player_id: p1.id,
-      stage: 'consistency_test',
-      response: { testAnswer: 'NO' }
-    },
-    {
-      session_id: session.id,
-      player_id: p1.id,
       stage: 'transparency_test',
       response: { testAnswer: 'YES' }
     },
@@ -188,7 +182,7 @@ async function runTest() {
       response: { humanOversightAnswer: 'NO' }
     }
   ]);
-  console.log('✅ Steps 4-7 System Audit test answers recorded');
+  console.log('✅ Steps 4-6 System Audit test answers recorded (Consistency Test skipped)');
 
   // 9. Verify Aggregates
   const { data: allFairnessResponses } = await supabase
@@ -211,14 +205,14 @@ async function runTest() {
     throw new Error('Factors aggregate calculation mismatch');
   }
 
-  // 10. Advance to Step 9 (Reflection & Completion)
-  const { error: step9Err } = await supabase
+  // 10. Advance to Step 8 (Reflection & Completion)
+  const { error: step8Err } = await supabase
     .from('game_sessions')
-    .update({ fairness_step: 9, updated_at: new Date().toISOString() })
+    .update({ fairness_step: 8, updated_at: new Date().toISOString() })
     .eq('id', session.id);
 
-  if (step9Err) throw step9Err;
-  console.log('✅ Successfully advanced through all steps to Step 9 (Reflection & Completion)');
+  if (step8Err) throw step8Err;
+  console.log('✅ Successfully advanced through all steps to Step 8 (Reflection & Completion)');
 
   // 11. Cleanup test session
   await supabase.from('game_sessions').delete().eq('id', session.id);

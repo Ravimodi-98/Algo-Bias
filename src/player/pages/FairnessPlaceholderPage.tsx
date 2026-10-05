@@ -7,6 +7,7 @@ import { Button } from '../../shared/components/Button';
 import { PlayerFairnessView } from '../components/PlayerFairnessView';
 import { storage } from '../../shared/utils/storage';
 import { gameService } from '../../services/game/gameService';
+import { TOTAL_FAIRNESS_STEPS } from '../../shared/data/fairnessSteps';
 import type { FairnessStepNumber, PlayerSession, DbGameSession } from '../../shared/types';
 
 export const FairnessPlaceholderPage: React.FC = () => {
@@ -94,7 +95,7 @@ export const FairnessPlaceholderPage: React.FC = () => {
               MAKE IT FAIR CHALLENGE
             </h2>
             <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto', lineHeight: 1.5 }}>
-              In Case 9, students transition from observing algorithmic bias to designing intentional decision rules, testing for consistency and transparency, and reflecting on accountability.
+              In Case 9, students transition from observing algorithmic bias to designing intentional decision rules, evaluating transparency, and reflecting on accountability.
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
@@ -130,13 +131,13 @@ export const FairnessPlaceholderPage: React.FC = () => {
                 Prev
               </Button>
               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                Step {previewStep} of 9
+                Step {previewStep} of {TOTAL_FAIRNESS_STEPS}
               </span>
               <Button
                 variant="ghost"
                 size="small"
-                onClick={() => setPreviewStep((p) => Math.min(9, p + 1) as FairnessStepNumber)}
-                disabled={previewStep >= 9}
+                onClick={() => setPreviewStep((p) => Math.min(TOTAL_FAIRNESS_STEPS, p + 1) as FairnessStepNumber)}
+                disabled={previewStep >= TOTAL_FAIRNESS_STEPS}
                 icon={<ArrowRight size={13} />}
               >
                 Next
