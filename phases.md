@@ -99,7 +99,8 @@ Implement the 5 educational candidate-selection rounds with direct card selectio
 - [x] Round 2: Institutional Background / College Pedigree (Maya [Apex Tech] vs Ishita [Metro Poly])
 - [x] Round 3: Geographic Location (Kabir [Ahmedabad] vs Dev [Pune])
 - [x] Round 4: Name / Presentation Style (Nisha [Structured] vs Anaya [Narrative])
-- [x] Round 5: Final Multi-factor Decision Comparison (Dev vs Ishita)
+- [x] Round 5: Final Multi-factor Decision Comparison (Vihaan vs Arjun)
+- [x] Candidate names across all 5 candidate-selection rounds are now unique to prevent player confusion while preserving candidate IDs, game logic, and simulation behavior
 - [x] Transition entire application to permanent Light Theme
 - [x] Mobile-friendly VS layout & neutral non-shaming decision feedback
 

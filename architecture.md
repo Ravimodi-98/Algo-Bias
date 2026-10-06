@@ -280,6 +280,8 @@ The Make It Fair Challenge is an authoritative 9-step interactive workflow (Step
 - candidate_label
 - candidate_data
 
+*(Candidate names across all 5 candidate-selection rounds are now unique to prevent player confusion while preserving candidate IDs, game logic, and simulation behavior).*
+
 ## responses
 
 - id

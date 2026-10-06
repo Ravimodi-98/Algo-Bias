@@ -98,6 +98,7 @@ Current Task:
 - [x] Permanent Light Theme (Futuristic AI Control Room — Light Edition)
 - [x] Candidate data architecture (`src/shared/data/rounds.ts`)
 - [x] Exactly 5 educational decision rounds (Skills, Education, Location, Presentation, Final Decision)
+- [x] Candidate names across all 5 candidate-selection rounds are now unique to prevent player confusion while preserving candidate IDs, game logic, and simulation behavior
 - [x] Compact, scannable `CandidateCard` component
 - [x] Synchronized `CountdownTimer` with authoritative timestamp
 - [x] Supabase `responses` table with duplicate protection
@@ -143,6 +144,7 @@ Current Task:
 - **Reconnection Resilience**: On reload, `getPlayerFairnessResponse` restores previous selections so students can resume seamlessly.
 - **Anonymous Classroom Aggregation**: Aggregate frequencies (e.g. factors selected, test answers) are computed on the server/service layer without exposing student identities.
 - **Streamlined Case 10 Player Flow**: The redundant Player-facing "The Decision: Reflection" intro interstitial screen was removed so students enter Classroom Metrics & Results immediately upon Host transitioning to Case 10. Realtime step synchronization is 1:1 aligned across all 6 steps (0: Classroom Metrics, 1: Key Lessons, 2: The Complete Chain, 3: Automation ≠ Fairness, 4: Personal Reflection, 5: Game Complete).
+- **Unique Candidate Names Across All 5 Rounds**: Candidate names across all 5 candidate-selection rounds are now unique to prevent player confusion while preserving candidate IDs, game logic, and simulation behavior.
 - **Load-Tested Capacity**: All capacity claims are backed by measured, progressive load test results against live production architecture.
 
 ---

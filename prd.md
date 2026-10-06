@@ -233,6 +233,8 @@ There is no separate or redundant bottom candidate-selection panel.
 
 The game contains exactly 5 decision rounds.
 
+Candidate names across all 5 candidate-selection rounds are now unique to prevent player confusion while preserving candidate IDs, game logic, and simulation behavior.
+
 Different rounds demonstrate different decision influences.
 
 Possible factors:

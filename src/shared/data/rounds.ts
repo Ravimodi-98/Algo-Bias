@@ -152,7 +152,7 @@ export const ROUNDS_DATA: Record<number, RoundData> = {
     educationalPurpose: 'Synthesizes multiple candidate dimensions for the final decision, leading directly into the Bias Reveal.',
     candidateA: {
       id: 'A',
-      name: 'Dev',
+      name: 'Vihaan',
       role: 'Full Stack Developer',
       skills: ['React', 'TypeScript', 'Python', 'AWS'],
       experience: '2.5 years full-stack development',
@@ -161,7 +161,7 @@ export const ROUNDS_DATA: Record<number, RoundData> = {
     },
     candidateB: {
       id: 'B',
-      name: 'Ishita',
+      name: 'Arjun',
       role: 'Full Stack Developer',
       skills: ['Vue.js', 'Node.js', 'PostgreSQL', 'Docker'],
       experience: '2.5 years full-stack development',
@@ -175,3 +175,48 @@ export const getRoundData = (roundNumber: number): RoundData => {
   const normalized = Math.max(1, Math.min(roundNumber, TOTAL_ROUNDS));
   return ROUNDS_DATA[normalized] || ROUNDS_DATA[1];
 };
+
+/**
+ * Validates that every candidate name across all 5 rounds is unique.
+ * Treats case-differences and whitespace variations as identical.
+ */
+export const validateUniqueCandidateNames = (): {
+  isValid: boolean;
+  duplicates: string[];
+  totalNames: number;
+  allNames: string[];
+} => {
+  const allNames: string[] = [];
+  const seen = new Set<string>();
+  const duplicates: string[] = [];
+
+  for (let r = 1; r <= TOTAL_ROUNDS; r++) {
+    const round = ROUNDS_DATA[r];
+    if (!round) continue;
+
+    [round.candidateA.name, round.candidateB.name].forEach((rawName) => {
+      const normalized = rawName.trim().toLowerCase();
+      if (seen.has(normalized)) {
+        duplicates.push(rawName);
+      } else {
+        seen.add(normalized);
+      }
+      allNames.push(rawName);
+    });
+  }
+
+  return {
+    isValid: duplicates.length === 0,
+    duplicates,
+    totalNames: allNames.length,
+    allNames
+  };
+};
+
+// Development-time integrity assertion
+if (import.meta.env?.DEV) {
+  const validation = validateUniqueCandidateNames();
+  if (!validation.isValid) {
+    console.error('Duplicate candidate names detected in candidate dataset:', validation.duplicates);
+  }
+}

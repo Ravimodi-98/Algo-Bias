@@ -178,6 +178,8 @@ Candidate B                     ○
 
 Decision controls feature minimum 44px touch targets with instant visual feedback upon selection, preserving the light theme and mobile-first design.
 
+*(Candidate names across all 5 candidate-selection rounds are now unique to prevent player confusion while preserving candidate IDs, game logic, and simulation behavior).*
+
 ---
 
 # 8. Tone & Educational Framing

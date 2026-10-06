@@ -380,3 +380,9 @@ Build the experience that makes students understand:
 # 23. Presentation Synchronization Rule
 
 Keep player views directly synchronized with presenter stages. Avoid redundant interstitial screens (such as the former "The Decision: Reflection" intro page) that cause players to pause at placeholder states while the host presents classroom results. Transition students directly into active metrics, lessons, and interactive reflection prompts.
+
+---
+
+# 24. Candidate Identity & Data Rule
+
+Candidate names across all 5 candidate-selection rounds are now unique to prevent player confusion while preserving candidate IDs, game logic, and simulation behavior. All candidate datasets must remain deterministic and consistent across all players within a session.
