@@ -311,7 +311,8 @@ The **FINAL RESULTS & REFLECTION** brings the entire educational journey togethe
   - Light Futuristic AI Experience maintained consistently: `#f6f8fc` crisp light background, pure white `#ffffff` elevated cards with soft borders (`#e2e8f0`), deep slate typography (`#0f172a`), electric cyan (`#0284c7`), and royal violet (`#7c3aed`).
 - **6 Synchronized Steps (Step 0 to 5)**:
   - **Step 0: Final Classroom Results**:
-    - Projector displays total players, decision rounds, total votes logged, and Make It Fair participation.
+    - Projector and player mobile views display total players, decision rounds, total votes logged, and Make It Fair participation.
+    - *(Note: Redundant Player-facing "The Decision: Reflection" introductory interstitial screen removed; students view Classroom Results immediately upon entering Case 10)*.
     - No winners, losers, or fairness rankings. All metrics represent classroom aggregate participation.
   - **Step 1: What Did We Learn?**:
     - 5 Core Educational Principles presented as high-contrast cards with distinct numbering and accent badges:

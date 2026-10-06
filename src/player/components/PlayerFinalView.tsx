@@ -3,7 +3,6 @@ import {
   Sparkles, 
   CheckCircle2, 
   Send, 
-  BookOpen,
   HeartHandshake
 } from 'lucide-react';
 import { Card } from '../../shared/components/Card';
@@ -15,6 +14,7 @@ import {
   REFLECTION_THEMES,
   FINAL_DISCUSSION_PROMPT 
 } from '../../shared/data/finalSteps';
+import { CANDIDATE_FACTORS } from '../../shared/data/fairnessSteps';
 import { gameService } from '../../services/game/gameService';
 import type { 
   PlayerSession, 
@@ -139,60 +139,12 @@ export const PlayerFinalView: React.FC<PlayerFinalViewProps> = ({
 
       {/* 2. Step Specific Content */}
 
-      {/* STEP 0: Introduction */}
+      {/* STEP 0: Classroom Results Summary */}
       {currentStep === 0 && !isCompleted && (
-        <Card glow="purple">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'center', padding: '1rem 0.5rem' }}>
-            <div style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '50%',
-              background: 'rgba(124, 58, 237, 0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto',
-              color: 'var(--accent-purple)'
-            }}>
-              <BookOpen size={28} />
-            </div>
-
-            <div>
-              <Badge variant="purple">FINAL EXPERIENCE</Badge>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0.5rem 0 0.25rem 0' }}>
-                The Decision: Reflection
-              </h2>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
-                You have completed all 5 simulation rounds and built a custom decision model in Make It Fair.
-              </p>
-            </div>
-
-            <div style={{
-              background: 'var(--bg-surface-secondary)',
-              borderRadius: 'var(--radius-md)',
-              padding: '0.9rem',
-              border: '1px solid var(--border-subtle)',
-              fontSize: '0.85rem',
-              color: 'var(--text-primary)',
-              lineHeight: 1.45,
-              fontWeight: 600
-            }}>
-              Now, we look at the collective results of our classroom to discover what our choices reveal about algorithms and human bias.
-            </div>
-
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-              Follow along on the presenter screen as the host guides the discussion.
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* STEP 1: Classroom Results Summary */}
-      {currentStep === 1 && !isCompleted && (
         <Card glow="cyan">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Badge variant="cyan">STEP 1 &bull; CLASSROOM RESULTS</Badge>
+              <Badge variant="cyan">CLASSROOM RESULTS</Badge>
             </div>
 
             <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
@@ -239,6 +191,36 @@ export const PlayerFinalView: React.FC<PlayerFinalViewProps> = ({
               </div>
             </div>
 
+            {/* Top factors breakdown if present */}
+            {summary && summary.factorsCount && Object.keys(summary.factorsCount).length > 0 && (
+              <div style={{
+                background: '#ffffff',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.85rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem'
+              }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  TOP FACTORS PRIORITIZED IN MAKE IT FAIR
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  {CANDIDATE_FACTORS.map((f) => {
+                    const count = summary.factorsCount[f.id] || 0;
+                    const denom = Math.max(1, summary.fairnessParticipants || summary.totalPlayers || 1);
+                    const pct = Math.min(100, Math.round((count / denom) * 100));
+                    return (
+                      <div key={f.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '0.2rem 0', borderBottom: '1px solid var(--border-subtle)' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{f.label}</span>
+                        <span className="font-mono text-cyan" style={{ fontWeight: 800 }}>{count} ({pct}%)</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div style={{
               background: 'rgba(2, 132, 199, 0.05)',
               border: '1px solid rgba(2, 132, 199, 0.2)',
@@ -254,8 +236,8 @@ export const PlayerFinalView: React.FC<PlayerFinalViewProps> = ({
         </Card>
       )}
 
-      {/* STEP 2: 5 Core Lessons */}
-      {currentStep === 2 && !isCompleted && (
+      {/* STEP 1: 5 Core Lessons */}
+      {currentStep === 1 && !isCompleted && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
           <div style={{
             background: '#ffffff',
@@ -263,7 +245,7 @@ export const PlayerFinalView: React.FC<PlayerFinalViewProps> = ({
             padding: '0.85rem 1rem',
             border: '1px solid var(--border-subtle)'
           }}>
-            <Badge variant="purple">STEP 2 &bull; 5 CORE PRINCIPLES</Badge>
+            <Badge variant="purple">KEY LESSONS &bull; 5 CORE PRINCIPLES</Badge>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0.4rem 0 0.2rem 0' }}>
               What The Simulation Revealed
             </h3>
@@ -314,11 +296,11 @@ export const PlayerFinalView: React.FC<PlayerFinalViewProps> = ({
         </div>
       )}
 
-      {/* STEP 3: Core Pipeline & Automation ≠ Fairness */}
-      {currentStep === 3 && !isCompleted && (
+      {/* STEP 2: The Complete Pipeline */}
+      {currentStep === 2 && !isCompleted && (
         <Card glow="purple">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <Badge variant="purple">STEP 3 &bull; THE DECISION PIPELINE</Badge>
+            <Badge variant="purple">SYSTEM PIPELINE &bull; THE DECISION CHAIN</Badge>
             
             <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
               Where Does Bias Live?
@@ -364,28 +346,73 @@ export const PlayerFinalView: React.FC<PlayerFinalViewProps> = ({
               ))}
             </div>
 
+            {/* Pipeline Takeaway */}
+            <div style={{
+              background: 'rgba(2, 132, 199, 0.05)',
+              border: '1px solid rgba(2, 132, 199, 0.2)',
+              borderRadius: 'var(--radius-md)',
+              padding: '0.85rem',
+              fontSize: '0.82rem',
+              color: 'var(--text-secondary)',
+              lineHeight: 1.45
+            }}>
+              <strong style={{ color: 'var(--text-primary)' }}>Systemic Perspective:</strong> Every automated decision affects human outcomes and feeds back into future training data.
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* STEP 3: Automation ≠ Fairness */}
+      {currentStep === 3 && !isCompleted && (
+        <Card glow="purple">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <Badge variant="purple">FINAL THESIS &bull; AUTOMATION &ne; FAIRNESS</Badge>
+
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
+              The Four Pillars of Responsible Design
+            </h3>
+
             {/* Core Golden Rule Box */}
             <div style={{
               background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(2, 132, 199, 0.08))',
               border: '2px solid var(--accent-purple)',
               borderRadius: 'var(--radius-md)',
-              padding: '1rem',
+              padding: '1.25rem',
               textAlign: 'center'
             }}>
               <span style={{
                 fontFamily: 'var(--font-mono)',
-                fontSize: '1.15rem',
+                fontSize: '1.2rem',
                 fontWeight: 900,
                 color: 'var(--accent-purple)',
                 letterSpacing: '0.05em',
                 display: 'block',
-                marginBottom: '0.35rem'
+                marginBottom: '0.5rem'
               }}>
                 AUTOMATION &ne; FAIRNESS
               </span>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
                 An algorithm does not make a decision fair. It merely executes human criteria at computational scale.
               </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+              <div style={{ background: 'var(--bg-surface-secondary)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '0.75rem', textAlign: 'center' }}>
+                <span style={{ fontWeight: 800, fontSize: '0.82rem', color: 'var(--text-primary)', display: 'block' }}>RELEVANCE</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Validate criteria</span>
+              </div>
+              <div style={{ background: 'var(--bg-surface-secondary)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '0.75rem', textAlign: 'center' }}>
+                <span style={{ fontWeight: 800, fontSize: '0.82rem', color: 'var(--text-primary)', display: 'block' }}>AUDITING</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Test consistency</span>
+              </div>
+              <div style={{ background: 'var(--bg-surface-secondary)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '0.75rem', textAlign: 'center' }}>
+                <span style={{ fontWeight: 800, fontSize: '0.82rem', color: 'var(--text-primary)', display: 'block' }}>EXPLAINABILITY</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Document reasons</span>
+              </div>
+              <div style={{ background: 'var(--bg-surface-secondary)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '0.75rem', textAlign: 'center' }}>
+                <span style={{ fontWeight: 800, fontSize: '0.82rem', color: 'var(--text-primary)', display: 'block' }}>OVERSIGHT</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Human accountability</span>
+              </div>
             </div>
           </div>
         </Card>
@@ -396,7 +423,7 @@ export const PlayerFinalView: React.FC<PlayerFinalViewProps> = ({
         <Card glow="cyan">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Badge variant="cyan">STEP 4 &bull; ONE LAST QUESTION</Badge>
+              <Badge variant="cyan">ETHICAL REFLECTION &bull; ONE LAST QUESTION</Badge>
               {hasSubmitted && (
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                   <CheckCircle2 size={14} /> SUBMITTED

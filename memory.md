@@ -142,6 +142,7 @@ Current Task:
 - **Flexible JSONB Response Storage**: Responses for different challenge stages are stored in `fairness_responses` with unique constraint `(session_id, player_id, stage)` to prevent duplicates.
 - **Reconnection Resilience**: On reload, `getPlayerFairnessResponse` restores previous selections so students can resume seamlessly.
 - **Anonymous Classroom Aggregation**: Aggregate frequencies (e.g. factors selected, test answers) are computed on the server/service layer without exposing student identities.
+- **Streamlined Case 10 Player Flow**: The redundant Player-facing "The Decision: Reflection" intro interstitial screen was removed so students enter Classroom Metrics & Results immediately upon Host transitioning to Case 10. Realtime step synchronization is 1:1 aligned across all 6 steps (0: Classroom Metrics, 1: Key Lessons, 2: The Complete Chain, 3: Automation ≠ Fairness, 4: Personal Reflection, 5: Game Complete).
 - **Load-Tested Capacity**: All capacity claims are backed by measured, progressive load test results against live production architecture.
 
 ---

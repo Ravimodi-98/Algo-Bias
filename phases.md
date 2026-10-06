@@ -291,6 +291,7 @@ Verify presentation readiness under a target capacity of 70 simultaneous players
 - [x] Bias Reveal 9-step progression under load
 - [x] Make It Fair challenge under load
 - [x] Final Results & 70+ concurrent reflections under load
+- [x] Removed redundant Player-facing "The Decision: Reflection" intro screen from Case 10 (students transition directly into Classroom Metrics / Results)
 - [x] Session completion and lock state
 - [x] Security audit (7/7 checks passed: RLS, host ownership, session isolation, anonymous aggregates)
 - [x] Presentation safety safeguard (confirmation modal on END SIMULATION)

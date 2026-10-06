@@ -350,11 +350,13 @@ The system should discourage irrelevant factors when they do not meaningfully pr
 
 ---
 
-# 6.11 Final Reflection
+# 6.11 Final Reflection (Case 10)
 
-The game ends with a reflection.
+The game ends with a classroom reflection and aggregate metrics review.
 
-Example:
+*Flow note*: When transitioning into Case 10, players enter directly into the Classroom Metrics & Results view. The redundant introductory interstitial screen ("The Decision: Reflection") was removed from the player interface to maintain direct synchronization with the presenter screen without unnecessary waiting.
+
+Example reflection question:
 
 "Should we trust an AI decision simply because a computer made it?"
 

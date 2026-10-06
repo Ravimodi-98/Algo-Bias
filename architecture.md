@@ -313,7 +313,7 @@ The Make It Fair Challenge is an authoritative 9-step interactive workflow (Step
 
 The Final Experience brings the entire classroom simulation to an authoritative conclusion across 6 synchronized steps (`final_step` 0 to 5):
 
-0. **Final Classroom Results**: Aggregates participation metrics (`totalPlayers`, `completedPlayers`, `totalVotesLogged`, `fairnessParticipants`).
+0. **Final Classroom Results**: Aggregates participation metrics (`totalPlayers`, `completedPlayers`, `totalVotesLogged`, `fairnessParticipants`). *(Note: The redundant Player-facing "The Decision: Reflection" introductory interstitial page was removed so players transition directly into Classroom Results at Step 0, perfectly synchronized with the Host presentation)*.
 1. **What Did We Learn?**: Reviews the 5 foundational truths (`Information Matters`, `Relevance Matters`, `Data Matters`, `Testing Matters`, `Accountability Matters`).
 2. **The Complete Chain**: Maps out `DATA → ALGORITHM → DECISION → IMPACT` with `FAIRNESS` encircling all stages.
 3. **Automation ≠ Fairness**: The four architectural pillars: Data Quality, Auditing, Explainability, Human Oversight.
