@@ -450,12 +450,12 @@ The application must support:
 
 - **Target Presentation Capacity**: Certified for up to **100 simultaneous Players + 1 Host** in a single session.
 - **Minimum Baseline Requirement**: 70 simultaneous Players + 1 Host in a single session.
-- **Concurrent Burst Joins**: Up to 100 students scanning the QR code and entering within seconds (benchmarked: 100 joins in 636ms).
-- **Simultaneous Decision Submissions**: High-write concurrency without race conditions, dropped votes, or duplicate responses (benchmarked: 100 writes in 595ms).
-- **Realtime Synchronization**: Zero desynchronization across all 5 candidate rounds, Bias Reveal (9 steps), Make It Fair (10 steps), and Final Results.
-- **Stress-Tested Headroom**: Progressively tested across 25, 50, 70, 85, and 100 concurrent players with 100% data integrity and sub-second latency.
+- **Concurrent Burst Joins**: Up to 100 students scanning the QR code and entering within seconds (benchmarked: 100 joins in 621ms, avg 380.3ms, p95 564ms).
+- **Simultaneous Decision Submissions**: High-write concurrency without race conditions, dropped votes, or duplicate responses (benchmarked: 100 writes in 482ms, avg 243.2ms, p95 281ms; repeatability run 293ms, avg 240.4ms, p95 284ms).
+- **Realtime Synchronization**: Zero desynchronization across all 5 candidate rounds, Bias Reveal (9 steps), Make It Fair (9 steps), and Final Results.
+- **Stress-Tested Headroom & Repeatability**: Progressively tested across 25, 50, 70, 85, and 100 concurrent players with 100% data integrity and sub-second latency across both initial and repeatability runs (documented in `reports/100_player_stress_test_report.md`).
 - **Fast Load Time & Lightweight Assets**: Smooth mobile rendering without unnecessary animation overhead.
-- **Graceful Error Recovery**: Resilient reconnects and session restorations verified across 15/15 concurrent simulated disconnects.
+- **Graceful Error Recovery**: Resilient reconnects and session restorations verified across 25/25 concurrent simulated disconnects across 5 distinct game phases (Lobby, Candidate Selection, Bias Reveal, Make It Fair, Case 10).
 
 ---
 

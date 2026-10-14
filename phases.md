@@ -330,21 +330,24 @@ Validate and certify that the production architecture reliably supports **100 si
 
 ## Tasks:
 
-- [x] Progressive load tiers: Level 1 (25), Level 2 (50), Level 3 (70), Level 4 (85), Level 5 (100)
-- [x] 100-player burst join spike: all 100 players joined in 636ms (Avg 293.2ms, p95 578ms)
-- [x] 100-player candidate decision submissions across all 5 rounds
-- [x] Round 4 simultaneous submission spike: 100 concurrent writes completed in 595ms (Avg 310.1ms, p95 551ms)
-- [x] Duplicate vote protection: 10/10 duplicate attempts caught by Postgres UNIQUE constraints
+- [x] Progressive load tiers: Level 1 (25), Level 2 (50), Level 3 (70), Level 4 (85), Level 5 (100 Run 1), Level 5 (100 Run 2 Repeatability)
+- [x] 100-player burst join spike: all 100 players joined in 621ms (Avg 380.3ms, p95 564ms, max 621ms)
+- [x] Repeatability 100-player burst join: 100 players joined in 682ms (Avg 357.1ms, p95 624ms)
+- [x] 100-player candidate decision submissions across all 5 rounds (500/500 valid writes)
+- [x] Round 4 simultaneous submission spike: 100 concurrent writes completed in 482ms (Avg 243.2ms, p95 281ms)
+- [x] Repeatability Round 4 write spike: 100 writes in 293ms (Avg 240.4ms, p95 284ms)
+- [x] Duplicate vote protection: 50/50 duplicate attempts caught by Postgres UNIQUE constraints (100% blocked)
 - [x] Classroom aggregate calculations verified: 100% integrity, 0 NaN, sums equal totals
 - [x] 9-step educational Bias Reveal synchronized progression under 100-player load
-- [x] Make It Fair challenge: 100 distinct participants with independent factor choices
+- [x] Make It Fair challenge: 100 distinct participants with independent factor choices (Consistency Test question bypassed)
 - [x] Final Results: 100 concurrent reflections persisted and aggregated anonymously
-- [x] Disconnect & reconnect simulation: 15/15 players successfully restored active session
-- [x] Security & RLS audit under load: host ownership isolation strictly enforced
+- [x] Multi-stage disconnect & reconnect simulation: 25/25 players successfully restored active session across 5 phases (Lobby, Candidate Selection, Bias Reveal, Make It Fair, Case 10)
+- [x] Security & RLS audit under load: host ownership isolation strictly enforced, student anonymity preserved, zero secrets exposed
+- [x] Official comprehensive report generated (`reports/100_player_stress_test_report.md`)
 
 ## Result:
 
-**100-PLAYER CAPACITY TEST: PASSED.** All 5 concurrency tiers completed with 100% data integrity, sub-second response times, and 0 dropped responses.
+**100-PLAYER CAPACITY TEST: PASSED.** All 5 concurrency tiers and the repeatability run completed with 100% data integrity, sub-second response times, and 0 dropped responses.
 
 ---
 

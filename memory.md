@@ -51,13 +51,14 @@ Current Task:
 
 # 4. Recently Completed
 
-- [x] **100-Player Simultaneous Load Testing Across 5 Progressive Tiers**: Executed end-to-end stress tests on live production architecture (Supabase + Vercel backend) for 25, 50, 70, 85, and 100 simultaneous players in a single session. All 5 tiers achieved 100% success rate with zero errors, zero dropped connections, and zero data corruption.
-- [x] **High-Concurrency Write Spike Benchmark**: Tested 100 simultaneous candidate submissions in Round 4 within a 595ms window (average latency 310.1ms, p95 551ms). Database handled peak concurrent throughput without rate-limiting or timeouts.
-- [x] **Duplicate Submission Protection Under Load**: Tested rapid concurrent duplicate submissions (10 attempts across different players). Postgres UNIQUE constraints caught 100% of duplicate attempts (`code: '23505'`) with zero double-counting.
-- [x] **Disconnect & Reconnect Resilience**: Simulated 15 mid-game player disconnects and reconnects during active rounds. All 15 players successfully restored player identity, session state, and previous responses without creating duplicate records.
-- [x] **Candidate Selection UI Simplified Across All 5 Rounds**: Candidate-selection UI simplified across all 5 rounds. Removed the redundant bottom "YOUR SELECTION / OPTION 1 / OPTION 2" panel. Students now select Candidate A or Candidate B directly using the existing candidate-card radio/selection control.
-- [x] **Bias Reveal Classroom Reflection Synchronized**: Bias Reveal classroom reflection content synchronized between Host and Player. Both views now use: `"Notice how surrounding factors can subtly shift evaluations even when we intend to be purely objective."`
-- [x] **Security / RLS Verification Under Load**: All 7 security audit checks maintained under 100-player load. Anonymous player isolation verified; Host authorization strictly enforced; zero service keys or credentials exposed.
+- [x] **100-Player Simultaneous Load Testing Across 5 Progressive Tiers & Repeatability Run**: Executed end-to-end stress tests on live production architecture (Supabase + Vercel backend) for 25, 50, 70, 85, and 100 simultaneous players in a single session, followed by an independent 100-player repeatability verification run. All tiers achieved 100% success rate with zero errors, zero dropped connections, and zero data corruption.
+- [x] **High-Concurrency Write Spike Benchmark**: Tested 100 simultaneous candidate submissions across all 5 candidate rounds. In Round 4 peak burst, 100 concurrent writes completed in 482ms (average latency 243.2ms, p95 281ms). Database handled peak concurrent throughput without rate-limiting or timeouts.
+- [x] **Duplicate Submission Protection Under Load**: Tested rapid concurrent duplicate submissions (50 attempts across 5 rounds). Postgres UNIQUE constraints caught 100% of duplicate attempts (`code: '23505'`) with zero double-counting.
+- [x] **Multi-Stage Disconnect & Reconnect Resilience**: Simulated 25 player disconnects and reconnects across 5 distinct game phases (Lobby, Candidate Selection, Bias Reveal, Make It Fair, Case 10). All 25/25 players successfully restored player identity, session state, and previous responses without creating duplicate records.
+- [x] **Candidate Selection UI Simplified Across All 5 Rounds**: Candidate-selection UI simplified across all 5 rounds. Exactly 10 unique candidate first names verified.
+- [x] **Bias Reveal & Make It Fair Verified Under Load**: 9-step educational Bias Reveal progression and 9-step Make It Fair challenge executed with 100 players. Removed Consistency Test question confirmed skipped.
+- [x] **Case 10 & Reflections**: Verified immediate entry into Classroom Metrics (redundant player reflection intro screen removed), 100/100 reflections persisted, and session cleanly locked.
+- [x] **Automated Reporting**: Machine-readable `reports/100_player_stress_test_results.json` and comprehensive `reports/100_player_stress_test_report.md` generated with official PASS verdict.
 
 ---
 
@@ -129,10 +130,13 @@ Current Task:
 
 ## Phase 14 — 100-Player Capacity Certification
 - [x] 5 progressive load tiers (25, 50, 70, 85, 100 players) passed 100%
-- [x] Burst join spike: 100 players joined in 636ms
-- [x] Burst submission spike: 100 decisions submitted in 595ms
+- [x] Independent 100-player repeatability verification run passed 100%
+- [x] Burst join spike: 100 players joined in 621ms (avg: 380.3ms, p95: 564ms)
+- [x] Burst submission spike (Round 4): 100 decisions submitted in 482ms (avg: 243.2ms, p95: 281ms)
+- [x] Repeatability run: 100 decisions submitted in 293ms (avg: 240.4ms, p95: 284ms)
 - [x] End-to-end 5-round gameplay, Bias Reveal, Make It Fair, and Final Results verified
-- [x] Comprehensive 100-player stress test report generated
+- [x] Multi-stage disconnect/reconnect: 25/25 players restored across 5 distinct phases
+- [x] Comprehensive 100-player stress test report generated (`reports/100_player_stress_test_report.md`)
 
 ---
 
@@ -141,7 +145,7 @@ Current Task:
 - **No Single Fairness Score**: To avoid moral shaming or superficial gamification, students are never assigned a "fairness percentage" or ranked.
 - **Authoritative Stage Progression**: The session Host controls global progression through challenge steps; player devices synchronize instantly via Supabase Realtime.
 - **Flexible JSONB Response Storage**: Responses for different challenge stages are stored in `fairness_responses` with unique constraint `(session_id, player_id, stage)` to prevent duplicates.
-- **Reconnection Resilience**: On reload, `getPlayerFairnessResponse` restores previous selections so students can resume seamlessly.
+- **Reconnection Resilience**: On reload, `getPlayerFairnessResponse` restores previous selections so students can resume seamlessly. Multi-stage reconnect verified across 5 distinct game phases.
 - **Anonymous Classroom Aggregation**: Aggregate frequencies (e.g. factors selected, test answers) are computed on the server/service layer without exposing student identities.
 - **Streamlined Case 10 Player Flow**: The redundant Player-facing "The Decision: Reflection" intro interstitial screen was removed so students enter Classroom Metrics & Results immediately upon Host transitioning to Case 10. Realtime step synchronization is 1:1 aligned across all 6 steps (0: Classroom Metrics, 1: Key Lessons, 2: The Complete Chain, 3: Automation ≠ Fairness, 4: Personal Reflection, 5: Game Complete).
 - **Unique Candidate Names Across All 5 Rounds**: Candidate names across all 5 candidate-selection rounds are now unique to prevent player confusion while preserving candidate IDs, game logic, and simulation behavior.
@@ -157,39 +161,43 @@ Current Task:
 The production simulation successfully handled
 100 concurrent players under the tested workload.
 
-Test Date: 2026-10-01
+Test Date: 2026-10-15
 Architecture: Live Supabase Backend + Vercel Production Environment
 Target Capacity: 100 Concurrent Players in One Game Session
 
 CAPACITY LADDER RESULTS:
-| Load Tier    | Attempted | Successful | Error Rate | Duration | Result |
-| ------------ | --------- | ---------- | ---------- | -------- | ------ |
-| 25 Players   | 25        | 25 (100%)  | 0.00%      | 17.78s   | PASS   |
-| 50 Players   | 50        | 50 (100%)  | 0.00%      | 14.41s   | PASS   |
-| 70 Players   | 70        | 70 (100%)  | 0.00%      | 15.27s   | PASS   |
-| 85 Players   | 85        | 85 (100%)  | 0.00%      | 14.29s   | PASS   |
-| 100 Players  | 100       | 100 (100%) | 0.00%      | 18.90s   | PASS   |
+| Load Tier                    | Attempted | Successful | Error Rate | Duration | Result |
+| ---------------------------- | --------- | ---------- | ---------- | -------- | ------ |
+| Level 1 (25 Players)         | 25        | 25 (100%)  | 0.00%      | 41.02s   | PASS   |
+| Level 2 (50 Players)         | 50        | 50 (100%)  | 0.00%      | 45.05s   | PASS   |
+| Level 3 (70 Players)         | 70        | 70 (100%)  | 0.00%      | 39.02s   | PASS   |
+| Level 4 (85 Players)         | 85        | 85 (100%)  | 0.00%      | 56.28s   | PASS   |
+| Level 5 (100 Players Run 1)  | 100       | 100 (100%) | 0.00%      | 40.34s   | PASS   |
+| Level 5 (100 Players Run 2)  | 100       | 100 (100%) | 0.00%      | 39.68s   | PASS   |
 
 KEY 100-PLAYER METRICS:
-- Join Spike: 100 players joined in 636ms (avg: 293.2ms, p95: 578ms)
-- Submission Spike (Round 4): 100 submissions in 595ms (avg: 310.1ms, p95: 551ms)
-- Total Response Accuracy: 100/100 valid responses across all 5 candidate rounds
+- Join Spike: 100 players joined in 621ms (avg: 380.3ms, p95: 564ms, max: 621ms)
+- Submission Spike (Round 4): 100 submissions in 482ms (avg: 243.2ms, p95: 281ms)
+- Repeatability Run Join: 100 players joined in 682ms (avg: 357.1ms, p95: 624ms, max: 681ms)
+- Repeatability Run Write: 100 submissions in 293ms (avg: 240.4ms, p95: 284ms)
+- Total Response Accuracy: 100/100 valid responses across all 5 candidate rounds (500/500 total)
 - Aggregate Verification: Option A + Option B = 100 votes (Zero NaN/Infinity values)
-- Duplicate Prevention: 10/10 rapid duplicate attempts caught by Postgres UNIQUE constraint (100% blocked)
-- Disconnect/Reconnect: 15/15 disconnected players successfully restored active state without duplication
-- Security Audit: 7/7 checks passed (RLS active, player isolation verified, zero secrets leaked)
+- Duplicate Prevention: 50/50 duplicate attempts caught by Postgres UNIQUE constraint (100% blocked)
+- Disconnect/Reconnect: 25/25 disconnected players across 5 stages successfully restored active state without duplication
+- Security Audit: Host isolation, student anonymity, constraint enforcement, and zero secrets leaked
 - Total HTTP/DB Errors: 0 errors across 100 simulated players
+- Official Report: reports/100_player_stress_test_report.md
 ```
 
 ---
 
 # 10. Current State & Latest Commit
 
-100-Player Capacity Verified.
+100-Player Capacity Certified & Verified across Progressive Concurrency Tiers and Repeatability Runs.
 All 12 Cases of THE DECISION are fully implemented, verified, stress-tested to 100 concurrent players, and presentation-ready.
 
 Latest Commit:
-`test: validate 100 player concurrent capacity`
+`test: certify 100 player concurrent capacity and repeatability`
 
 Date:
-2026-10-01
+2026-10-15

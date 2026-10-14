@@ -359,11 +359,12 @@ The application is tested and certified for:
 **100 simultaneous Players + 1 Host** (baseline requirement: 70 players)
 
 Rules:
-1. All capacity claims must be based on measured load testing.
-2. High-concurrency joins and submissions must never drop data, duplicate records, or corrupt sessions.
-3. Destructive host actions (such as ending a game or closing a session) must always require confirmation.
-4. Live presentation flow must not be blocked if individual students disconnect or fail to vote.
-5. Roster and aggregate views must remain responsive without heavy per-player animation overhead.
+1. All capacity claims must be based on measured load testing and repeatability verification (documented in `reports/100_player_stress_test_report.md`).
+2. High-concurrency joins and submissions must never drop data, duplicate records, or corrupt sessions under 100-player load.
+3. Multi-stage reconnect resilience must ensure players can resume active participation across all phases (Lobby, Candidate Selection, Bias Reveal, Make It Fair, Case 10) without duplicate entries.
+4. Destructive host actions (such as ending a game or closing a session) must always require modal confirmation.
+5. Live presentation flow must not be blocked if individual students disconnect or fail to vote.
+6. Roster and aggregate views must remain responsive without heavy per-player animation overhead.
 
 ---
 

@@ -564,12 +564,13 @@ Host Game View <----------------------+-----(Realtime UPDATE)---> Transition to 
 # 17. 100-Player Capacity, Security & Production Readiness
 
 ## 17.1 Classroom Concurrency & Capacity Certification
-- **Certified Capacity**: Successfully benchmarked and verified for up to **100 simultaneous Players + 1 Host** in a single game session.
-- **Tested Headroom Tiers**: Benchmarked across 25, 50, 70, 85, and 100 concurrent players with 100% data integrity and sub-second transaction times across all tiers.
-- **Database Write Throughput (Supabase)**: 100 simultaneous decision writes completed in 595ms (Avg 310.1ms, p95 551ms) against Supabase Postgres with zero row contention, zero deadlocks, and zero dropped responses.
-- **Optimized Realtime Architecture**: Channel subscriptions on `game_sessions` and `players` broadcast round transitions, results visibility, and reveal/fairness step updates with sub-second delivery.
-- **Vercel Production Frontend**: Production SPA bundle (`797 kB`, gzip `203 kB`) delivers lightweight mobile rendering with minimal memory footprint.
-- **Duplicate Prevention**: Multi-layered protection using Postgres UNIQUE constraints on `responses(session_id, player_id, round_number)`, `fairness_responses(session_id, player_id, stage)`, and `reflections(session_id, player_id)` successfully caught 100% of duplicate attempts under high concurrency.
+- **Certified Capacity**: Successfully benchmarked and certified for up to **100 simultaneous Players + 1 Host** in a single game session.
+- **Tested Headroom Tiers**: Benchmarked across 25, 50, 70, 85, and 100 concurrent players with 100% data integrity and sub-second transaction times across all tiers, confirmed by an independent 100-player repeatability verification run.
+- **Database Write Throughput (Supabase)**: 100 simultaneous decision writes completed in 482ms (Avg 243.2ms, p95 281ms; repeatability run 293ms, avg 240.4ms, p95 284ms) against Supabase Postgres with zero row contention, zero deadlocks, and zero dropped responses.
+- **Optimized Realtime Architecture**: Channel subscriptions on `game_sessions` and `players` broadcast round transitions, results visibility, and reveal/fairness step updates with sub-second delivery (avg delivery latency 564.6ms, p95 688ms).
+- **Vercel Production Frontend**: Production SPA bundle delivers lightweight mobile rendering with minimal memory footprint and zero frame drops during burst joins.
+- **Duplicate Prevention**: Multi-layered protection using Postgres UNIQUE constraints on `responses(session_id, player_id, round_number)`, `fairness_responses(session_id, player_id, stage)`, and `reflections(session_id, player_id)` successfully caught 100% of duplicate attempts (50/50 blocked across 5 rounds) under high concurrency.
+- **Report Reference**: Complete benchmarks and protocol detailed in `reports/100_player_stress_test_report.md`.
 
 ## 17.2 Security & Route Protection
 - **Backend Host Ownership**: All host game state mutations (`updateGameState`, `showRoundResults`, `startBiasReveal`, `setFairnessStep`, `completeGameSession`) enforce `session.host_id === caller.host_id`.
@@ -580,4 +581,4 @@ Host Game View <----------------------+-----(Realtime UPDATE)---> Transition to 
 ## 17.3 Presentation Mode Safeguards
 - **Accidental Termination Guard**: Confirmation modal protects the "END SIMULATION" command in `HostGamePage`.
 - **Lightweight Roster Rendering**: Player chips render cleanly without heavy CSS animations during rapid 100-player burst joins.
-- **Disconnect & Reconnect Resilience**: Players refreshing or disconnecting seamlessly resume active round or waiting state via session persistence without generating duplicate records.
+- **Multi-Stage Disconnect & Reconnect Resilience**: Players refreshing or disconnecting seamlessly resume active state across all 5 game stages (Lobby, Candidate Selection, Bias Reveal, Make It Fair, Case 10) via session persistence without generating duplicate records (verified 25/25 restored).
